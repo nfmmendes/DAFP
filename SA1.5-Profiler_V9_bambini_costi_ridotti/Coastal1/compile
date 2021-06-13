@@ -1,0 +1,2 @@
+echo g++ -O3 -o exec --std=c++11 *.cpp -lgurobi_c++ -lgurobi81
+g++ -O3 -o exec --std=c++11 *.cpp -lgurobi_c++ -lgurobi81

@@ -1,0 +1,13 @@
+soluzione euristica di partenza:;0;85332.4
+NumeroSA:;1000;43775;tempo:;94.000000
+soluzione prima del modello:;1944;40912.1;tempo:; 164.000000
+soluzione euristica di partenza:;0;40856.6
+NumeroSA:;2000;40856.6;tempo:;181.000000
+NumeroSA:;3000;40856.6;tempo:;270.000000
+soluzione prima del modello:;3979;40856.6;tempo:; 351.000000
+soluzione euristica di partenza:;0;40476.9
+NumeroSA:;4000;40476.9;tempo:;389.000000
+NumeroSA:;5000;40476.9;tempo:;466.000000
+soluzione prima del modello:;5728;40476.9;tempo:; 520.000000
+soluzione euristica di partenza:;0;40476.9
+NumeroSA:;6000;40476.9;tempo:;562.000000
