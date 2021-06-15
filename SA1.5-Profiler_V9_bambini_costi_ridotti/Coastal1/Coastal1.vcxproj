@@ -151,6 +151,8 @@
     <ClInclude Include="Model_Cplex.h" />
     <ClInclude Include="Passenger.h" />
     <ClInclude Include="Route.h" />
+    <ClInclude Include="Tests.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

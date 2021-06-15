@@ -8,12 +8,10 @@
 #include <ctime>
 #include <time.h>
 #include <iomanip>
-//#include <list>
 #include <algorithm>
 #include <map>
 #include <unordered_map>
 #include <set>
-#include <iomanip>
 #include <random>
 #include "Airplane.h"
 #include "Airstrip.h"
@@ -22,44 +20,19 @@
 #include <float.h>
 #include <chrono>
 #include "Model_Cplex.h"
+#include "Util.h"
 
 using namespace std;
+
+using Double3DVector = vector<vector<vector<double>>>;
+using Int3DVector = vector<vector<vector<int>>>;
 
 //const int numero_airstrip_const = 58;
 //const int numero_airplane_const = 36;
 
-template<typename type>
-struct MyCOMP {
-	bool operator() (
-		const type& first, const type& second) const {
-		return first > second;
-	}
-
-};
-
-template<typename type>
-struct MyCOMP1 {
-	bool operator() (
-		const type& first, const type& second) const {
-		return first < second;
-	}
-
-};
 
 
-double Sum(vector<double> Weight) {
-	double sum = 0;
-	for (double i : Weight) sum += i;
-	return sum;
-}
 
-double Accumulated(int j, vector<double> Weight) {
-	double accum = 0.0;
-	double sum = 0.0;
-	for (double i : Weight) sum += i;
-	for (int i = 0; i <= j; i++) accum += ((Weight[i]) / sum);
-	return accum;
-}
 
 double Ob_Funct_Improvement(double newsolution, double oldsolution) {
 	double rate_max_improvement = 10000;
@@ -78,150 +51,7 @@ double Time_Spend(double time) {
 }
 
 
-void stampo_caso_strano_single_tempi(Route r, vector<vector<double>>& from_to, map<int, Airplane>& map_airplane) {
 
-
-
-
-
-	for (int i = 1; i < r.index; i++) {
-
-		if (r.time_arr[i] <= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1] - 1) || r.time_arr[i] >= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1] + 1)) {
-			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' UN PROBLEMA CON i TEMPIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII nell arco " << (i - 1) << endl;
-			cout << "dovrebbe essere: " << (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1]) << " mentre invece ? " << r.time_arr[i] << endl;
-			r.print();
-			system("pause");
-		}
-
-
-
-
-
-	}
-
-
-
-
-
-
-
-
-
-
-}
-
-
-void stampo_caso_strano_single_all(Route r, vector<vector<double>>& from_to, map<int, Airplane> map_airplane) {
-
-
-
-
-	for (Passenger p : r.passengers_in_route) {
-
-		if (r.places[p.solution_from] != p.departure_location || r.places[p.solution_to] != p.arrival_location) {
-			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' UN PROBLEMA CON IL PASSEGGERO:" << endl;
-			cout << " Sto chiamando questo codice dentro a Update di Route " << endl;
-			p.print();
-			cout << "nella route: " << endl;
-			r.print();
-			system("pause");
-		}
-	}
-
-
-
-	for (int i = 1; i < r.index; i++) {
-
-		if (r.time_arr[i] <= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1] - 1) || r.time_arr[i] >= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1] + 1)) {
-			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' UN PROBLEMA CON i TEMPIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII nell arco " << (i - 1) << endl;
-			cout << "dovrebbe essere: " << (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1]) << " mentre invece ? " << r.time_arr[i] << endl;
-			r.print();
-			system("pause");
-		}
-
-		double fly_time = (from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed);
-		double fuel_consumed = 0.0;
-		if (fly_time <= 1) {
-			fuel_consumed = fly_time * map_airplane[r.aircraft_code].fuel_burn_first;
-		}
-		else {
-			fuel_consumed = map_airplane[r.aircraft_code].fuel_burn_first + (fly_time - 1) * map_airplane[r.aircraft_code].fuel_burn_second;
-		}
-
-		if (!r.refueling[i]) {
-			if ((r.quantity_fuel[i - 1] - r.quantity_fuel[i]) <= (fuel_consumed - 1) || (r.quantity_fuel[i - 1] - r.quantity_fuel[i]) >= (fuel_consumed + 1)) {
-				cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' UN PROBLEMA CON IL FUEL nell arco DA " << (i - 1) << " A " << i << endl;
-				cout << "dovrebbe essere: " << fuel_consumed << " mentre invece ? " << (r.quantity_fuel[i - 1] - r.quantity_fuel[i]) << endl;
-				r.print();
-				system("pause");
-			}
-		}
-
-
-
-
-
-	}
-
-
-	for (int i = 0; i < r.index - 1; i++) {
-		if ((r.quantity_fuel[i] < r.quantity_fuel[i + 1] && !r.refueling[i + 1]) || (r.weight[i] < -1)) {
-			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' IL PROBLEMA O DEL FUEL CHE NON CALA O DEL PESO NEGATIVO" << endl;
-			r.print();
-			system("pause");
-		}
-
-
-		if (r.places[i] == r.places[i + 1]) {
-			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' IL PROBLEMA DI PI? POSTI UGUALI " << endl;
-			r.print();
-			system("pause");
-		}
-
-
-	}
-
-
-
-
-
-	for (int i = 0; i < r.index - 1; i++) {
-		double minimo_peso = r.weight[i];
-		if (r.quantity_fuel[i] < map_airplane[r.aircraft_code].max_fuel && r.refueling[i]) {
-			for (int j = i + 1; j < r.index; j++) {
-				if (r.refueling[j]) break;
-				if (r.weight[j] < minimo_peso) minimo_peso = r.weight[j];
-			}
-			if (minimo_peso >= 1) {
-				cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' IL PROBLEMA DEL FUEL NON MASSIMO *************************" << endl;
-				r.print();
-				system("pause");
-			}
-
-		}
-	}
-
-
-
-
-
-
-
-
-}
-
-
-//function of split
-vector<string> split(string stringa, char separatore) {
-	vector<string> words;
-	stringstream ss(stringa);
-	string individual_string;
-	while (getline(ss, individual_string, separatore)) {
-		words.push_back(individual_string);
-	}
-
-	return words;
-}
 
 //function that read the file Airplane and create a vector of them
 vector<Airplane> fillAirplane(string file_input, map<string, int> legenda) {
@@ -361,7 +191,7 @@ vector<Route> fillRoute(string file_input) {
 	return routes;
 }
 
-void fill_from_to_fuel_consumed(vector<vector<vector<double>>>& from_to_fuel_consumed, vector<vector<double>>& from_to, vector<Airplane> airplanes) {
+void fill_from_to_fuel_consumed(Double3DVector & from_to_fuel_consumed, vector<vector<double>>& from_to, vector<Airplane> airplanes) {
 
 
 	from_to_fuel_consumed.resize((size_t)numero_airplane_const);
@@ -374,19 +204,19 @@ void fill_from_to_fuel_consumed(vector<vector<vector<double>>>& from_to_fuel_con
 
 
 
-	for (Airplane a : airplanes) {
+	for (Airplane & airplane : airplanes) {
 
 		for (int i = 1; i < numero_airstrip_const; i++) {
 			for (int j = 1; j < numero_airstrip_const; j++) {
-				double time_fly = from_to[i][j] / a.speed;
+				double time_fly = from_to[i][j] / airplane.speed;
 				double fuel_consumed = 0.0;
 				if (time_fly <= 1) {
-					fuel_consumed = time_fly * a.fuel_burn_first;
+					fuel_consumed = time_fly * airplane.fuel_burn_first;
 				}
 				else {
-					fuel_consumed = a.fuel_burn_first + (time_fly - 1) * a.fuel_burn_second;
+					fuel_consumed = airplane.fuel_burn_first + (time_fly - 1) * airplane.fuel_burn_second;
 				}
-				from_to_fuel_consumed[a.code][i][j] = fuel_consumed;
+				from_to_fuel_consumed[airplane.code][i][j] = fuel_consumed;
 				//cout << " da/a: " << x.second << " time fly: " << time_fly << " fuel consumed: " << fuel_consumed << endl;
 			}
 		}
@@ -413,7 +243,7 @@ map <int, Passenger> fillMapPassenger(vector<Passenger> passengers) {
 	return  map_pass;
 }
 
-void fillMatrix(vector<vector<double>>& from_to, string file_input, vector<Airstrip> airstrips) {
+void fillMatrix(vector<vector<double>>& from_to, string file_input, const vector<Airstrip> & airstrips) {
 
 
 	from_to.resize((size_t)numero_airstrip_const);
@@ -477,119 +307,6 @@ map<string, double> fillMatrixCompany(string file_input, vector<Airstrip> airstr
 }
 
 
-void check_mappa_from_to(map<string, double> from_to_string, vector<vector<double>>& from_to, map<string, int> legenda) {
-
-
-	for (auto x : from_to_string) {
-		cout << "le due localita' sono: " << x.first << endl;
-		string loc1 = split(x.first, ';')[0];
-		string loc2 = split(x.first, ';')[1];
-
-		cout << "con stringa: " << x.second << endl;
-		cout << "con matrix: " << from_to[legenda[loc1]][legenda[loc2]] << endl;
-
-		if (x.second != from_to[legenda[loc1]][legenda[loc2]]) {
-			cout << "erroreeeeeeeeeeeeeeeeeeeeeeeee" << endl;
-			system("pause");
-		}
-
-
-
-
-
-	}
-
-
-
-
-
-
-
-}
-
-map<string, double> fill_from_to_fuel_consumed_string(map<string, double>& from_to, vector<Airplane> airplanes) {
-
-	map<string, double> from_to_fuel_consumed;
-
-	for (Airplane a : airplanes) {
-		for (auto x : from_to) {
-			double time_fly = x.second / a.speed;
-			double fuel_consumed = 0.0;
-			if (time_fly <= 1) {
-				fuel_consumed = time_fly * a.fuel_burn_first;
-			}
-			else {
-				fuel_consumed = a.fuel_burn_first + (time_fly - 1) * a.fuel_burn_second;
-			}
-			from_to_fuel_consumed.insert(make_pair(a.code_company + ";" + x.first, fuel_consumed));
-			//cout << " da/a: " << x.second << " time fly: " << time_fly << " fuel consumed: " << fuel_consumed << endl;
-		}
-	}
-	return from_to_fuel_consumed;
-}
-
-
-void check_mappa_from_to_fuel_consumed(map<string, Airplane> map_airplane, map<string, double> from_to_fuel_consumed_string, vector<vector<vector<double>>>& from_to_FuelConsumed, map<string, int> legenda) {
-
-
-	for (auto x : from_to_fuel_consumed_string) {
-		cout << "l'aereo e': " << split(x.first, ';')[0] << endl;;
-		cout << "le due localita' sono: " << x.first << endl;
-		string loc1 = split(x.first, ';')[1];
-		string loc2 = split(x.first, ';')[2];
-
-		cout << "con stringa: " << x.second << endl;
-		cout << "con matrix: " << from_to_FuelConsumed[map_airplane[split(x.first, ';')[0]].code][legenda[loc1]][legenda[loc2]] << endl;
-
-		if (x.second != from_to_FuelConsumed[map_airplane[split(x.first, ';')[0]].code][legenda[loc1]][legenda[loc2]]) {
-			cout << "erroreeeeeeeeeeeeeeeeeeeeeeeee" << endl;
-			system("pause");
-		}
-
-
-
-
-
-	}
-
-
-
-
-
-
-
-}
-
-void check_mappa_location_fuel(map<string, Airplane> map_airplane, map<string, double> location_fuel_string, vector<vector<double>>& location_fuel, map<string, int> legenda) {
-
-
-	for (auto x : location_fuel_string) {
-		cout << "l'aereo e': " << split(x.first, '/')[0] << endl;;
-		string loc1 = split(x.first, '/')[1];
-		cout << "la localit? ? " << loc1 << endl;
-
-
-		cout << "con stringa: " << x.second << endl;
-		cout << "con matrix: " << location_fuel[map_airplane[split(x.first, '/')[0]].code][legenda[loc1]] << endl;
-
-		if (x.second != location_fuel[map_airplane[split(x.first, '/')[0]].code][legenda[loc1]]) {
-			cout << "erroreeeeeeeeeeeeeeeeeeeeeeeee" << endl;
-			system("pause");
-		}
-
-
-
-
-
-	}
-
-
-
-
-
-
-
-}
 
 
 
@@ -616,9 +333,6 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 	double final_cost_fuel = 0.0;
 	double final_cost_IS = 0.0;
 	double final_cost_TW = 0.0;
-
-
-
 
 	int costi_time_windows = 0;
 	double costi_intermediate_stop = 0.0;
@@ -1009,15 +723,6 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 
 			costi_intermediate_stop += (peso_intermediate_stop * (best_to2 - best_from2 - 1));
 			//****************************************************************************************************************************************************************
-
-
-
-
-
-
-
-
-
 		}
 		else if (controllo > 2) {
 			cout << "c'? un problema con il passeggero: ";
@@ -1105,15 +810,11 @@ void calculate_ObjectiveFunction_final(double costo_company, double peso_TW, dou
 		}
 
 
-
-
 		//now i add the mileage and the fuel consumption to the objective function
 		cost += mileage;
 		cost_route += mileage;
 		cost += fuel_consumed;
 		cost_route += fuel_consumed;
-
-
 
 
 		//now i have to calculate the penalitis regarding the time windows for each passeger
@@ -1161,15 +862,22 @@ void calculate_ObjectiveFunction_final_arc_iori(double costo_company, double pes
 	double costo_Time_Window = 0.0;
 	double costo_Intermediate = 0.0;
 
-
+	int depot, maxFuel, groundTime, maxWeight;
+	double speed, arrivalTime;
+	
 	for (Route& r : solution) {
 		if (r.places[r.index - 1] != 1 || r.places[r.index - 1] != 4) {
 			//int place, bool refueling, double quantity_fuel, double weight, int capacity, double minute_arr, double minute_dep
-			r.addPlace(map_airplane[r.aircraft_code].depot, 1, map_airplane[r.aircraft_code].max_fuel, map_airplane[r.aircraft_code].max_weight - map_airplane[r.aircraft_code].max_fuel,
-				0, r.time_dep[r.index - 1] + (from_to[r.places[r.index - 1]][map_airplane[r.aircraft_code].depot] / map_airplane[r.aircraft_code].speed),
-				r.time_dep[r.index - 1] + (from_to[r.places[r.index - 1]][map_airplane[r.aircraft_code].depot] / map_airplane[r.aircraft_code].speed) + map_airstrip[map_airplane[r.aircraft_code].depot].ground_time);
-		}
 
+			depot = map_airplane[r.aircraft_code].depot;
+			maxFuel = map_airplane[r.aircraft_code].max_fuel;
+			maxWeight = map_airplane[r.aircraft_code].max_weight;
+			speed = map_airplane[r.aircraft_code].speed;
+			groundTime = map_airstrip[depot].ground_time;
+			arrivalTime = r.time_dep[r.index - 1] + (from_to[r.places[r.index - 1]][depot] / speed); 
+			
+			r.addPlace(depot, 1, maxFuel, maxWeight - maxFuel, 0, arrivalTime, arrivalTime + groundTime);
+		}
 
 		r.print();
 	}
@@ -1755,10 +1463,6 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 									}
 									//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
 									if (!capacity_satisfy) break; //check also for the fuel;
-
-
-
-
 
 									//se sorpasso il break vuol dire che soddisfo la capacit?, in questo caso il solo costo che consider? per l'aggiunta del passeggero qui
 									//? la time windows, se calcolo la time windows qua vuol dire che sfrutto il tempo in cui mi trovo in queste posizioni
