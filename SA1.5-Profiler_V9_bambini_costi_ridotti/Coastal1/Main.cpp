@@ -31,9 +31,6 @@ using Int3DVector = vector<vector<vector<int>>>;
 //const int numero_airplane_const = 36;
 
 
-
-
-
 double Ob_Funct_Improvement(double newsolution, double oldsolution) {
 	double rate_max_improvement = 10000;
 	if (newsolution >= oldsolution) {
@@ -49,8 +46,6 @@ double Time_Spend(double time) {
 	return time / rate_time;
 
 }
-
-
 
 
 //function that read the file Airplane and create a vector of them
@@ -141,8 +136,7 @@ vector<Passenger> fillPassenger(string file_input, map<string, int> legenda) {
 		vector<string> e = split(row, ';');
 		int min_dep;
 		int min_arr;
-		//cout << e[0] << " - ";
-		//cout << e[9] << endl;
+		
 		if (e[9] != "Charter") {
 			vector<string> dep_min = split(e[9], ':');
 			min_dep = (stoi(dep_min[0]) * 60) + stoi(dep_min[1]);
@@ -217,17 +211,10 @@ void fill_from_to_fuel_consumed(Double3DVector & from_to_fuel_consumed, vector<v
 					fuel_consumed = airplane.fuel_burn_first + (time_fly - 1) * airplane.fuel_burn_second;
 				}
 				from_to_fuel_consumed[airplane.code][i][j] = fuel_consumed;
-				//cout << " da/a: " << x.second << " time fly: " << time_fly << " fuel consumed: " << fuel_consumed << endl;
 			}
 		}
 
-
-
-
 	}
-
-
-
 
 }
 
@@ -306,14 +293,6 @@ map<string, double> fillMatrixCompany(string file_input, vector<Airstrip> airstr
 
 
 
-
-
-
-
-
-
-
-
 //********************************************************FUNZIONI CHE CALCOLANO I COSTI*******************************************************************************
 double calculationCostCompany(double peso_TW, double peso_trashipment, double peso_intermediate_stop, string route_azienza, string passengers_azienda, vector<Airstrip> airstrips, vector<Airplane> airplanes, vector<Passenger> passengers, map<string, double>& from_to_company) {
 	vector<Route> routes_company_solution = fillRoute(route_azienza);
@@ -343,7 +322,6 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 		airstrips_map.insert(make_pair(airstrips[i].code_string, airstrips[i]));
 	}
 	//look if the airstrips map are well saved
-	//for (auto& x : airstrips_map)  x.second.print();
 
 	map<string, Airplane> airplanes_map;
 	for (int i = 0; i < (int)airplanes.size(); i++) {
@@ -353,28 +331,22 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 	for (int r = 0; r < (int)routes_company_solution.size(); r++) {
 		double c = airplanes_map[routes_company_solution[r].aircraft_code_company_comparison].fixed_cost; //ho aggiunto il costo fisso
 		final_cost_fissi += airplanes_map[routes_company_solution[r].aircraft_code_company_comparison].fixed_cost;
-		//cout << "ecco il fixed cost" << airplanes_map[routes_company_solution[r].aircraft_code_company_comparison].fixed_cost << endl;;
 		string places = ";";
 		for (int i = 0; i < (int)routes_company_solution[r].places_company.size(); i++) {
 			places += routes_company_solution[r].places_company[i] + ";";
 
 			if (i >= 1) {
 				//ho messo che parto da uno in modo tale da non considerare il leading cost del primo aereoporto
-				//cout << " + " << airstrips_map[routes_company_solution[r].places[i]].landing_cost;
 				c += airstrips_map[routes_company_solution[r].places_company[i]].landing_cost; //aggiungo il leading cost
 				final_cost_landing += airstrips_map[routes_company_solution[r].places_company[i]].landing_cost;
-				//cout << "ecco il landing cost: " << airstrips_map[routes_company_solution[r].places_company[i]].landing_cost << endl;
 			}
 
 			//aggiungo il costo dei kilometri e del fuel
 			if (i < (int)routes_company_solution[r].places_company.size() - 1) {
-				//cout << routes_company_solution[r].places[i] << " ; " << routes_company_solution[r].places[i + 1] << endl;
-				//cout << " + " << from_to[routes_company_solution[r].places[i] + ";" + routes_company_solution[r].places[i + 1]];
 				c += from_to_company[routes_company_solution[r].places_company[i] + ";" + routes_company_solution[r].places_company[i + 1]];
 				final_cost_km += from_to_company[routes_company_solution[r].places_company[i] + ";" + routes_company_solution[r].places_company[i + 1]];
-				//cout << "ecco il costo della distanza percorsa: " << from_to_company[routes_company_solution[r].places_company[i] + ";" + routes_company_solution[r].places_company[i + 1]] << endl;
+				
 				double time_flight = (from_to_company[routes_company_solution[r].places_company[i] + ";" + routes_company_solution[r].places_company[i + 1]]) / airplanes_map[routes_company_solution[r].aircraft_code_company_comparison].speed;
-				//cout << " time flight: " << time_flight;
 				double cost_fuel = 0;
 				if (time_flight <= 1) {
 					cost_fuel = time_flight * airplanes_map[routes_company_solution[r].aircraft_code_company_comparison].fuel_burn_first;
@@ -388,9 +360,6 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 
 			}
 		}
-		//cout << endl;
-		//cout << places << endl;
-
 
 		//ora devo leggere i passeggeri_soluzione******************************************************************************************
 		cost_route.push_back(c);
@@ -418,7 +387,7 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 		vector<string> e = split(row, ';');
 		int min_dep;
 		int min_arr;
-		//cout << e[1] << endl;
+		
 		if (e[2] != "Charter") {
 			vector<string> dep_min = split(e[4], ':');
 
@@ -456,16 +425,10 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 				if (trovato_pass_cognome <= passengers_solution[j].name.size()) {
 					pass_trovato.push_back(passengers_solution[j]);
 					controllo += 1;
-					//cout << " Trovato corrispondenza: " << endl;
-					//passengers_solution[j].print();
 				}
 			}
 
 		}
-		/*
-		system("pause");
-		*/
-
 
 		//questa ? la parte del calcolo delle time window
 		if (controllo >= 1) {
@@ -476,30 +439,24 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 					//calcolo la time windows
 					int differenza_dep = passengers[p].departure_time - pass_trovato[z].departure_time;
 					if (differenza_dep > 25) {
-
-						//cout << " + " << passengers[p].departure_time - routes[r].time[index_dep] - 25;
 						c += differenza_dep - 25;
 					}
 
 					if (differenza_dep < -5) {
-						//cout << " + " << (passengers[p].departure_time - routes[r].time[index_dep] + 5)*(-1);
 						c += (differenza_dep + 5) * (-1);
 					}
-					//cout << "- time: " << c << endl;
+
 				}
 				if (pass_trovato[z].arrival_location_company == passengers[p].arrival_location_company) {
 					//calcolo la time windows
 					int differenza_arr = passengers[p].arrival_time - pass_trovato[z].arrival_time;
 					if (differenza_arr > 30) {
-						//cout << " + " << passengers[p].arrival_time - routes[r].time[index_arr] - 30;
 						c += differenza_arr - 30;
 					}
 					if (differenza_arr < 0) {
-						//cout << " + " << (passengers[p].arrival_time - routes[r].time[index_arr])*(-1);
 						c += (differenza_arr) * (-1);
 					}
 
-					//cout << "- time: " << c << endl;
 				}
 			}
 		}
@@ -523,8 +480,6 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 			}
 
 			if (!int_from.empty() && !int_to.empty()) {
-				//for (int f : int_from) cout << "f: " << f << endl;
-				//for (int t : int_to) cout << "t: " << t << endl;
 
 				double best_differenza = DBL_MAX;
 				int best_from = -1;
@@ -541,9 +496,7 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 						}
 					}
 				}
-				//cout << "la differenza ?: " << best_differenza << endl;
-				//cout << "il miglior from ?: " << best_from << endl;
-				//cout << "il miglior to ?: " << best_to << endl;
+
 				costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1));
 			}
 			else if (int_from.empty() && !int_to.empty()) {
@@ -575,9 +528,7 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 						}
 					}
 				}
-				//cout << "la differenza ?: " << best_differenza << endl;
-				//cout << "il miglior from ?: " << best_from << endl;
-				//cout << "il miglior to ?: " << best_to << endl;
+
 				costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1)) + peso_trashipment;
 				numeroTrashiment++;
 			}
@@ -610,9 +561,7 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 						}
 					}
 				}
-				//cout << "la differenza ?: " << best_differenza << endl;
-				//cout << "il miglior from ?: " << best_from << endl;
-				//cout << "il miglior to ?: " << best_to << endl;
+				
 				costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1)) + peso_trashipment;
 				numeroTrashiment++;
 
@@ -662,9 +611,7 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 					}
 				}
 			}
-			//cout << "la differenza ?: " << best_differenza1 << endl;
-			//cout << "il miglior from ?: " << best_from1 << endl;
-			//cout << "il miglior to ?: " << best_to1 << endl;
+			
 			costi_intermediate_stop += (peso_intermediate_stop * (best_to1 - best_from1 - 1));
 			//****************************************************************************************************************************************************************
 
@@ -704,10 +651,6 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 				}
 			}
 
-			//cout << "la differenza ?: " << best_differenza2 << endl;
-			//cout << "il miglior from ?: " << best_from2 << endl;
-			//cout << "il miglior to ?: " << best_to2 << endl;
-
 			costi_intermediate_stop += (peso_intermediate_stop * (best_to2 - best_from2 - 1));
 			//****************************************************************************************************************************************************************
 		}
@@ -717,9 +660,6 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 			cout << "in quanto trova pi? di due corrispondenze nelle soluzioni" << endl;
 			system("pause");
 		}
-		//*****************************************************************************************************************************************
-
-
 
 		costi_time_windows += c;
 	}
@@ -731,14 +671,11 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 	double costo_Soluzione = costi_time_windows + costi_intermediate_stop;
 	for (int i = 0; i < (int)cost_route.size(); i++) {
 		costo_Soluzione += cost_route[i];
-		//cout << "->" << cost_route[i] << endl;
 	}
-	//cout << "the cost of the company solution is:   " << costo_Soluzione << endl;
-	//cout << endl;
+	
 	cout << "costo delle time windows per la compagnia: " << costi_time_windows << endl;
 	cout << "costo delle soste intermedie e del transhipment per la compagnia: " << costi_intermediate_stop << endl;
 
-	//cout << "costo fisso; costo landing; costo fuel; costo km; costo intermediate; costo tw; Total; Numero Aerei; Fuel; KM; IS; min TW" << endl;
 	cout << final_cost_fissi << ";" << final_cost_landing << ";" << final_cost_fuel << ";" << final_cost_km << ";" << final_cost_IS << ";" << final_cost_TW << ";" << costo_Soluzione << ";" << final_cost_fissi / airplanes_map["SUN"].fixed_cost << ";" << final_cost_fuel << ";" << final_cost_km << ";" << ((final_cost_IS - (numeroTrashiment*peso_trashipment)) / peso_intermediate_stop) << ";" << (final_cost_TW / peso_TW) << ";";
 	return costo_Soluzione;
 
@@ -755,19 +692,15 @@ void calculate_ObjectiveFunction_final(double costo_company, double peso_TW, dou
 	double costo_Time_Window = 0.0;
 	double costo_Intermediate = 0.0;
 
-
-
 	for (auto& r : solution) {
 		double cost_route = 0.0;
-		//cout << "Route-----" << endl;
+
 		//first of all calculate the fixed cost of use the aircraft and the landing cost;
 		if (r.primo_pass) {
 			cost += map_airplane[r.aircraft_code].fixed_cost;
 			cost_route += map_airplane[r.aircraft_code].fixed_cost;
 			costo_fisso += map_airplane[r.aircraft_code].fixed_cost;
 		}
-
-		//cout << "costo fisso: " << cost << endl;
 
 		double mileage = 0.0;
 		//double first_hour = 0.0;
@@ -795,7 +728,6 @@ void calculate_ObjectiveFunction_final(double costo_company, double peso_TW, dou
 				}
 			}
 		}
-
 
 		//now i add the mileage and the fuel consumption to the objective function
 		cost += mileage;
@@ -829,13 +761,10 @@ void calculate_ObjectiveFunction_final(double costo_company, double peso_TW, dou
 		r.cost = cost_route;
 	}
 
-	//cout << "costo fisso; costo landing; costo fuel; costo km; costo intermediate; costo tw; minuti TW; N_intermediate; gap_perc; time_ALNS; time_model; time_incumbent; numeroSA" << endl;
 	double minuti_TW = (costo_Time_Window / peso_TW);
 	double n_intermediate = (costo_Intermediate / peso_intermediate_stop);
 	double gap_perc = ((cost - costo_company) / costo_company) * 100;
 	cout << costo_fisso << ";" << costo_landing << ";" << costo_fuel << ";" << costo_km << ";" << costo_Intermediate << ";" << costo_Time_Window << ";" << minuti_TW << ";" << n_intermediate << ";" << gap_perc << ";";
-
-
 
 }
 
@@ -869,11 +798,8 @@ void calculate_ObjectiveFunction_final_arc_iori(double costo_company, double pes
 		r.print();
 	}
 
-
-
 	for (auto& r : solution) {
 		double cost_route = 0.0;
-		//cout << "Route-----" << endl;
 		//first of all calculate the fixed cost of use the aircraft and the landing cost;
 		if (r.primo_pass) {
 			cost += map_airplane[r.aircraft_code].fixed_cost;
@@ -910,17 +836,11 @@ void calculate_ObjectiveFunction_final_arc_iori(double costo_company, double pes
 			}
 		}
 
-
-
-
 		//now i add the mileage and the fuel consumption to the objective function
 		cost += mileage;
 		cost_route += mileage;
 		cost += fuel_consumed;
 		cost_route += fuel_consumed;
-
-
-
 
 		//now i have to calculate the penalitis regarding the time windows for each passeger
 		for (const auto& p : r.passengers_in_route) {
@@ -963,8 +883,7 @@ double cost_single_route(double peso_TW, double peso_intermediate_stop, Route& r
 
 	//double cost = 0.0;
 	double cost = map_airplane[r.aircraft_code].fixed_cost;
-	//for (int i = 1; i < r.index; i++) cost += map_airstrip[r.places[i]].landing_cost;
-
+	
 	//second of all calculate the cost of the Km and the fuel burn
 	double mileage = 0.0;
 	double fuel_consumed = 0.0;
@@ -1017,7 +936,6 @@ double calculate_ObjectiveFunction(double peso_TW, double peso_intermediate_stop
 
 	for (auto& r : solution) {
 		double cost_route = 0.0;
-		//cout << "Route-----" << endl;
 		//first of all calculate the fixed cost of use the aircraft and the landing cost;
 		if (r.primo_pass) {
 			cost += map_airplane[r.aircraft_code].fixed_cost;
@@ -1044,23 +962,16 @@ double calculate_ObjectiveFunction(double peso_TW, double peso_intermediate_stop
 				}
 				else {
 					mileage += from_to[r.places[i]][r.places[i + 1]];
-					//time_travel = from_to[r.places[i] + ";" + r.places[i + 1]] / map_airplane[r.aircraft_code].speed;
 					fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
 				}
 			}
 		}
-
-
-
 
 		//now i add the mileage and the fuel consumption to the objective function
 		cost += mileage;
 		cost_route += mileage;
 		cost += fuel_consumed;
 		cost_route += fuel_consumed;
-
-
-
 
 		//now i have to calculate the penalitis regarding the time windows for each passeger
 		for (const auto& p : r.passengers_in_route) {
@@ -1096,10 +1007,6 @@ double cost_time_windows_for_route(Route& r, double peso_TW) {
 
 
 	for (const Passenger& p : r.passengers_in_route) {
-		//cout << " Indice from: " << p.solution_from << endl;
-		//cout << " Indice to: " << p.solution_to << endl;
-		//r.print();
-
 		//double time_departure = r.time_arr[p.solution_from];
 		//double time_arrival = r.time_arr[p.solution_to];
 
@@ -1122,11 +1029,6 @@ double cost_time_windows_for_route(Route& r, double peso_TW) {
 
 double cost__for_route_passenger_destroyCluster(Route& r, Passenger& p, int fattore_inter_stop, double peso_TW) {
 	double cost = 0.0;
-
-	//cout << "**************************************" << endl;
-	//cout << "r.time_arr.size()" << r.time_arr.size();
-	//p.print();
-
 	//double time_departure = r.time_arr[p.solution_from];
 	//double time_arrival = r.time_arr[p.solution_to];
 
@@ -1166,8 +1068,6 @@ double cost_time_windows_for_node(Route& r, vector<Passenger>& pass, double peso
 double cost_time_windows_for_route_passenger(Route& r, Passenger& p, double peso_TW) {
 	double cost = 0.0;
 
-
-
 	double TW_departure = 0.0;
 	if (r.time_arr[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_arr[p.solution_from];
 	else if (r.time_arr[p.solution_from] > p.late_departure) TW_departure = r.time_arr[p.solution_from] - p.late_departure;
@@ -1184,8 +1084,6 @@ double cost_time_windows_for_route_passenger(Route& r, Passenger& p, double peso
 
 
 bool relateness_passenger2(int trheshold, vector<vector<double>>& from_to, int idP, Passenger& r, vector<Passenger>& passengers_removed, map<string, vector<int>>& agr_pass, vector<string>& sequenza, string pointer, int y, map<int, Passenger>& map_id_passenger) {
-	//cout << " Sono dentro la funzione Relateness " << endl;
-	//vector<string> Pass1 = split(idP, '/');
 	// Poi questo for si potra togliere
 	Passenger pass = map_id_passenger[idP];
 
@@ -1196,24 +1094,13 @@ bool relateness_passenger2(int trheshold, vector<vector<double>>& from_to, int i
 		cin.get();
 	}
 	double Relateness = from_to[r.arrival_location][pass.arrival_location] + from_to[r.departure_location][pass.departure_location] + abs(r.arrival_time - pass.arrival_time) + abs(r.departure_time - pass.departure_time);
-	//cout <<" Relateness ---> " << Relateness << "  Soglia " << trheshold <<endl;
+
 	if (Relateness <= trheshold) {
-		/*cout << " Sono dentro Releatensess---> Valore : " << Relateness <<  endl;
-		cout << " Sono dentro Releatensess---> Dato il passeggiero : " << endl;
-		pass.print();
-		cout << " Sono dentro Releatensess---> Devo togliere il passeggiero " << endl;
-		r.print();
-		cout << " e con lui: ";
-		for (string j : agr_pass[pointer]) cout << j << " / " ;
-		cout << endl;
-		*/
+
 		for (int j : agr_pass[pointer]) passengers_removed.push_back(map_id_passenger[j]);
-		//cout << " Numero di passeggieri che sono stati messi nei rimossi RIGA 839 Main " << passengers_removed.size() << endl;
-		//cout << " Devo eliminare sia da sequenza sia dalla mappa " << pointer << endl;
 		sequenza.erase(sequenza.begin() + y);
 		agr_pass.erase(agr_pass.find(pointer));
-		//cout << " Sequenza dopo ha: " << sequenza.size() << endl;
-		//cout << " Gruppi dopo ha: " << agr_pass.size() << endl;
+		
 		return true;
 	}
 	else {
@@ -1338,15 +1225,14 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 	} while (cont < number_of_aircraft);
 
 	for (auto p : passengers) {
-		//cout << "Sono il passeggero**********************" << endl;
-		//p.print();
+
 		int situation = -1;
 		int best_route = -1; //index of the best route where can i put my passenger
 		int best_from = -1;
 		int best_to = -1;
 		double best_cost = DBL_MAX;
 		int i = 0;
-		//cout << "- sto calcolando dove metttere il passeggero: " << p.name << endl;
+		
 		//qui calcolo solo dove mettere il passeggero
 		for (auto r : solution) {
 			if (r.primo_pass == false) {
@@ -1579,8 +1465,6 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 						f_after_secondo_tratto = r.quantity_fuel[r.index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
 					}
 
-
-
 					if (best_cost > cost) {
 						if (t_arr_arrival <= end_day) {
 							if (f_after_primo_tratto >= map_airplane[r.aircraft_code].min_fuel) {
@@ -1598,9 +1482,6 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 			i++;
 		}
 
-		//cout << " caso : " << situation << " for the passeger:" << endl;
-		//p.print();
-		//ora devo aggiungere il passeggero nel posto migliore, quindi serve valutare in che caso sono A,B,C,D
 		if (situation == 1) {
 			solution[best_route].primo_pass = true;
 			//time
@@ -1619,9 +1500,6 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 					solution[best_route].quantity_fuel[solution[best_route].index - 1] - p.weight;
 			}
 			//end for weight
-
-
-
 
 			double travel_time = ((from_to[p.departure_location][p.arrival_location]) / map_airplane[solution[best_route].aircraft_code].speed) * 60;
 			double time_from = solution[best_route].time_dep[solution[best_route].index - 1];
@@ -1646,10 +1524,6 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 			p.solution_to = solution[best_route].index - 1;
 			solution[best_route].passengers_in_route.push_back(p);
 
-
-
-
-
 		}
 		else if (situation == 2) {
 			solution[best_route].primo_pass = true;
@@ -1672,9 +1546,6 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 			}
 			else {
 				double fuel_before = solution[best_route].quantity_fuel[solution[best_route].index - 1];
-
-				//double travel_time = (from_to[solution[best_route].places[solution[best_route].index - 1] + ";" + p.departure_location] / map_airplane[solution[best_route].aircraft_code].speed) * 60;
-
 
 				solution[best_route].addPlace(p.departure_location, map_airstrip[p.departure_location].fuel, fuel_before - fuel_consumed, 0.0, p.capacity, p.early_departure, p.early_departure + map_airstrip[p.departure_location].ground_time);
 				solution[best_route].weight[solution[best_route].index - 1] = solution[best_route].weight[solution[best_route].index - 2] - p.weight + fuel_consumed;
@@ -1724,7 +1595,6 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 			else {
 				double fuel_before = solution[best_route].quantity_fuel[solution[best_route].index - 1];
 				double fuel_consumed = from_to_FuelConsumed[solution[best_route].aircraft_code][solution[best_route].places[solution[best_route].index - 1]][p.departure_location];
-				//double travel_time = (from_to[solution[best_route].places[solution[best_route].index - 1] + ";" + p.departure_location] / map_airplane[solution[best_route].aircraft_code].speed) * 60;
 
 				/*
 				if (travel_time <= 60) {
@@ -1744,10 +1614,6 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 			p.solution_from = solution[best_route].index - 1;
 			double time = solution[best_route].time_dep[solution[best_route].index - 1] + ((from_to[p.departure_location][p.arrival_location] / map_airplane[solution[best_route].aircraft_code].speed) * 60);
 
-
-
-
-
 			if (map_airstrip[p.arrival_location].fuel) {
 				solution[best_route].addPlace(p.arrival_location, map_airstrip[p.arrival_location].fuel, map_airplane[solution[best_route].aircraft_code].max_fuel, 0.0, 0, time, time + map_airstrip[p.arrival_location].ground_time);
 				solution[best_route].weight[solution[best_route].index - 1] = map_airplane[solution[best_route].aircraft_code].weight_fuel_people -
@@ -1757,9 +1623,6 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 			else {
 				double fuel_before = solution[best_route].quantity_fuel[solution[best_route].index - 1];
 				double fuel_consumed = from_to_FuelConsumed[solution[best_route].aircraft_code][solution[best_route].places[solution[best_route].index - 1]][p.arrival_location];
-				//double travel_time = (from_to[solution[best_route].places[solution[best_route].index - 1] + ";" + p.arrival_location] / map_airplane[solution[best_route].aircraft_code].speed) * 60;
-
-
 				solution[best_route].addPlace(p.arrival_location, map_airstrip[p.arrival_location].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[p.arrival_location].ground_time);
 				solution[best_route].weight[solution[best_route].index - 1] = solution[best_route].weight[solution[best_route].index - 2] + fuel_consumed + p.weight;
 
@@ -1782,9 +1645,8 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 			double add_fuel = 0;
 			int index_weight_neg = -1;
 			for (int j = best_from; j < solution[best_route].index; j++) {
-				//cout << " Sono nel rapeir devo aggiunger fuel linea 1015 devo guardare da " << node_add_from << " a " << node_add_to << endl;
 				if (solution[best_route].weight[j] < 0) {
-					//cout << " Weigth negativo in " << j << weight[j] << endl;
+
 					add_fuel = solution[best_route].weight[j];
 					index_weight_neg = j;
 					int index_refueling = index_weight_neg;
@@ -1794,20 +1656,14 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 							break;
 						}
 					}
-					//cout << " Paro ad aggiornare in index refule " << index_refueling << endl;
+
 					for (int t = index_refueling; t < solution[best_route].index; t++) {
 						if (solution[best_route].refueling[t] && t != index_refueling) break;
-						//cout << " Aggiorno nodo " << t << endl;
 						solution[best_route].quantity_fuel[t] += add_fuel;
 						solution[best_route].weight[t] -= add_fuel;
-						//cout << " Weight dopo " << weight[t] << endl;
 					}
 				}
 			}
-			//**************************************************************************
-
-
-
 
 			p.solution_from = best_from;
 			p.solution_to = best_to;
@@ -1879,9 +1735,6 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 		}
 		else if (situation == -1) {
 			cout << "*******************************************************il passeggero: " << p.name << " non trova sistemazione" << endl;
-			//p.print();
-			//for (Route r : solution) r.print();
-			//system("pause");
 		}
 	}
 
@@ -1918,13 +1771,8 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 			int best_from = -1;
 			int best_to = -1;
 			double best_cost = DBL_MAX;
-			//cout << "sto valutando nella route " << endl;
-			//r.print();
-			//cout << "passengers.size()= " << passengers.size() << endl;
-			for (int p = 0; p < (int)passengers.size(); p++) {
 
-				//cout << "sono il passeggero: " << endl;
-				//passengers[p].print();
+			for (int p = 0; p < (int)passengers.size(); p++) {
 
 				if (r.primo_pass == false) {
 					if (r.places[r.index - 1] == passengers[p].departure_location) {
@@ -1938,9 +1786,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 						//per il check sul fuel:
 						double fuel_after_trip = 0.0;
 						fuel_after_trip = r.quantity_fuel[r.index - 1] - fuel_consumed;
-
-						//cout << "validit? caso A" << endl;
-						//cout << best_cost << " > " << cost << " && " << fuel_after_trip << " >= " << (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code + "/" + passengers[p].arrival_location]) << endl;
 
 						if (best_cost > cost) {
 							if (fuel_after_trip >= (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code][passengers[p].arrival_location])) {
@@ -1979,10 +1824,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 						else {
 							f_after_secondo_tratto = r.quantity_fuel[r.index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
 						}
-
-						//cout << "validit? caso B" << endl;
-						//cout << best_cost << " > " << cost << " && " << f_after_primo_tratto << " >= " << map_airplane[r.aircraft_code].min_fuel << " && " << f_after_secondo_tratto << " >= " << (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code + "/" + passengers[p].arrival_location]) << endl;
-
 
 						if (best_cost > cost) {
 							if (f_after_primo_tratto >= map_airplane[r.aircraft_code].min_fuel) {
@@ -2033,10 +1874,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 										}
 										//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
 										if (!capacity_satisfy) break; //check also for the fuel;
-										//cout << " ho passato la fesibility del caso D " << endl;
-
-
-
 
 										//se sorpasso il break vuol dire che soddisfo la capacit?, in questo caso il solo costo che consider? per l'aggiunta del passeggero qui
 										//? la time windows, se calcolo la time windows qua vuol dire che sfrutto il tempo in cui mi trovo in queste posizioni
@@ -2061,7 +1898,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 											situation = 4;
 											best_from = from;
 											best_to = to;
-											//cout << "situation D, cost: " << cost << "passenger: " << p << endl;
 										}
 									}
 								}
@@ -2085,8 +1921,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 									}
 								}
 								//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
-								//cout << p.stop<< endl;
-								//cout << "feasibility caso E " << capacity_satisfy << " && " << (r.index - from) << " <= " << passengers[p].stop << endl;
 								if (capacity_satisfy && (r.index - from) <= passengers[p].stop) {
 
 									double TW_departure = 0.0;
@@ -2116,7 +1950,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 									cost += ((TW_arrival * peso_TW)) * passengers[p].capacity;
 									cost += (peso_intermediate_stop * (r.index - from - 1)) * passengers[p].capacity;
 
-									//cout << "if caso E" << fuel_ok << " && " << best_cost << " > " << cost << " && " << t_arr_arrival << " <= " << end_day << " && " << r.quantity_fuel[r.index - 1] - fuel_consumed << " >= " << (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code + "/" + passengers[p].arrival_location]) << endl;
 									if (fuel_ok) {
 										if (best_cost > cost) {
 											if (t_arr_arrival <= end_day) {
@@ -2128,12 +1961,11 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 												}
 											}
 										}
-										//cout << "situation E, cost: " << cost << "passenger: " << p << endl;
 									}
 								}
 							}
 						}
-						//ho aggiunto questo if che c'? quaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
 					}
 					if (r.places[r.index - 1] != passengers[p].departure_location) {
 						//guardo il costo di aggiungere un pezzo alla fine
@@ -2194,8 +2026,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 							f_after_secondo_tratto = r.quantity_fuel[r.index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
 						}
 
-
-						//cout << "if caso C " << best_cost << " > " << cost << " && " << t_arr_arrival << " <= " << end_day << " && " << f_after_primo_tratto << " >= " << map_airplane[r.aircraft_code].min_fuel << " && " << f_after_secondo_tratto << " >= " << (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code + "/" + passengers[p].arrival_location]) << endl;
 						if (best_cost > cost) {
 							if (t_arr_arrival <= end_day) {
 								if (f_after_primo_tratto >= map_airplane[r.aircraft_code].min_fuel) {
@@ -2206,7 +2036,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 									}
 								}
 							}
-							//cout << "situation C, cost: " << cost << "passenger: " << p << endl;
+
 						}
 
 					}
@@ -2214,10 +2044,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 			}
 			//qui dovrei avere tutte le cose per fare la mossa sempre se la route non ? piena
 
-			/*if (situation != "Error") {
-				cout << "la situation scelta e " << situation << "per il passeggero " << endl;
-				passengers[best_passenger].print();
-			}*/
 
 			if (situation == 1) {
 				r.primo_pass = true;
@@ -2237,8 +2063,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 						r.quantity_fuel[r.index - 1] - passengers[best_passenger].weight;
 				}
 				//end for weight
-
-
 
 
 				double travel_time = ((from_to[passengers[best_passenger].departure_location][passengers[best_passenger].arrival_location]) / map_airplane[r.aircraft_code].speed) * 60;
@@ -2271,9 +2095,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 				}
 				passengers[best_passenger].solution_to = r.index - 1;
 				r.passengers_in_route.push_back(passengers[best_passenger]);
-
-
-
 
 
 			}
@@ -2315,8 +2136,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 				double time = passengers[best_passenger].early_departure + map_airstrip[passengers[best_passenger].departure_location].ground_time + (from_to[passengers[best_passenger].departure_location][passengers[best_passenger].arrival_location] / map_airplane[r.aircraft_code].speed) * 60;
 
 
-
-
 				if (map_airstrip[passengers[best_passenger].arrival_location].fuel) {
 					r.addPlace(passengers[best_passenger].arrival_location, map_airstrip[passengers[best_passenger].arrival_location].fuel, map_airplane[r.aircraft_code].max_fuel, 0.0, 0, time, time + map_airstrip[passengers[best_passenger].arrival_location].ground_time);
 
@@ -2326,7 +2145,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 				else {
 					double fuel_before = r.quantity_fuel[r.index - 1];
 					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.places[r.index - 1]][passengers[best_passenger].arrival_location];
-					//double travel_time = (from_to[r.places[r.index - 1] + ";" + passengers[best_passenger].arrival_location] / map_airplane[r.aircraft_code].speed) * 60;
 
 					r.addPlace(passengers[best_passenger].arrival_location, map_airstrip[passengers[best_passenger].arrival_location].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[passengers[best_passenger].arrival_location].ground_time);
 					r.weight[r.index - 1] = r.weight[r.index - 2] + passengers[best_passenger].weight + fuel_consumed;
@@ -2334,9 +2152,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 				}
 				passengers[best_passenger].solution_to = r.index - 1;
 				r.passengers_in_route.push_back(passengers[best_passenger]);
-
-
-
 
 			}
 			else if (situation == 3) {
@@ -2349,14 +2164,11 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 
 					r.weight[r.index - 1] = map_airplane[r.aircraft_code].weight_fuel_people -
 						map_airplane[r.aircraft_code].max_fuel - passengers[best_passenger].weight;
-
-
+					
 				}
 				else {
 					double fuel_before = r.quantity_fuel[r.index - 1];
 					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.places[r.index - 1]][passengers[best_passenger].departure_location];
-					//double travel_time = (from_to[r.places[r.index - 1] + ";" + passengers[best_passenger].departure_location] / map_airplane[r.aircraft_code].speed) * 60;
-
 
 					r.addPlace(passengers[best_passenger].departure_location, map_airstrip[passengers[best_passenger].departure_location].fuel, fuel_before - fuel_consumed, 0.0, passengers[best_passenger].capacity, r.time_dep[r.index - 1] +
 						((from_to[r.places[r.index - 1]][passengers[best_passenger].departure_location] / map_airplane[r.aircraft_code].speed) * 60),
@@ -2369,27 +2181,20 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 				double time = r.time_dep[r.index - 1] + ((from_to[passengers[best_passenger].departure_location][passengers[best_passenger].arrival_location] / map_airplane[r.aircraft_code].speed) * 60);
 
 
-
-
-
 				if (map_airstrip[passengers[best_passenger].arrival_location].fuel) {
 					r.addPlace(passengers[best_passenger].arrival_location, map_airstrip[passengers[best_passenger].arrival_location].fuel, map_airplane[r.aircraft_code].max_fuel, 0.0, 0, time, time + map_airstrip[passengers[best_passenger].arrival_location].ground_time);
 					r.weight[r.index - 1] = map_airplane[r.aircraft_code].weight_fuel_people -
 						map_airplane[r.aircraft_code].max_fuel;
-
 				}
 				else {
 					double fuel_before = r.quantity_fuel[r.index - 1];
 					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.places[r.index - 1]][passengers[best_passenger].arrival_location];
-					//double travel_time = (from_to[r.places[r.index - 1] + ";" + passengers[best_passenger].arrival_location] / map_airplane[r.aircraft_code].speed) * 60;
-
 
 					r.addPlace(passengers[best_passenger].arrival_location, map_airstrip[passengers[best_passenger].arrival_location].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[passengers[best_passenger].arrival_location].ground_time);
 					r.weight[r.index - 1] = r.weight[r.index - 2] + fuel_consumed + passengers[best_passenger].weight;
 
 				}
-
-
+				
 				passengers[best_passenger].solution_to = r.index - 1;
 				r.passengers_in_route.push_back(passengers[best_passenger]);
 			}
@@ -2406,9 +2211,8 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 				double add_fuel = 0;
 				int index_weight_neg = -1;
 				for (int j = best_from; j < r.index; j++) {
-					//cout << " Sono nel rapeir devo aggiunger fuel linea 1015 devo guardare da " << node_add_from << " a " << node_add_to << endl;
+
 					if (r.weight[j] < 0) {
-						//cout << " Weigth negativo in " << j << weight[j] << endl;
 						add_fuel = r.weight[j];
 						index_weight_neg = j;
 						int index_refueling = index_weight_neg;
@@ -2420,32 +2224,23 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 						}
 						//cout << " Paro ad aggiornare in index refule " << index_refueling << endl;
 						for (int t = index_refueling; t < r.index; t++) {
-							if (r.refueling[t] && t != index_refueling) break;
-							//cout << " Aggiorno nodo " << t << endl;
+							if (r.refueling[t] && t != index_refueling)
+								break;
 							r.quantity_fuel[t] += add_fuel;
 							r.weight[t] -= add_fuel;
-							//cout << " Weight dopo " << weight[t] << endl;
 						}
 					}
 				}
-				//**************************************************************************
-
-
-
 
 				passengers[best_passenger].solution_from = best_from;
 				passengers[best_passenger].solution_to = best_to;
 				r.passengers_in_route.push_back(passengers[best_passenger]);
 			}
 			else if (situation == 5) {
-
-
-
 				for (int h = best_from; h < r.index; h++) {
 					r.capacity[h] += passengers[best_passenger].capacity;
 					r.weight[h] -= passengers[best_passenger].weight;
 				}
-
 
 				//******************************************************************************
 				double add_fuel = 0;
@@ -2453,7 +2248,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 				for (int j = best_from; j < r.index; j++) {
 					//cout << " Sono nel rapeir devo aggiunger fuel linea 1015 devo guardare da " << node_add_from << " a " << node_add_to << endl;
 					if (r.weight[j] < 0) {
-						//cout << " Weigth negativo in " << j << weight[j] << endl;
 						add_fuel = r.weight[j];
 						index_weight_neg = j;
 						int index_refueling = index_weight_neg;
@@ -2463,19 +2257,15 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 								break;
 							}
 						}
-						//cout << " Paro ad aggiornare in index refule " << index_refueling << endl;
+						
 						for (int t = index_refueling; t < r.index; t++) {
-							if (r.refueling[t] && t != index_refueling) break;
-							//cout << " Aggiorno nodo " << t << endl;
+							if (r.refueling[t] && t != index_refueling) 
+								break;
 							r.quantity_fuel[t] += add_fuel;
 							r.weight[t] -= add_fuel;
-							//cout << " Weight dopo " << weight[t] << endl;
 						}
 					}
 				}
-				//******************************************************************************
-
-
 
 				passengers[best_passenger].solution_from = best_from;
 				int place_1 = r.places[r.index - 1];
@@ -2503,19 +2293,11 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 
 			}
 
-
-
 			if (situation != -1) passengers.erase(passengers.begin() + best_passenger);
-
-
 
 		} while (situation != -1);
 		if (passengers.size() == 0) break;
 	}
-
-
-
-
 
 	vector<Route> solution_clean;
 	for (auto s : solution) {
@@ -2580,12 +2362,6 @@ bool route_feasible(Route& r, map<int, Airplane>& map_airplane, double end_day, 
 		}
 	}
 
-
-
-
-
-
-
 	return feasible;
 }
 
@@ -2621,9 +2397,7 @@ map<int, int> Compute_WorstNode(double peso_TW, double peso_intermediate_stop, R
 							cost_IS += (peso_intermediate_stop)* route.passengers_in_route[p].capacity;
 						}
 					}
-					//****************************************************************************************************************************************
-
-
+					
 				}
 			}
 			else {
@@ -2642,42 +2416,22 @@ map<int, int> Compute_WorstNode(double peso_TW, double peso_intermediate_stop, R
 							cost_IS += (peso_intermediate_stop)* route.passengers_in_route[p].capacity;
 						}
 					}
-					//****************************************************************************************************************************************
-
 				}
-
-
 			}
 
 
 			dist += (cost_time_windows_for_node(route, PassengerNodo, peso_TW)) + cost_IS;
-			// / PassengerNodo.size());
-			//cout << " Inserisco nodo: " << n << " con il costo: " << dist << endl;
 			Node.insert(make_pair(dist, n));
 			Myset.insert(dist);
-			//cout << " ************** Nodo: " << n << " Ha un costo: " << dist << endl;
-			//cout << " ************** Nodo Peggiore finora: " << WorstNode << endl;
-			//if (costoWorstNode < dist) {
-				//costoWorstNode = dist;
-				//WorstNode = n;
-			//}
 		}
 	}
-
-	//cout << " **************Stampo la mappa non ordinata: "<< endl;
-	//for (auto x : Node) cout << x.first << " -----> " << x.second << endl;
-	//cout << " **************Stampo il Set: " << endl;
-	//for (auto setval : Myset) {
-		//cout << setval << endl;
-	//}
 
 	int i = 0;
 	for (auto setval : Myset) {
 		NodeOrder.insert(make_pair(i, Node[setval]));
 		i++;
 	}
-	//cout << " **************Stampo la mappa Ordinata: " << endl;
-	//for (auto x : NodeOrder) cout << x.first << " -----> " << x.second << endl;
+
 	return NodeOrder;
 }
 
@@ -2704,11 +2458,7 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 				numero_random = round(2 + (numero_random * (r.places.size() - 3)));
 			}
 
-
-			//cout << "sono la route numero: " << index << " il numero random generato ?: " << numero_random << " la route ha places.size-1 pari a: " << (r.places.size() - 1) << endl;
-
 			if (numero_random == r.places.size() - 1) {
-				//cout << "sono dentro all'if del numero random uguale a places()-1" << endl;
 				// qua devo distruggere tutta la route e lasciare solo il depot
 				for (int i = (int)(r.places.size()) - 1; i >= 1; i--) {
 					r.places.erase(r.places.begin() + i);
@@ -2740,24 +2490,17 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 				//qua devo pescare un numero di nodi da distruggere pari a numero_random
 				int nodi_rimossi = 0; //finch? non ho rimosso 
 				do {
-					//cout << endl;
-					//cout << "nodi rimossi: " << nodi_rimossi << endl;
 					bool check = true;
 					do {
 						//if i'm here i can destroy the route
 						//at the moment i destroy only a node
 						int node_destroy = (int)(round(1 + ((double)rand() / RAND_MAX) * (r.index - 2)));
-						//cout << "node destroy: " << node_destroy << endl;
-						//cout << "r.index - 1= " << (r.index - 1) << endl;
+
 						if (node_destroy == r.index - 1) { //this in the case of that node is at the end
 							check = false;
-							//cout << "nodo distrutto sono nel caso della rimozione dell'ultimo nodo: " << node_destroy <<endl;
-							//r.print();
+							
 							vector<int> int_removed;
-							//cout << " Sto lavorando sulla Route dell'Aereo " << r.aircraft_code << endl;
-							//cout << " Questa route ha un index = " << r.index << endl; 
-							//cout << "route prima della distruzione: " << endl;
-							//r.print();
+							
 
 							int Min_From_Pass = node_destroy;
 							int Max_To_Pass = node_destroy;
@@ -2780,13 +2523,7 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 								it = r.passengers_in_route.begin();
 								r.passengers_in_route.erase(it + int_removed[i]);
 							}
-							// Qua devo mettere codice che ? quello dell'Update
-							/*cout << "************* Sono nel codice che abbiamo fatto **********" << endl;
-							cout << "******************* Stampiamo la Route: *******************" << endl;
-							cout << " CODE ------> " << r.aircraft_code << endl;
-							cout << " Minimo from passeggeri ----> " << Min_From_Pass << endl;
-							cout << " Massimo to passeggeri ----> " << Max_To_Pass << endl;
-							cout << " Node destroyed ------> " << node_destroy << endl;*/
+							
 							int index_min_from = 0;
 							for (int i = Min_From_Pass; i >= 0; i--) {
 								if (r.refueling[i] && i != node_destroy) {
@@ -2794,9 +2531,7 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 									break;
 								}
 							}
-							//cout << " Parto a cercare il minimo da ------> " << index_min_from << endl;
-							//Codice che serve per cercare il minimo nel range
-							//cout << " Finisco a cercare il minimo in ------> " << Max_To_Pass << endl;
+
 							for (int k = index_min_from; k < Max_To_Pass; k++) {
 								if (r.refueling[k] && r.quantity_fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
 								//cout << " Sto valutando il caso del nodo " << k << endl;
@@ -2815,8 +2550,6 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 										}
 										//}
 									}
-									//cout << " Nodo di minimo ---> " << Node_min << endl;
-									//cout << " Valore di minimi --> " << min_weight << endl;
 									if (Node_min >= 0) {
 										for (int i = k + 1; i < r.index; i++) {
 											if (r.refueling[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'? ne erano altri di fuell non trovavo un to
@@ -2824,16 +2557,10 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 												break;
 											}
 										}
-										//cout << "Adesso che ho trovato il minimo devo aggiornare da ---> " << index_updating_from << endl;
-										//cout << "Adesso che ho trovato il minimo devo aggiornare a ---> " << index_updating_to << endl;
+
 										double Fuel_before = r.quantity_fuel[index_updating_from];
-										//cout << " Valore Fuel Before ------> " << Fuel_before << endl;
-										//cout << " Quindi alla fine parto ad aggiornare " << index_updating_from << " dove prendo il minimo tra " << map_airplane[r.aircraft_code].max_fuel << " e " << r.quantity_fuel[index_updating_from] + min_weight << endl;
 										r.quantity_fuel[index_updating_from] = min(map_airplane[r.aircraft_code].max_fuel, r.quantity_fuel[index_updating_from] + min_weight);
-										//cout << " Valore Fuel After ------> " << r.quantity_fuel[index_updating_from] << endl;
-										//cout << " Valore Weigth Before ------> " << r.weight[index_updating_from] << endl;
 										r.weight[index_updating_from] -= (r.quantity_fuel[index_updating_from] - Fuel_before);
-										//cout << " Valore Weigth After ------> " << r.weight[index_updating_from] << endl;
 										for (int i = index_updating_from + 1; i < index_updating_to; i++) {
 											if (i != node_destroy) {
 												r.quantity_fuel[i] += (r.quantity_fuel[index_updating_from] - Fuel_before);
@@ -2849,22 +2576,14 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 							r.removePlace(node_destroy, map_airplane);
 							nodi_mancanti -= (int)r.places.size();
 							nodi_rimossi += nodi_mancanti;
-							//cout << "route dopo la distruzione: " << endl;
-							//r.print();
-							// FORSE QUI CI VUOLE IL CODICE DEI CASI CON PESO NEGATIVO
 						}
 						else {
-							//cout << "sono dentro l'else " << endl;
+
 							double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.places[node_destroy - 1]][r.places[node_destroy + 1]];
-							//double time_travel = from_to[r.places[node_destroy - 1] + ";" + r.places[node_destroy + 1]] / map_airplane[r.aircraft_code].speed;
-
-
 
 							if (fuel_consumed <= r.quantity_fuel[node_destroy - 1] && r.places[node_destroy - 1] != r.places[node_destroy + 1]) {
 								check = false;
 								vector<int> int_removed;
-								//cout << " route prima di togliere il Nodo: " << node_destroy << endl;
-								//r.print();
 								int Min_From_Pass = node_destroy;
 								int Max_To_Pass = node_destroy;
 								for (int p = 0; p < (int)r.passengers_in_route.size(); p++) {
@@ -2880,9 +2599,6 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 									}
 								}
 
-								//cout << " Sto lavorando sulla Route dell'Aereo " << r.aircraft_code << endl;
-								//cout << " (sono dentro al codice del main ) Valore Minimo di From dei passeggieri ---> " << Min_From_Pass << endl;
-								//cout << " (sono dentro al codice del main ) Valore Massimo di To dei passeggieri ---> " << Max_To_Pass << endl;
 								for (int i = int_removed.size() - 1; i >= 0; i--) {
 									// code for repair forbidden***********************************************************
 									r.passengers_in_route[int_removed[i]].route_before = index;
@@ -2895,51 +2611,30 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 
 								int nodi_mancanti = (int)r.places.size();
 								r.update_route_destroy(node_destroy, Min_From_Pass, Max_To_Pass, from_to, map_airplane, map_airstrip); //update of the time
-								//QUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA***************************************************************************************
-
 								//double fuel_consumed1 = from_to_FuelConsumed[r.aircraft_code][r.places[node_destroy - 1]][r.places[node_destroy]];
-
 								//double fuel_consumed2 = from_to_FuelConsumed[r.aircraft_code][r.places[node_destroy]][r.places[node_destroy + 1]];
 
-
-
 								int index_before = node_destroy - 1;
-								//cout << " ************************* Ho finito  codice stampo route aggiornata gli devo ancora togliere nodo  **********************************" << endl;
-								//r.print();
-								//cout << " Adessos sto iniziando a sistemare i pedi perche togliero nodo " << endl;
 								double diff = 0;
-								//cout << " Index before: " << index_before << endl;
+
 								for (int i = node_destroy + 1; i < r.index; i++) {
-									//cout << " sono al i = " << i << endl;
+
 									if (r.refueling[i]) break;
-									//cout << "weight before: " << r.weight[i] << endl;
 									if (index_before == (node_destroy - 1)) {
-										//cout << " sono al primo giro faccio " << endl;
+
 										diff = r.quantity_fuel[i];
-										//cout << " diff: " << diff << endl;
 										r.quantity_fuel[i] = r.quantity_fuel[index_before] - fuel_consumed;
 										diff = diff - r.quantity_fuel[i];
-										//cout << " diff aggiornata: " << diff << endl;
-
 									}
 									else {
-										//cout << " non sono al primo giro " << endl;
 										r.quantity_fuel[i] = r.quantity_fuel[i] - diff;
-										//cout << " Al fuel del nodo " << i << " tolgo " << diff << endl;
-										//r.weight[i] = r.weight[i] + fuel_consumed - fuel_consumed2 - fuel_consumed1;
 									}
 
 									if (r.refueling[node_destroy]) {
-										//cout << " caso in cui facevo refuiling nel nodo distrutto " << endl;
-										//cout << "a r.weight[i]=  " << r.weight[i] << " tolgo questo valore  " << diff << endl;
 										r.weight[i] = r.weight[i] + diff;
-
 									}
 									else {
-										//	cout << " caso odo che ho tolto non era un fuel " << endl;
-										//	cout << " weight prima " << r.weight[i] << endl;
 										r.weight[i] = r.weight[i] + diff;
-										//cout << " weight dopo " << r.weight[i] << endl;
 									}
 
 
@@ -2972,45 +2667,24 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 												break;
 											}
 										}
-										//cout << " Aggiorno da " << index_refueling << endl;
+
 										for (int t = index_refueling; t < r.index; t++) {
-											//cout << " Nodo " << t << " controllo se sto dentro o devo uscire " << endl;
 											if (r.refueling[t] && t != index_refueling) break;
-											//cout << " Ho passato if aggiorno nodo " << t << endl;
-											//cout << " Quantit? fuel prima : " << r.quantity_fuel[t] << " Weigth prima " << r.weight[t] << endl;
 											r.quantity_fuel[t] += add_fuel;
 											r.weight[t] -= add_fuel;
-											//cout << " Quantit? fuel dopo : " << r.quantity_fuel[t] << " Weigth dopo " << r.weight[t] << endl;
 										}
 									}
 								}
-								//cout << "route dopo la distruzione: " << endl;
-								//r.print();
 							}
 						}
 					} while (check);
-
-
 				} while (nodi_rimossi < numero_random);
-
-
-
-
 			}
 
-
-
-
-
 		}
-		//cout << "passengers removed" << endl;
-		//for (Passenger p : passenger_removed) p.print();
 		index++;
 	}
 	return solution;
-
-
-
 }
 
 vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
@@ -3030,13 +2704,7 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 				int node_destroy = (int)(round(1 + n_destroy * (r.index - 2)));
 				if (node_destroy == r.index - 1) { //this in the case of that node is at the end
 					check = false;
-					//cout << "nodo distrutto: " << node_destroy <<endl;
-					//r.print();
 					vector<int> int_removed;
-					//cout << " Sto lavorando sulla Route dell'Aereo " << r.aircraft_code << endl;
-					//cout << " Questa route ha un index = " << r.index << endl; 
-					//cout << " siamo nel caso che il nodo distrutto sia l'ultimo " << endl;
-					//r.print();
 
 					int Min_From_Pass = node_destroy;
 					int Max_To_Pass = node_destroy;
@@ -3069,15 +2737,6 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 						it = r.passengers_in_route.begin();
 						r.passengers_in_route.erase(it + int_removed[i]);
 					}
-					// Qua devo mettere codice che ? quello dell'Update
-					/*cout << "************* Sono nel codice che abbiamo fatto **********" << endl;
-					cout << "******************* Stampiamo la Route: *******************" << endl;
-					cout << " CODE ------> " << r.aircraft_code << endl;
-					cout << " Minimo from passeggeri ----> " << Min_From_Pass << endl;
-					cout << " Massimo to passeggeri ----> " << Max_To_Pass << endl;
-					//r.print();
-					cout << " Node destroyed ------> " << node_destroy << endl;
-					*/
 
 					int index_min_from = 0;
 					for (int i = Min_From_Pass; i >= 0; i--) {
@@ -3086,9 +2745,7 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 							break;
 						}
 					}
-					//cout << " Parto a cercare il minimo da ------> " << index_min_from << endl;
 					// Codice che serve per cercare il minimo nel range
-					//cout << " Finisco a cercare il minimo in ------> " << Max_To_Pass << endl;
 
 
 					for (int k = index_min_from; k < Max_To_Pass; k++) {
@@ -3101,15 +2758,13 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 							for (int i = k + 1; i <= Max_To_Pass; i++) {
 								//cout << " Sto guardando il nodo " << i << endl;
 								if (r.refueling[i]) break;
-								//cout << " Ho passato il break " << endl;
+							
 								if (r.weight[i] < min_weight && i != node_destroy) {
-									//	cout << " Ho passato IF di controllo " << endl;
 									min_weight = r.weight[i];
 									Node_min = i;
 								}
 							}
-							//cout << " Nodo di minimo ---> " << Node_min << endl;
-							//cout << " Valore di minimi --> " << min_weight << endl;
+
 							if (Node_min >= 0) {
 								for (int i = k + 1; i < r.index; i++) {
 									if (r.refueling[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'? ne erano altri di fuell non trovavo un to
@@ -3117,16 +2772,10 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 										break;
 									}
 								}
-								//cout << "Adesso che ho trovato il minimo devo aggiornare da ---> " << index_updating_from << endl;
-								//cout << "Adesso che ho trovato il minimo devo aggiornare a ---> " << index_updating_to << endl;
 								double Fuel_before = r.quantity_fuel[index_updating_from];
-								//cout << " Valore Fuel Before ------> " << Fuel_before << endl;
-								//cout << " Quindi alla fine parto ad aggiornare " << index_updating_from << " dove prendo il minimo tra " << map_airplane[r.aircraft_code].max_fuel << " e " << r.quantity_fuel[index_updating_from] + min_weight << endl;
 								r.quantity_fuel[index_updating_from] = min(map_airplane[r.aircraft_code].max_fuel, r.quantity_fuel[index_updating_from] + min_weight);
-								//cout << " Valore Fuel After ------> " << r.quantity_fuel[index_updating_from] << endl;
-								//cout << " Valore Weigth Before ------> " << r.weight[index_updating_from] << endl;
 								r.weight[index_updating_from] -= (r.quantity_fuel[index_updating_from] - Fuel_before);
-								//cout << " Valore Weigth After ------> " << r.weight[index_updating_from] << endl;
+
 								for (int i = index_updating_from + 1; i < index_updating_to; i++) {
 									if (i != node_destroy) {
 										r.quantity_fuel[i] += (r.quantity_fuel[index_updating_from] - Fuel_before);
@@ -3138,12 +2787,12 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 
 					}
 					r.removePlace(node_destroy, map_airplane);
-					//cout << " Aggiornamento in main qui ho gia rimosso il nodo adesso sistemo i weigth negativi quando tolgo ultimo nodo " << endl;
+
 					double add_fuel = 0;
 					int index_weight_neg = -1;
 					for (int j = 0; j < r.index; j++) {
 						if (r.weight[j] < 0) {
-							//cout << " Nodo " << j << " della route " << r.aircraft_code << " negativo " << r.weight[j] << endl;
+
 							add_fuel = r.weight[j];
 							index_weight_neg = j;
 							int index_refueling = index_weight_neg;
@@ -3153,15 +2802,13 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 									break;
 								}
 							}
-							//cout << " Aggiorno da " << index_refueling << endl;
+
 							for (int t = index_refueling; t < r.index; t++) {
-								//cout << " Nodo " << t << " controllo se sto dentro o devo uscire " << endl;
+
 								if (r.refueling[t] && t != index_refueling) break;
-								//cout << " Ho passato if aggiorno nodo " << t << endl;
-								//cout << " Quantit? fuel prima : " << r.quantity_fuel[t] << " Weigth prima " << r.weight[t] << endl;
 								r.quantity_fuel[t] += add_fuel;
 								r.weight[t] -= add_fuel;
-								//cout << " Quantit? fuel dopo : " << r.quantity_fuel[t] << " Weigth dopo " << r.weight[t] << endl;
+
 							}
 						}
 					}
@@ -3171,8 +2818,6 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.places[node_destroy - 1]][r.places[node_destroy + 1]];
 					//double time_travel = from_to[r.places[node_destroy - 1] + ";" + r.places[node_destroy - 1]] / map_airplane[r.aircraft_code].speed; //QUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 					//double time_travel = from_to[r.places[node_destroy - 1] + ";" + r.places[node_destroy + 1]] / map_airplane[r.aircraft_code].speed; //QUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
-
 
 					if ((fuel_consumed + map_airplane[r.aircraft_code].min_fuel) <= r.quantity_fuel[node_destroy - 1] && r.places[node_destroy - 1] != r.places[node_destroy + 1]) {   //QUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 						check = false;
@@ -3198,13 +2843,6 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 							}
 						}
 
-						/*
-						cout << "Nodo: " << node_destroy << endl;
-						cout << " Sto tohliendo caso del nodo non ultimo riga 3278 " << endl;
-						cout << " Sto lavorando sulla Route dell'Aereo " << r.aircraft_code << endl;
-						cout << " (sono dentro al codice del main ) Valore Minimo di From dei passeggieri ---> " << Min_From_Pass << endl;
-						cout << " (sono dentro al codice del main ) Valore Massimo di To dei passeggieri ---> " << Max_To_Pass << endl;
-						*/
 						for (int i = int_removed.size() - 1; i >= 0; i--) {
 							// code for repair forbidden***********************************************************
 							r.passengers_in_route[int_removed[i]].route_before = index;
@@ -3215,64 +2853,37 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 							r.passengers_in_route.erase(it + int_removed[i]);
 						}
 						r.update_route_destroy(node_destroy, Min_From_Pass, Max_To_Pass, from_to, map_airplane, map_airstrip); //update of the time
-						//r.print();
-
-
-
-
 
 						int index_before = node_destroy - 1;
-						//cout << " ************************* Ho finito  codice stampo route aggiornata gli devo ancora togliere nodo  **********************************" << endl;
-						//r.print();
-						//cout << " Adessos sto iniziando a sistemare i pesi perche togliero nodo del aereo " << r.aircraft_code << endl;
 						double diff = 0;
-						//cout << " Index before: " << index_before << endl;
+
 						for (int i = node_destroy + 1; i < r.index; i++) {
-							//cout << " sono al i = " << i << endl;
-							if (r.refueling[i]) break;
-							//cout << "weight before: " << r.weight[i] << endl;
+							if (r.refueling[i]) 
+								break;
 							if (index_before == (node_destroy - 1)) {
-								//cout << " sono al primo giro faccio " << endl;
 								diff = r.quantity_fuel[i];
-								//cout << " diff: " << diff << endl;
 								r.quantity_fuel[i] = r.quantity_fuel[index_before] - fuel_consumed;
 								diff = diff - r.quantity_fuel[i];
-								//cout << " diff aggiornata: " << diff << endl;
 
 							}
 							else {
-								//cout << " non sono al primo giro " << endl;
 								r.quantity_fuel[i] = r.quantity_fuel[i] - diff;
-								//cout << " Al fuel del nodo " << i << " tolgo " << diff << endl;
-								//r.weight[i] = r.weight[i] + fuel_consumed - fuel_consumed2 - fuel_consumed1;
 							}
 
 							//cout << " weight prima " << r.weight[i] << endl;
 							r.weight[i] = r.weight[i] + diff;
-							//cout << " weight dopo " << r.weight[i] << endl;
-
-
-
-							//cout << "weight after: " << r.weight[i] << endl;
-							//r.weight[i] = r.weight[i] + fuel_consumed - fuel_consumed1 - fuel_consumed2 - (map_airplane[r.aircraft_code].max_fuel - r.quantity_fuel[node_destroy]);
-							//r.weight[i] = r.weight[i] + fuel_consumed - fuel_consumed2 - fuel_consumed1;
-							//r.weight[i] = r.weight[i] + fuel_consumed - fuel_consumed2 - fuel_consumed1;	
-
-							//r.weight[i] = r.weight[i] - fuel_consumed1 - fuel_consumed2;
-							//cout << " inidce before = " << index_before << endl;
 							index_before = i + 1;
-							//cout << " inidce before = " << index_before << " riparto con un altro giro "<<  endl;
+
 						}
 						//*****************************************************************************************************************************************************************
 
 
 						r.removePlace(node_destroy, map_airplane);
-						//cout << " Aggiornamento in main qui ho gia rimosso il nodo adesso sistemo i weigth negativi " << endl;
 						double add_fuel = 0;
 						int index_weight_neg = -1;
 						for (int j = 0; j < r.index; j++) {
 							if (r.weight[j] < 0) {
-								//cout << " Nodo " << j << " della route " << r.aircraft_code << " negativo " << r.weight[j] << endl;
+
 								add_fuel = r.weight[j];
 								index_weight_neg = j;
 								int index_refueling = index_weight_neg;
@@ -3282,15 +2893,11 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 										break;
 									}
 								}
-								//cout << " Aggiorno da " << index_refueling << endl;
+
 								for (int t = index_refueling; t < r.index; t++) {
-									//cout << " Nodo " << t << " controllo se sto dentro o devo uscire " << endl;
 									if (r.refueling[t] && t != index_refueling) break;
-									//cout << " Ho passato if aggiorno nodo " << t << endl;
-									//cout << " Quantit? fuel prima : " << r.quantity_fuel[t] << " Weigth prima " << r.weight[t] << endl;
 									r.quantity_fuel[t] += add_fuel;
 									r.weight[t] -= add_fuel;
-									//cout << " Quantit? fuel dopo : " << r.quantity_fuel[t] << " Weigth dopo " << r.weight[t] << endl;
 								}
 							}
 						}
@@ -3326,19 +2933,11 @@ vector<Route> destroy_worst(double peso_TW, double peso_intermediate_stop, doubl
 				//cout << " ************** Chiamo funzione che mi calcoli il nodo peggiore **************" << endl;
 				Node = Compute_WorstNode(peso_TW, peso_intermediate_stop, r, map_airstrip, from_to);
 				int node_destroy = Node[first];
-				//cout << " La funzione ha finito togli il nodo: " << node_destroy << endl;
-				//cout << " Route " << r.aircraft_code << endl;
-				//cout << " Node ha una size di " << Node.size() << endl;
-				//cout << " Voglio accedere a first = " << first << endl;
+
 				if (node_destroy == 0 || first >= (int)Node.size()) break;
 				if (node_destroy == r.index - 1) { //this in the case of that node is at the end
 					check = false;
-					//cout << "nodo distrutto: " << node_destroy <<endl;
-					//r.print();
 					vector<int> int_removed;
-					//cout << " Sto lavorando sulla Route dell'Aereo " << r.aircraft_code << endl;
-					//cout << " Questa route ha un index = " << r.index << endl; 
-					//r.print();
 
 					int Min_From_Pass = node_destroy;
 					int Max_To_Pass = node_destroy;
@@ -3350,15 +2949,7 @@ vector<Route> destroy_worst(double peso_TW, double peso_intermediate_stop, doubl
 							for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
 								r.capacity[t] -= r.passengers_in_route[p].capacity;
 								r.weight[t] += r.passengers_in_route[p].weight;
-								/*
-								if (r.refueling[t] && r.quantity_fuel[t] < map_airplane[r.aircraft_code].max_fuel) {
-								r.weight[t] -= min(map_airplane[r.aircraft_code].max_fuel, r.quantity_fuel[t] + r.passengers_in_route[p].weight) - r.quantity_fuel[t];
-								r.quantity_fuel[t] = min(map_airplane[r.aircraft_code].max_fuel, r.quantity_fuel[t] + r.passengers_in_route[p].weight);
-								}
-								*/
 							}
-
-
 						}
 					}
 					for (int i = int_removed.size() - 1; i >= 0; i--) {
@@ -3371,16 +2962,7 @@ vector<Route> destroy_worst(double peso_TW, double peso_intermediate_stop, doubl
 						it = r.passengers_in_route.begin();
 						r.passengers_in_route.erase(it + int_removed[i]);
 					}
-					// Qua devo mettere codice che ? quello dell'Update
-					/*
-					cout << "************* Sono nel codice che abbiamo fatto **********" << endl;
-					cout << "******************* Stampiamo la Route: *******************" << endl;
-					cout << " CODE ------> " << r.aircraft_code << endl;
-					cout << " Minimo from passeggeri ----> " << Min_From_Pass << endl;
-					cout << " Massimo to passeggeri ----> " << Max_To_Pass << endl;
-					r.print();
-					cout << " Node destroyed ------> " << node_destroy << endl;
-					*/
+				
 					int index_min_from = 0;
 					for (int i = Min_From_Pass; i >= 0; i--) {
 						if (r.refueling[i] && i != node_destroy) {
@@ -3388,10 +2970,6 @@ vector<Route> destroy_worst(double peso_TW, double peso_intermediate_stop, doubl
 							break;
 						}
 					}
-					//cout << " Parto a cercare il minimo da ------> " << index_min_from << endl;
-					// Codice che serve per cercare il minimo nel range
-					//cout << " Finisco a cercare il minimo in ------> " << Max_To_Pass << endl;
-
 
 					for (int k = index_min_from; k < Max_To_Pass; k++) {
 						if (r.refueling[k] && r.quantity_fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
@@ -3401,43 +2979,26 @@ vector<Route> destroy_worst(double peso_TW, double peso_intermediate_stop, doubl
 							int index_updating_from = k;
 							int index_updating_to = r.index;  //qua prima c'era -1
 							for (int i = k + 1; i <= Max_To_Pass; i++) {
-								//cout << " Sto guardando il nodo " << i << endl;
-								//if (!(r.weight[i] > 0 && r.quantity_fuel[i] == map_airplane[r.aircraft_code].max_fuel)) {
-								//cout << " Ho passato IF di controllo " << endl;
-								if (r.refueling[i]) break;
+								if (r.refueling[i]) 
+									break;
 								if (r.weight[i] < min_weight && i != node_destroy) {
 									min_weight = r.weight[i];
 									Node_min = i;
 								}
-								//}
 							}
 							//cout << " Nodo di minimo ---> " << Node_min << endl;
 							//cout << " Valore di minimi --> " << min_weight << endl;
 							if (Node_min >= 0) {
-								/*
-								for (int i = Node_min; i >= 0; i--) {
-								if (r.refueling[i] && i != node_destroy) {
-								index_updating_from = i;
-								break;
-								}
-								}
-								*/
 								for (int i = k + 1; i < r.index; i++) {
 									if (r.refueling[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'? ne erano altri di fuell non trovavo un to
 										index_updating_to = i;
 										break;
 									}
 								}
-								//cout << "Adesso che ho trovato il minimo devo aggiornare da ---> " << index_updating_from << endl;
-								//cout << "Adesso che ho trovato il minimo devo aggiornare a ---> " << index_updating_to << endl;
 								double Fuel_before = r.quantity_fuel[index_updating_from];
-								//cout << " Valore Fuel Before ------> " << Fuel_before << endl;
-								//cout << " Quindi alla fine parto ad aggiornare " << index_updating_from << " dove prendo il minimo tra " << map_airplane[r.aircraft_code].max_fuel << " e " << r.quantity_fuel[index_updating_from] + min_weight << endl;
 								r.quantity_fuel[index_updating_from] = min(map_airplane[r.aircraft_code].max_fuel, r.quantity_fuel[index_updating_from] + min_weight);
-								//cout << " Valore Fuel After ------> " << r.quantity_fuel[index_updating_from] << endl;
-								//cout << " Valore Weigth Before ------> " << r.weight[index_updating_from] << endl;
 								r.weight[index_updating_from] -= (r.quantity_fuel[index_updating_from] - Fuel_before);
-								//cout << " Valore Weigth After ------> " << r.weight[index_updating_from] << endl;
+
 								for (int i = index_updating_from + 1; i < index_updating_to; i++) {
 									if (i != node_destroy) {
 										r.quantity_fuel[i] += (r.quantity_fuel[index_updating_from] - Fuel_before);
@@ -3483,12 +3044,6 @@ vector<Route> destroy_worst(double peso_TW, double peso_intermediate_stop, doubl
 							}
 						}
 
-
-
-
-						//cout << " Sto lavorando sulla Route dell'Aereo " << r.aircraft_code << endl;
-						//cout << " (sono dentro al codice del main ) Valore Minimo di From dei passeggieri ---> " << Min_From_Pass << endl;
-						//cout << " (sono dentro al codice del main ) Valore Massimo di To dei passeggieri ---> " << Max_To_Pass << endl;
 						for (int i = int_removed.size() - 1; i >= 0; i--) {
 							// code for repair forbidden***********************************************************
 							r.passengers_in_route[int_removed[i]].route_before = index;
@@ -3503,66 +3058,30 @@ vector<Route> destroy_worst(double peso_TW, double peso_intermediate_stop, doubl
 						r.update_route_destroy(node_destroy, Min_From_Pass, Max_To_Pass, from_to, map_airplane, map_airstrip); //update of the time
 
 
-
-						//QUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA***************************************************************************************
-
-
-
-
-
 						int index_before = node_destroy - 1;
-						//cout << " ************************* Ho finito  codice stampo route aggiornata gli devo ancora togliere nodo  **********************************" << endl;
-						//r.print();
-						//cout << " Adessos sto iniziando a sistemare i pedi perche togliero nodo " << endl;
 						double diff = 0;
-						//cout << " Index before: " << index_before << endl;
 						for (int i = node_destroy + 1; i < r.index; i++) {
 							//cout << " sono al i = " << i << endl;
 							if (r.refueling[i]) break;
 							//cout << "weight before: " << r.weight[i] << endl;
 							if (index_before == (node_destroy - 1)) {
-								//cout << " sono al primo giro faccio " << endl;
-								//cout << "r.quantity_fuel[i] = r.quantity_fuel[index_before] - fuel_consumed " << r.quantity_fuel[i] <<"="<< r.quantity_fuel[index_before] <<"-"<< fuel_consumed;
 								diff = r.quantity_fuel[i];
-								//cout << " diff: " << diff << endl;
+								
 								r.quantity_fuel[i] = r.quantity_fuel[index_before] - fuel_consumed;
 								diff = diff - r.quantity_fuel[i];
-								//cout << " diff aggiornata: " << diff << endl;
-								//r.weight[i] = r.weight[i] + fuel_consumed - fuel_consumed2 - fuel_consumed1 + (map_airplane[r.aircraft_code].max_fuel - r.quantity_fuel[node_destroy]);
-
 							}
 							else {
-								//cout << " non sono al primo giro " << endl;
 								r.quantity_fuel[i] = r.quantity_fuel[i] - diff;
-								//cout << " Al fuel del nodo " << i << " tolgo " << diff << endl;
-								//r.weight[i] = r.weight[i] + fuel_consumed - fuel_consumed2 - fuel_consumed1;
 							}
 
 							if (r.refueling[node_destroy]) {
-								//cout << " caso in cui facevo refuiling nel nodo distrutto " << endl;
-								//cout << " al peso del nodo " << i << " aggiorno con fuel_consumed - fuel_consumed2 - (map_airplane[r.aircraft_code].max_fuel - r.quantity_fuel[node_destroy]); " << fuel_consumed << "- " << fuel_consumed2 << " - " << (map_airplane[r.aircraft_code].max_fuel - r.quantity_fuel[node_destroy]) << endl;
-								//r.weight[i] = r.weight[i] + fuel_consumed - fuel_consumed2 - (map_airplane[r.aircraft_code].max_fuel - r.quantity_fuel[node_destroy]);
 								r.weight[i] = r.weight[i] + diff;
-								//cout << "a r.weight[i]=  " << r.weight[i]<<" tolgo questo valore  " <<diff << endl;
 							}
 							else {
-								//cout << " caso odo che ho tolto non era un fuel " << endl;
-								//cout << " al peso del nodo " << i << " aggiorno l'attuale " << r.weight[i]<<" con  + "<< fuel_consumed<<" - "<<fuel_consumed2<<" -"<< fuel_consumed1;
-								//cout << " weight prima " << r.weight[i] << endl;
 								r.weight[i] = r.weight[i] + diff;
-								//cout << " weight dopo " << r.weight[i] << endl;
 							}
 
-
-							//cout << "weight after: " << r.weight[i] << endl;
-							//r.weight[i] = r.weight[i] + fuel_consumed - fuel_consumed1 - fuel_consumed2 - (map_airplane[r.aircraft_code].max_fuel - r.quantity_fuel[node_destroy]);
-							//r.weight[i] = r.weight[i] + fuel_consumed - fuel_consumed2 - fuel_consumed1;
-							//r.weight[i] = r.weight[i] + fuel_consumed - fuel_consumed2 - fuel_consumed1;	
-
-							//r.weight[i] = r.weight[i] - fuel_consumed1 - fuel_consumed2;
-							//cout << " inidce before = " << index_before << endl;
 							index_before = i + 1;
-							//cout << " inidce before = " << index_before << " riparto con un altro giro "<<  endl;
 						}
 						//*****************************************************************************************************************************************************************
 
@@ -3587,20 +3106,14 @@ vector<Route> destroy_worst(double peso_TW, double peso_intermediate_stop, doubl
 								for (int t = index_refueling; t < r.index; t++) {
 									//cout << " Nodo " << t << " controllo se sto dentro o devo uscire " << endl;
 									if (r.refueling[t] && t != index_refueling) break;
-									//cout << " Ho passato if aggiorno nodo " << t << endl;
-									//cout << " Quantit? fuel prima : " << r.quantity_fuel[t] << " Weigth prima " << r.weight[t] << endl;
 									r.quantity_fuel[t] += add_fuel;
 									r.weight[t] -= add_fuel;
-									//cout << " Quantit? fuel dopo : " << r.quantity_fuel[t] << " Weigth dopo " << r.weight[t] << endl;
 								}
 							}
 						}
-
-						//r.print();
 					}
 				}
-				//cout << "  Si Esce quando Check = False in questo caso: " << check << endl;
-				//cout << " la posizione " << first << " non va bene mi sposto.. " << endl;
+
 				first++;
 			} while (check);
 		}
@@ -3640,17 +3153,11 @@ vector<Route> destroy_cluster_aggr2(double peso_TW, int num_passenger, vector<Pa
 			}
 		}
 	}
-	/*for (auto x : OrderVectore) {
-		cout << " ID: " << split(x, '|')[0] << " con costo: " << split(x, '|')[1] << endl;
-		//cout << x << endl;
-	}
-	system("pause");*/
+	
 	map<string, vector<int>> agr_pass;
 	vector<string> sequenza;
 	for (string x : OrderVectore) {
-		//cout << " Devo inserire dentro la mappa che non dovrebbe essere ordinata " << x << endl;
-		//cout << "sono split(x, '|')[0]: " << split(x, '|')[0] << endl;
-		//system("pause");
+		
 		int codice = stoi(split(x, '|')[0]);
 		string code = split(x, '|')[1] + "|" + to_string(map_id_passenger[codice].departure_location) + "|" + to_string(map_id_passenger[codice].arrival_location);
 		if (agr_pass.find(code) != agr_pass.end())
@@ -3668,45 +3175,21 @@ vector<Route> destroy_cluster_aggr2(double peso_TW, int num_passenger, vector<Pa
 
 	}
 
-	/*for (string s : sequenza) cout << s << endl;
-	for (auto x : agr_pass) {
-		cout << " Con queste caratteristiche: " << x.first << " abbiamo : ";
-		for (string k : x.second) {
-			map_id_passenger[k].print();
-			cout << endl;
-		}
-	}
-
-
-	//cout << " Aggregati numero di passeggieri pari a ";
-	int ndisa = 0;
-	for (auto x : agr_pass) ndisa += (int)x.second.size();
-	cout << ndisa << endl;
-	//cout << " Aggregati numero di passeggieri pari a " << agr_pass.size() << endl;
-
-	*/
-
-
 	for (int x = 0; x < (int)sequenza.size(); x++) {
 		int Codpass = agr_pass[sequenza[x]][0];
-		//cout << " Adesso considero String CODPASS da passare alla relateness: " << Codpass << endl;
-		//cout << " Tolgo tutti i passeggieri di: " << sequenza[x] << endl;
+		
 		// tolgo tutti di questa aggregazione
 		for (int p : agr_pass[sequenza[x]]) passenger_removed.push_back(map_id_passenger[p]);
-		//cout << " Numero passeggieri rimossi = " << passenger_removed.size() << endl;
 		agr_pass.erase(agr_pass.find(sequenza[x]));
 		sequenza.erase(sequenza.begin() + x);
-		//cout << " Numero di sequenze e grurroi  = " << sequenza.size() << " e " << agr_pass.size()<<  endl;
+		
 		for (int y = 0; y < (int)sequenza.size(); y++) {
-			//cout << " Sto per chimare funzione relateness per il passeggiero " << i << endl;
-			//passengers[i].print();
+	
 			// Qui adesso chimao la funzione Relateness !! 
-			//cout << " Adesso devo fare il conftonto con  "<< sequenza[y] << endl;
 			bool retrocedi = relateness_passenger2(soglia_relateness, from_to, Codpass, map_id_passenger[agr_pass[sequenza[y]][0]], passenger_removed, agr_pass, sequenza, sequenza[y], y, map_id_passenger);
 			if (retrocedi) y--;
-			//cout << " Abbiamo Valore indice x: " << x << " e Y: " << y << " su: " << sequenza.size() << endl;
 		}
-		//cout << " Fin'ora ho tolto numero odi passeggieri ----> " << passenger_removed.size() << " su " << num_passenger << endl;
+		
 		x--;
 		if ((int)passenger_removed.size() >= num_passenger) break;
 	}
@@ -3714,7 +3197,7 @@ vector<Route> destroy_cluster_aggr2(double peso_TW, int num_passenger, vector<Pa
 	//int NRimossi = 0;
 	int Npass = 0;
 	int Nroute = -1;
-	//for (Route r : route_destroyed) Npass += r.passengers_in_route.size();
+	
 	// Devo toglierli dalla route 
 	for (Route& s : route_destroyed) {
 		Nroute++;
@@ -3730,8 +3213,7 @@ vector<Route> destroy_cluster_aggr2(double peso_TW, int num_passenger, vector<Pa
 					pass.route_before = Nroute;
 					if (s.passengers_in_route[p].solution_from < Min_From_Pass) Min_From_Pass = s.passengers_in_route[p].solution_from;
 					if (s.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = s.passengers_in_route[p].solution_to;
-					//cout << " devo rimuovere passeggiero dalla route dell'aereo " << s.aircraft_code << endl;
-					//s.passengers_in_route[p].print();
+		
 					int_removed.push_back(p);
 					for (int t = s.passengers_in_route[p].solution_from; t < s.passengers_in_route[p].solution_to; t++) {
 						s.capacity[t] -= s.passengers_in_route[p].capacity;
@@ -3740,17 +3222,12 @@ vector<Route> destroy_cluster_aggr2(double peso_TW, int num_passenger, vector<Pa
 
 				}
 			}
-
-
 		}
+		
 		for (int i = int_removed.size() - 1; i >= 0; i--) {
-			//cout << int_removed[i] << endl;
 			vector<Passenger>::iterator it;
 			it = s.passengers_in_route.begin();
 			s.passengers_in_route.erase(it + int_removed[i]);
-			//cout << " Route adesso ha ---> " << s.passengers_in_route.size() << " passeggieri" << endl;
-			//cout << " Stampo passeggieri dopo rimozione: " << endl;
-			//for (Passenger passeggiero : s.passengers_in_route) passeggiero.print(); 
 		}
 
 		if (Update) {
@@ -3782,6 +3259,7 @@ vector<Route> destroy_cluster_aggr2(double peso_TW, int num_passenger, vector<Pa
 						//if (!(weight[i] > 0 && quantity_fuel[i] == 998)) {
 						//cout << " Ho passato IF di controllo " << endl;
 						if (s.refueling[i]) break;
+						
 						if (s.weight[i] < min_weight) {
 							min_weight = s.weight[i];
 							Node_min = i;
@@ -3795,11 +3273,9 @@ vector<Route> destroy_cluster_aggr2(double peso_TW, int num_passenger, vector<Pa
 								break;
 							}
 						}
-						//cout << " Minimo trovato " << min_weight << endl;
-						//cout << "Adesso che ho trovato il minimo devo aggiornare da ---> " << index_updating_from << endl;
-						//cout << "Adesso che ho trovato il minimo devo aggiornare a ---> " << index_updating_to << endl;
+
 						double Fuel_before = s.quantity_fuel[index_updating_from];
-						//cout << " Quindi alla fine parto ad aggiornare " << index_updating_from << " dove prendo il minimo tra " << map_airplane[aircraft_code].max_fuel << " e " << quantity_fuel[index_updating_from] + min_weight << endl;
+						
 						s.quantity_fuel[index_updating_from] = min(map_airplane[s.aircraft_code].max_fuel, s.quantity_fuel[index_updating_from] + min_weight);
 						s.weight[index_updating_from] -= (s.quantity_fuel[index_updating_from] - Fuel_before);
 						for (int i = index_updating_from + 1; i < index_updating_to; i++) {
@@ -3807,12 +3283,8 @@ vector<Route> destroy_cluster_aggr2(double peso_TW, int num_passenger, vector<Pa
 							s.weight[i] -= (s.quantity_fuel[index_updating_from] - Fuel_before);
 						}
 					}
-
 				}
-
 			}
-
-
 
 
 			int index_sup = s.index;
@@ -3851,23 +3323,15 @@ vector<Route> destroy_cluster_aggr2(double peso_TW, int num_passenger, vector<Pa
 				s.quantity_fuel[0] = map_airplane[s.aircraft_code].max_fuel;
 				s.weight[0] = map_airplane[s.aircraft_code].weight_fuel_people - map_airplane[s.aircraft_code].max_fuel;
 			}
-
-
 		}
 	}
-
-
-
 
 	Npass = 0;
 	for (Route& s : route_destroyed) {
 		Npass += (int)(s.passengers_in_route.size());
 		if (s.passengers_in_route.size() == 0) s.primo_pass = false;
 	}
-	//cout << " Numero di passeggieri nella route dopo averli toglierli " << Npass << endl;
-
-
-
+	
 	return route_destroyed;
 
 }
@@ -3884,8 +3348,6 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 	bool routes_infeasible = false;
 
 	for (Passenger& p : passengers_removed) {
-		//cout << endl;
-		//p.print();
 		//int best_arc_from = -1;
 		//int best_arc_to = -1;
 		int best_route = -1;
@@ -3936,28 +3398,11 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 								int node_add_to = n1;
 
 								r_support.update_route_rebuilt_one_first_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
-								//stampo_caso_strano_single_tempi(r_support, from_to, map_airplane);
-								//cout << "route per il check" << endl;
-								//r_for_check.print();
-								/*if (r_support.time_arr[r_support.index - 1] >= 2000) {
-									cout << "caso strano: " << endl;
-									r_support.print();
-									cin.get();
-								}*/
-
-
+							
 								if (r_support.time_arr[r_support.index - 1] <= end_day) {
-									//p.print();
-									//cout << "n: " << n << " n1: " << n1 << " node_add_from: " << node_add_from << " node add_to: " << node_add_to << " caso: " << caso << endl;
-									//cout << "non_to: " << non_to << " non_to_final: " << non_to_final << " num_equals: " << num_equals << endl;
-									//r_support.print();
+								
 									r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
-									//cout << "ristampo i valori" << endl;
-									//p.print();
-									//cout << "n: " << n << " n1: " << n1 << " node_add_from: " << node_add_from << " node add_to: " << node_add_to << " caso: " << caso << endl;
-									//cout << "non_to: " << non_to << " non_to_final: " << non_to_final << " num_equals: " << num_equals << endl;
-									//cout << endl;
-									//stampo_caso_strano_single_all(r_support, from_to, map_airplane);
+									
 									if ((p.solution_to - p.solution_from <= p.stop)) {
 										if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
 											double cost = (cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
@@ -3988,7 +3433,7 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 				if (routes_destroyed[r].places[routes_destroyed[r].index - 1] == p.departure_location) {
 					double dist = from_to[p.departure_location][p.arrival_location];
 					double time = (from_to[p.departure_location][p.arrival_location] / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60;
-					//cout << "tempo di volo: " << time << endl;
+					
 					double fuel_consumed = from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.departure_location][p.arrival_location];
 					/*if (time <= 60) {
 						fuel_consumed += (time / 60)*map_airplane[routes_destroyed[r].aircraft_code].fuel_burn_first;
@@ -4007,9 +3452,6 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 					else if (t_arr_arrival > p.late_arrival) time_window_cost += t_arr_arrival - p.late_arrival;
 
 					double cost = dist + ((time_window_cost * peso_TW) * p.capacity) + fuel_consumed;
-					//cout << "------------------------------------------sono la mossa c, ho costo: " << cost << endl;
-					//cout << "cost for move c" << cost << endl;
-					//cout << t_arr_arrival << " : tempo arrivo" << endl;
 					if (best_cost > cost) {
 						if (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time <= end_day) {
 							if (routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
@@ -4059,9 +3501,6 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 						f_after_secondo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
 					}
 
-					//cout << "------------------------------------------sono la mossa c, ho costo: " << cost << endl;
-					//cout << "cost for move c" << cost << endl;
-					//cout << t_arr_arrival << " : tempo arrivo" << endl;
 					if (best_cost > cost) {
 						if (t_arr_arrival <= end_day) {
 							if (f_after_primo_tratto >= map_airplane[routes_destroyed[r].aircraft_code].min_fuel) {
@@ -4069,8 +3508,6 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 									best_cost = cost;
 									best_route = r;
 									move_c = true;
-									//best_arc_from = -2;
-									//best_arc_to = -2;
 								}
 							}
 						}
@@ -4089,11 +3526,6 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 			break;
 		}
 		else {
-			//cout << "la mossa C: " << move_c << endl;
-			//cout << "size of the vector of places" << routes_destroyed[best_route].places.size() << endl;
-			//cout << "index: "<< routes_destroyed[best_route].index << " index cap: " << routes_destroyed[best_route].index_cap << endl;
-			//cout << best_route << " " << best_arc_from << "---" << best_arc_to << " la route ha passeggeri: " << to_string(routes_destroyed[best_route].primo_pass) << endl;
-			//p.print();
 			//routes_destroyed[best_route].print();
 
 
@@ -4103,8 +3535,6 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 					//c'? solo il depot
 					routes_destroyed[best_route].primo_pass = true;
 					routes_destroyed[best_route].add_update_only_one_node_first_passanger(p, from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
-					//cout << "caso primo passeggero" << endl;
-					//routes_destroyed[best_route].print();
 				}
 				//else {
 					//ci sono pi? nodi
@@ -4123,11 +3553,6 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 
 				}
 				else {
-					//cout << "prima dell'inserimento speciale" << endl;
-					//cout << "route prima dell'inserimento" << endl;
-					//routes_destroyed[best_route].print();
-					//cout << "caso inserimento speciale ------>" << best_arc_from << " - " << best_arc_to << endl;
-
 					//routes_destroyed[best_route].update_route_rebuilt_one(best_arc_from, best_arc_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed);
 					routes_destroyed[best_route] = route_best;
 					p.solution_from = from_per_route;
@@ -4165,9 +3590,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 
 	map<int, int> map_pass_aggragati; //nella stringa, che ? la chiave, ci sono from/to/timedep/timearr, nell'int c'? l'indicie di tutti i valori
 
-
-
-	//cout << "ecco il numero di passeggeri rimossi " << passengers_removed.size();
 	while (!passengers_removed.empty()) {
 		int index_p = 0;
 		for (Passenger& p : passengers_removed) {
@@ -4183,8 +3605,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 			//string chiave = to_string(p.departure_location) + "/" + to_string(p.arrival_location) + "/" + to_string(p.departure_time) + "/" + to_string(p.arrival_time);
 			int chiave = p.chiave_regret;
 			if (map_pass_aggragati.count(chiave) >= 1) {
-				//cout << "ho gia calcolato un passeggero simile a lui" << endl;
-
 				regret_diff.push_back(regret_diff[map_pass_aggragati[chiave]]);
 				regret_move_c.push_back(regret_move_c[map_pass_aggragati[chiave]]);
 				regret_best_route.push_back(regret_best_route[map_pass_aggragati[chiave]]);
@@ -4195,12 +3615,8 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 
 			}
 			else {
-
-
 				//Route r_support; //attento qua, ? quello di prova
 				for (int r = 0; r < (int)routes_destroyed.size(); r++) {
-					//cout << "nuova route-----------> " << r << endl;
-					//routes_destroyed[r].print();
 					if (routes_destroyed[r].primo_pass == false) {
 						if (routes_destroyed[r].index == 1) {
 							//c'? solo il deposito in questo caso
@@ -4208,9 +3624,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 							cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][routes_destroyed[r].places[0]][p.departure_location];
 							cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.departure_location][p.arrival_location];
 
-							//cout << "costo caso primo passeggero: " << cost << endl;
-
-							//cout << "cost: " << cost << " from: " << -1 << " to: " << -1 << " route: " << r << " mossa c: " << 0 << endl;
 							costs.push_back(cost);
 							route.push_back(r);
 							arc_from.push_back(-1);
@@ -4237,8 +3650,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 										int node_add_to = n1;
 
 										r_support.update_route_rebuilt_one_first_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
-										//stampo_caso_strano_single_tempi(r_support, from_to, map_airplane);
-
 
 										if (r_support.time_arr[r_support.index - 1] <= end_day) {
 
@@ -4246,11 +3657,10 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 											r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
 											if ((p.solution_to - p.solution_from <= p.stop)) {
 												if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
-													//cout << "prima che calcolo il cost" << endl;
+													
 													double cost = (cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
-													//cout << "dopo che calcolo il cost" << endl;
+													
 													if (costs.size() == 0) {
-														//cout << "cost: " << cost << " from: " << n << " to: " << n1 << " route: " << r << " mossa c: " << 0 << endl;
 														costs.push_back(cost);
 														arc_from.push_back(n);
 														arc_to.push_back(n1);
@@ -4265,10 +3675,8 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 															arc_to.push_back(n1);
 															route.push_back(r);
 															move_c.push_back(0);
-															//cout << "cost: " << cost << " from: " << n << " to: " << n1 << " route: " << r << " mossa c: " << 0 << endl;
 														}
 													}
-													//cout << "route " << r << "archi: " << arc_from1 << " _ " << n1 << endl;
 												}
 											}
 										}
@@ -4276,7 +3684,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 								}
 							}
 						}
-						//cout << "fine for" << endl;
 					}
 
 					//for move C
@@ -4299,8 +3706,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 							else if ((routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time) > p.late_arrival) time_window_cost += (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time) - p.late_arrival;
 
 							double cost = dist + ((time_window_cost * peso_TW) * p.capacity) + fuel_consumed;
-							//cout << "cost for move c" << cost << endl;
-							//cout << routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time << " <= " << end_day << " && " << routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed << " >= " << map_airplane[routes_destroyed[r].aircraft_code].min_fuel << endl;
 							if (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time <= end_day) {
 								if (routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
 									costs.push_back(cost);
@@ -4367,11 +3772,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 
 				if (costs.size() == 1) {
 
-					//cout << "il passegero:";
-					//p.print();
-					//cout << " ha solo una mossa di inserimento possibile" << endl;
-
-
 					//regret_diff.push_back(0);
 					regret_diff.push_back(0);  //metto valore zero ma non dovrebbe succedere
 					regret_best_route.push_back(route[0]);
@@ -4391,8 +3791,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 					costs.erase(costs.begin() + index_mosse);
 					vector<double>::iterator index_iterator2 = min_element(costs.begin(), costs.end());
 					double best_cost_2 = costs[distance(costs.begin(), index_iterator2)];
-
-
 
 					regret_diff.push_back(best_cost_2 - best_cost);
 					regret_best_route.push_back(route[index_mosse]);
@@ -4429,11 +3827,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 
 			index_p++;
 		}
-
-		//cout << "regret.size(): " << regret_best_route.size() << endl;
-
-
-
 
 		int index = 0;
 		double best = DBL_MIN; //prima era -10000
@@ -4504,9 +3897,6 @@ vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, d
 	bool routes_infeasible = false;
 
 	for (Passenger& p : passengers_removed) {
-		//p.print();
-		//int best_arc_from = -1;
-		//int best_arc_to = -1;
 		int best_route = -1;
 		double best_cost = DBL_MAX;
 		move_c = false;
@@ -4514,8 +3904,6 @@ vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, d
 		Route route_best;
 		int from_per_route = 0;
 		int to_per_route = 0;
-		//cout << "sto valutando il pass: ";
-		//p.print();
 
 		for (int r = 0; r < (int)routes_destroyed.size(); r++) {
 			if (r != p.route_before) {
@@ -4526,9 +3914,6 @@ vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, d
 						cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][routes_destroyed[r].places[0]][p.departure_location];
 						cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.departure_location][p.arrival_location];
 
-						//cout << "------------------------------------------sono la route vuota, ho costo: " << cost << endl;
-						//cout << "costo caso primo passeggero: " << cost << endl;
-						//cout << r << " != " << p.route_before << endl;
 						if (cost < best_cost) {
 							best_cost = cost;
 							best_route = r;
@@ -4553,25 +3938,10 @@ vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, d
 									int node_add_to = n1;
 
 									r_support.update_route_rebuilt_one_first_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
-									//stampo_caso_strano_single_tempi(r_support, from_to, map_airplane);
-									/*if (r_support.time_arr[r_support.index - 1] >= 2000) {
-										cout << "caso strano: " << endl;
-										r_support.print();
-										cin.get();
-									}*/
 
 									if (r_support.time_arr[r_support.index - 1] <= end_day) {
-										//p.print();
-										//cout << "n: " << n << " n1: " << n1 << " node_add_from: " << node_add_from << " node add_to: " << node_add_to << " caso: " << caso << endl;
-										//cout << "non_to: " << non_to << " non_to_final: " << non_to_final << " num_equals: " << num_equals << endl;
-										//r_support.print();
+										
 										r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
-										//cout << "ristampo i valori" << endl;
-										//p.print();
-										//cout << "n: " << n << " n1: " << n1 << " node_add_from: " << node_add_from << " node add_to: " << node_add_to << " caso: " << caso << endl;
-										//cout << "non_to: " << non_to << " non_to_final: " << non_to_final << " num_equals: " << num_equals << endl;
-										//cout << endl;
-										//stampo_caso_strano_single_all(r_support, from_to, map_airplane);
 
 										if ((p.solution_to - p.solution_from <= p.stop)) {
 											if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
@@ -4622,10 +3992,6 @@ vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, d
 						else if (t_arr_arrival > p.late_arrival) time_window_cost += t_arr_arrival - p.late_arrival;
 
 						double cost = dist + ((time_window_cost * peso_TW) * p.capacity) + fuel_consumed;
-						//cout << "------------------------------------------sono la mossa c, ho costo: " << cost << endl;
-						//cout << "cost for move c" << cost << endl;
-						//cout << t_arr_arrival << " : tempo arrivo" << endl;
-						//cout << r << " != " << p.route_before << endl;
 						if (best_cost > cost) {
 							if (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time <= end_day) {
 								if (routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
@@ -4683,10 +4049,6 @@ vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, d
 							f_after_secondo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
 						}
 
-						//cout << "------------------------------------------sono la mossa c, ho costo: " << cost << endl;
-						//cout << "cost for move c" << cost << endl;
-						//cout << t_arr_arrival << " : tempo arrivo" << endl;
-						//cout << r << " != " << p.route_before << endl;
 						if (best_cost > cost) {
 							if (t_arr_arrival <= end_day) {
 								if (f_after_primo_tratto >= map_airplane[routes_destroyed[r].aircraft_code].min_fuel) {
@@ -4714,14 +4076,6 @@ vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, d
 			break;
 		}
 		else {
-			//cout << "la mossa C: " << move_c << endl;
-			//cout << "size of the vector of places" << routes_destroyed[best_route].places.size() << endl;
-			//cout << "index: "<< routes_destroyed[best_route].index << " index cap: " << routes_destroyed[best_route].index_cap << endl;
-			//cout << best_route << " " << best_arc_from << "---" << best_arc_to << " la route ha passeggeri: " << to_string(routes_destroyed[best_route].primo_pass) << endl;
-			//p.print();
-			//routes_destroyed[best_route].print();
-
-
 			if (!routes_destroyed[best_route].primo_pass) {
 				//i have to do the new things, 
 				if (case_first_passenger == false) {
