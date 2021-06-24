@@ -2,6 +2,19 @@
 #define UTIL_H
 
 
+using Double3DVector = vector<vector<vector<double>>>;
+using Int3DVector = vector<vector<vector<int>>>;
+using Solution = vector<Route>;
+using Fleet = vector<Airplane>; 
+
+struct Penalty_Weights
+{
+	double stop_weight;
+	double time_window_weight;
+	double transhipment_weight;
+};
+
+
 //function of split
 #include <string>
 #include <vector>

@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="Airplane.h" />
     <ClInclude Include="Airstrip.h" />
+    <ClInclude Include="Deprecated.h" />
     <ClInclude Include="HeuristicConstructive.h" />
     <ClInclude Include="Model_Cplex.h" />
     <ClInclude Include="Passenger.h" />
