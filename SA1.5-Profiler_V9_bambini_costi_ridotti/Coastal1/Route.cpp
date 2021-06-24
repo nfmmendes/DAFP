@@ -139,7 +139,6 @@ void Route::addPlace(int place, bool refueling, double quantity_fuel, double wei
 	time_arr.push_back(minute_arr);
 	time_dep.push_back(minute_dep);
 
-
 	this->refueling.push_back(refueling);
 	this->quantity_fuel.push_back(quantity_fuel);
 	index++;
