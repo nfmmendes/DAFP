@@ -124,6 +124,16 @@ void Route::addPlace_companySolution(string place, int minute) {
 	return;
 }
 
+/// <summary>
+/// 
+/// </summary>
+/// <param name="place"></param>
+/// <param name="refueling"></param>
+/// <param name="quantity_fuel"></param>
+/// <param name="weight"></param>
+/// <param name="capacity"></param>
+/// <param name="minute_arr"></param>
+/// <param name="minute_dep"></param>
 void Route::addPlace(int place, bool refueling, double quantity_fuel, double weight, int capacity, double minute_arr, double minute_dep) {
 	places.push_back(place);
 	time_arr.push_back(minute_arr);

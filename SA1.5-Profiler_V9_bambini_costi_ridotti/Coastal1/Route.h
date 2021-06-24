@@ -47,13 +47,12 @@ public:
 	void print();
 	void printCompany();
 	void addPlace_companySolution(string, int);
-	void addPlace(int, bool, double, double, int, double, double);
+	void addPlace(int place, bool refuel, double fuel, double weight = 0.0 , int capacity = 0, double minute_arr = 0.0, double minute_dep = 0.0);
 	void removePlace(int, map<int, Airplane>&);
 	void update_route_destroy(int, int, int, vector<vector<double>>&, map<int, Airplane>&, map<int, Airstrip>&);
 	void update_route_rebuilt_one(int, int, int, int, vector<vector<double>>&, map<int, Airplane>&, map<int, Airstrip>&, Passenger&, vector<vector<vector<double>>>&);
 	void add_update_only_one_node_first_passanger(Passenger&, vector<vector<double>>&, map<int, Airplane>&, map<int, Airstrip>&, vector<vector<vector<double>>>&);
 	void move_c(Passenger& p, int location_from, int location_to, vector<vector<double>>&, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<vector<double>>>&);
-	//void add_update_only_few_node_first_passanger(Passenger&, int, int, int, int, vector<vector<double>>&, map<int, Airplane>&, map<int, Airstrip>&, vector<vector<vector<double>>>&);
 	void update_time_for_check_repair(int node_add_from, int node_add_to, int location_from, int location_to, vector<vector<double>>&, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip);
 	void update_route_rebuilt_one_first_fase(int& caso, int& node_add_from, int& node_add_to, int location_from, int location_to, vector<vector<double>>&, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, Passenger& p, vector<vector<vector<double>>>&, bool& non_to, bool& non_to_final, bool& num_equals);
 	void update_route_rebuilt_one_second_fase(int& caso, int& node_add_from, int& node_add_to, int location_from, int location_to, vector<vector<double>>&, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, Passenger& p, vector<vector<vector<double>>>&, bool& non_to, bool& non_to_final, bool& num_equals);
