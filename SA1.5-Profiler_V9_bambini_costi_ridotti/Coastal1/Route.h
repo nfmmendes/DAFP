@@ -36,7 +36,7 @@ public:
 	vector<double> time_dep;
 
 	Route();
-	Route(int, vector<Passenger>& passengers_in_route);
+	Route(int, vector<Passenger> passengers_in_route=vector<Passenger>());
 	~Route();
 
 

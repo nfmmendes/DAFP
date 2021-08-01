@@ -96,7 +96,7 @@ Passenger::Passenger(int departure_location, int arrival_location, int pnr, stri
 
 
 
-void Passenger::print() {
+void Passenger::print() const {
 	cout << "--" << name << " " << surname << " " << pnr << " " << code_flight << " " << pas_class << " " << gender << " dep: " << departure_location_company << "-->" << departure_time << " arr: "
 		<< arrival_location_company << "-->" << arrival_time << " con il peso di: " << weight << " solution_from: " << solution_from << " solution_to: " << solution_to << " cap: " << capacity << endl;
 	//cout << "Time windows: " << endl;

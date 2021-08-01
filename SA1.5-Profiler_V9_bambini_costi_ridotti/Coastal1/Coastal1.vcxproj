@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClCompile Include="Airplane.cpp" />
     <ClCompile Include="Airstrip.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model_Cplex.cpp" />
     <ClCompile Include="Passenger.cpp" />
@@ -150,11 +151,13 @@
     <ClInclude Include="Airstrip.h" />
     <ClInclude Include="Deprecated.h" />
     <ClInclude Include="HeuristicConstructive.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Model_Cplex.h" />
     <ClInclude Include="Passenger.h" />
     <ClInclude Include="Route.h" />
     <ClInclude Include="Tests.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="UtilFill.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

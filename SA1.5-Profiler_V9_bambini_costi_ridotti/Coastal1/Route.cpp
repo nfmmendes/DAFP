@@ -27,23 +27,12 @@ Route::Route()
 }
 
 
-Route::Route(int aircraft_code, vector<Passenger>& pass)
+Route::Route(int aircraft_code, vector<Passenger> pass)
 {
 	this->aircraft_code = aircraft_code;
-	//places_company;
-	//places;
 	index = 0;
-	//refueling;
-	//quantity_fuel;
-	//time_arr;
-	//time_dep;
 	aircraft_code_company_comparison = "";
-
-
-	//weight;
-	//capacity;
 	primo_pass = false;
-
 	passengers_in_route = pass;
 	cost = 0.0;
 }
