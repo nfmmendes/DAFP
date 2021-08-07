@@ -1,8 +1,12 @@
 #pragma once
+
+#ifndef INPUT_H
+#define INPUT_H
+
 #include "Airplane.h"
 #include "Airstrip.h"
 #include "Passenger.h"
-
+#include <vector>
 
 class Input
 {
@@ -12,17 +16,18 @@ public:
 	
 	
 private:
-	vector<Airstrip> airstrips;
-	vector<Airplane> airplanes;
-	vector<Passenger> passengers;
+	std::vector<Airstrip> airstrips;
+	std::vector<Airplane> airplanes;
+	std::vector<Passenger> passengers;
 public:
-	vector<Airstrip> get_airstrips() const;
-	vector<Airplane> get_airplanes() const;
-	vector<Passenger> get_passengers() const;
+	std::vector<Airstrip> get_airstrips() const;
+	std::vector<Airplane> get_airplanes() const;
+	std::vector<Passenger> get_passengers() const;
 
 
-	void set_airstrips(const vector<Airstrip>& airstrips);
-	void set_airplanes(const vector<Airplane>& airplanes);
-	void set_passengers(const vector<Passenger>& passengers);
+	void set_airstrips(const std::vector<Airstrip>& airstrips);
+	void set_airplanes(const std::vector<Airplane>& airplanes);
+	void set_passengers(const std::vector<Passenger>& passengers);
 };
 
+#endif

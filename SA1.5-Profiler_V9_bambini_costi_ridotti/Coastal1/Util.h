@@ -1,7 +1,18 @@
-﻿#ifndef UTIL_H
+﻿#pragma once
+
+
+#ifndef UTIL_H
 #define UTIL_H
 
+#include <map>
+#include <string>
+#include <vector>
+#include <sstream>
 
+#include "Airplane.h"
+#include "Route.h"
+using std::vector;
+using std::string;
 using Double3DVector = vector<vector<vector<double>>>;
 using Int3DVector = vector<vector<vector<int>>>;
 using Solution = vector<Route>;
@@ -15,12 +26,15 @@ struct Penalty_Weights
 };
 
 
+struct Input_maps
+{
+	std::map<int, Airplane> map_airplane;
+	map<int, Airstrip> map_airstrip;
+};
+
+
 //function of split
-#include <string>
-#include <vector>
-#include <sstream>
-using std::vector;
-using std::string; 
+
 
 
 template<typename type>
@@ -41,13 +55,13 @@ struct MyCOMP1 {
 };
 
 
-double Sum(std::vector<double> Weight) {
+inline double Sum(std::vector<double> Weight) {
 	double sum = 0;
 	for (double i : Weight) sum += i;
 	return sum;
 }
 
-double Accumulated(int j, vector<double> Weight) {
+inline double Accumulated(int j, vector<double> Weight) {
 	double accum = 0.0;
 	double sum = 0.0;
 	for (double i : Weight) sum += i;
@@ -58,7 +72,7 @@ double Accumulated(int j, vector<double> Weight) {
 
 
 
-std::vector<string> split(std::string stringa, char separatore) {
+inline std::vector<string> split(std::string stringa, char separatore) {
 	vector<std::string> words;
 	std::stringstream ss(stringa);
 	std::string individual_string;

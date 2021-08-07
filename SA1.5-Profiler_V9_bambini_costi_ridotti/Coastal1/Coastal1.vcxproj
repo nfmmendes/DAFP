@@ -140,6 +140,9 @@
   <ItemGroup>
     <ClCompile Include="Airplane.cpp" />
     <ClCompile Include="Airstrip.cpp" />
+    <ClCompile Include="ConstructiveHeuristic.cpp" />
+    <ClCompile Include="ConstructiveFirstFaseSequential.cpp" />
+    <ClCompile Include="ConstructiveHeuristicFirstFase.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model_Cplex.cpp" />
@@ -149,6 +152,9 @@
   <ItemGroup>
     <ClInclude Include="Airplane.h" />
     <ClInclude Include="Airstrip.h" />
+    <ClInclude Include="ConstructiveHeuristic.h" />
+    <ClInclude Include="ConstructiveFirstFaseSequential.h" />
+    <ClInclude Include="ConstructiveHeuristicFirstFase.h" />
     <ClInclude Include="Deprecated.h" />
     <ClInclude Include="HeuristicConstructive.h" />
     <ClInclude Include="Input.h" />

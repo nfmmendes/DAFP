@@ -5,7 +5,6 @@
 
 #include <string>
 #include <vector>
-#include <algorithm>
 #include "Passenger.h"
 #include <map>
 #include "Airplane.h"
@@ -38,10 +37,6 @@ public:
 	Route();
 	Route(int, vector<Passenger> passengers_in_route=vector<Passenger>());
 	~Route();
-
-
-
-
 
 	//void update_route(int, map<string, double>, map<string, Airplane>, map<string, Airstrip>);
 	void print();

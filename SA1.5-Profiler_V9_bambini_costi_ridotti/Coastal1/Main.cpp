@@ -6,22 +6,20 @@
 #include <cstdlib>
 #include <limits>
 #include <ctime>
-#include <time.h>
 #include <iomanip>
 #include <algorithm>
 #include <map>
 #include <unordered_map>
 #include <set>
 #include <random>
+#include "HeuristicConstructive.h"
 #include "Airplane.h"
 #include "Airstrip.h"
 #include "Passenger.h"
 #include "Route.h"
-#include <float.h>
 #include <chrono>
 #include "Model_Cplex.h"
-#include "Util.h"
-#include "HeuristicConstructive.h"
+
 #include "Input.h"
 #include "UtilFill.h"
 
@@ -427,7 +425,7 @@ double calculationCostCompany(Penalty_Weights& penalty_weights, string route_azi
 		costi_time_windows += c;
 	}
 
-	costi_time_windows = costi_time_windows * peso_TW; //per valutare cosa succede al cambiare del peso dato alle time windows
+	costi_time_windows = (int) ceil(1.0*costi_time_windows * peso_TW); //per valutare cosa succede al cambiare del peso dato alle time windows
 	final_cost_IS = costi_intermediate_stop;
 	final_cost_TW = costi_time_windows;
 
@@ -668,7 +666,7 @@ double calculate_ObjectiveFunction(Penalty_Weights weights, vector<Route>& solut
 	return cost;
 }
 
-double cost__for_route_passenger_destroyCluster(const Route& r, const Passenger& p, int fattore_inter_stop, double peso_TW) {
+double cost__for_route_passenger_destroyCluster(const Route& r, const Passenger& p, double fattore_inter_stop, double peso_TW) {
 	double cost = 0.0;
 	
 	double TW_departure = 0.0;
@@ -907,11 +905,12 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 				numero_random = round(2 + (numero_random * (r.places.size() - 3)));
 			}
 
-			if (numero_random == r.places.size() - 1) {
+			if (numero_random == r.places.size() - 1 && r.passengers_in_route.size() > 0 ) {
 				destroy_route(r, map_airplane);
 				
 				//ora devo togliere tutti i passeggeri
-				for (auto p = r.passengers_in_route.size() - 1; p >= 0; p--) {
+				int number_of_passengers = static_cast<int>( r.passengers_in_route.size()) ; 
+				for (int  p = number_of_passengers -1; p >= 0; p--) {
 					r.passengers_in_route[p].route_before = index;
 					passenger_removed.push_back(r.passengers_in_route[p]);
 					r.passengers_in_route.erase(r.passengers_in_route.begin() + p);
@@ -946,14 +945,17 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 									}
 								}
 							}
-							for (auto i = int_removed.size() - 1; i >= 0; i--) {
-								// code for repair forbidden***********************************************************
-								r.passengers_in_route[int_removed[i]].route_before = index;
-								//*************************************************************************************
-								passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-								vector<Passenger>::iterator it;
-								it = r.passengers_in_route.begin();
-								r.passengers_in_route.erase(it + int_removed[i]);
+
+							if (int_removed.size() > 0) {
+								for (int i = static_cast<int>(int_removed.size() - 1); i >= 0; i--) {
+									// code for repair forbidden***********************************************************
+									r.passengers_in_route[int_removed[i]].route_before = index;
+									//*************************************************************************************
+									passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
+									vector<Passenger>::iterator it;
+									it = r.passengers_in_route.begin();
+									r.passengers_in_route.erase(it + int_removed[i]);
+								}
 							}
 							
 							int index_min_from = 0;
@@ -1032,14 +1034,16 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 									}
 								}
 
-								for (int i = int_removed.size() - 1; i >= 0; i--) {
-									// code for repair forbidden***********************************************************
-									r.passengers_in_route[int_removed[i]].route_before = index;
-									//*************************************************************************************
-									passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-									vector<Passenger>::iterator it;
-									it = r.passengers_in_route.begin();
-									r.passengers_in_route.erase(it + int_removed[i]);
+								if (int_removed.size() > 0) {
+									for (int i = static_cast<int>(int_removed.size() - 1); i >= 0; i--) {
+										// code for repair forbidden***********************************************************
+										r.passengers_in_route[int_removed[i]].route_before = index;
+										//*************************************************************************************
+										passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
+										vector<Passenger>::iterator it;
+										it = r.passengers_in_route.begin();
+										r.passengers_in_route.erase(it + int_removed[i]);
+									}
 								}
 
 								int nodi_mancanti = (int)r.places.size();
@@ -1155,19 +1159,20 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 								}
 								*/
 							}
-
-
 						}
 					}
-					for (int i = int_removed.size() - 1; i >= 0; i--) {
-						// code for repair forbidden***********************************************************
-						r.passengers_in_route[int_removed[i]].route_before = index;
-						//*************************************************************************************
 
-						passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-						vector<Passenger>::iterator it;
-						it = r.passengers_in_route.begin();
-						r.passengers_in_route.erase(it + int_removed[i]);
+					if (int_removed.size() > 0) {
+						for (int i = static_cast<int>(int_removed.size()) - 1; i >= 0; i--) {
+							// code for repair forbidden***********************************************************
+							r.passengers_in_route[int_removed[i]].route_before = index;
+							//*************************************************************************************
+
+							passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
+							vector<Passenger>::iterator it;
+							it = r.passengers_in_route.begin();
+							r.passengers_in_route.erase(it + int_removed[i]);
+						}
 					}
 
 					int index_min_from = 0;
@@ -1273,15 +1278,16 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 
 							}
 						}
-
-						for (int i = int_removed.size() - 1; i >= 0; i--) {
-							// code for repair forbidden***********************************************************
-							r.passengers_in_route[int_removed[i]].route_before = index;
-							//*************************************************************************************
-							passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-							vector<Passenger>::iterator it;
-							it = r.passengers_in_route.begin();
-							r.passengers_in_route.erase(it + int_removed[i]);
+						if (int_removed.size() > 0) {
+							for (int i = static_cast<int>(int_removed.size()) - 1; i >= 0; i--) {
+								// code for repair forbidden***********************************************************
+								r.passengers_in_route[int_removed[i]].route_before = index;
+								//*************************************************************************************
+								passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
+								vector<Passenger>::iterator it;
+								it = r.passengers_in_route.begin();
+								r.passengers_in_route.erase(it + int_removed[i]);
+							}
 						}
 						r.update_route_destroy(node_destroy, Min_From_Pass, Max_To_Pass, from_to, map_airplane, map_airstrip); //update of the time
 
@@ -1386,15 +1392,17 @@ vector<Route> destroy_worst(Penalty_Weights weights, double destroy_coef_route, 
 							}
 						}
 					}
-					for (int i = int_removed.size() - 1; i >= 0; i--) {
-						// code for repair forbidden***********************************************************
-						r.passengers_in_route[int_removed[i]].route_before = index;
-						//*************************************************************************************
+					if (int_removed.size() > 0) {
+						for (int i = static_cast<int>(int_removed.size()) - 1; i >= 0; i--) {
+							// code for repair forbidden***********************************************************
+							r.passengers_in_route[int_removed[i]].route_before = index;
+							//*************************************************************************************
 
-						passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-						vector<Passenger>::iterator it;
-						it = r.passengers_in_route.begin();
-						r.passengers_in_route.erase(it + int_removed[i]);
+							passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
+							vector<Passenger>::iterator it;
+							it = r.passengers_in_route.begin();
+							r.passengers_in_route.erase(it + int_removed[i]);
+						}
 					}
 				
 					int index_min_from = 0;
@@ -1476,15 +1484,17 @@ vector<Route> destroy_worst(Penalty_Weights weights, double destroy_coef_route, 
 							}
 						}
 
-						for (int i = int_removed.size() - 1; i >= 0; i--) {
-							// code for repair forbidden***********************************************************
-							r.passengers_in_route[int_removed[i]].route_before = index;
-							//*************************************************************************************
+						if (int_removed.size() > 0) {
+							for (int i = static_cast<int>(int_removed.size()) - 1; i >= 0; i--) {
+								// code for repair forbidden***********************************************************
+								r.passengers_in_route[int_removed[i]].route_before = index;
+								//*************************************************************************************
 
-							passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-							vector<Passenger>::iterator it;
-							it = r.passengers_in_route.begin();
-							r.passengers_in_route.erase(it + int_removed[i]);
+								passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
+								vector<Passenger>::iterator it;
+								it = r.passengers_in_route.begin();
+								r.passengers_in_route.erase(it + int_removed[i]);
+							}
 						}
 						r.update_route_destroy(node_destroy, Min_From_Pass, Max_To_Pass, from_to, map_airplane, map_airstrip); //update of the time
 
@@ -1661,7 +1671,7 @@ vector<Route> destroy_cluster_aggr2(Penalty_Weights weights, int num_passenger, 
 			}
 		}
 		
-		for (int i = int_removed.size() - 1; i >= 0; i--) {
+		for (int i = static_cast<int>(int_removed.size() - 1); i >= 0; i--) {
 			vector<Passenger>::iterator it;
 			it = s.passengers_in_route.begin();
 			s.passengers_in_route.erase(it + int_removed[i]);
@@ -2221,7 +2231,7 @@ vector<Route> two_regret_repair_aggragati(const Penalty_Weights &weights,  doubl
 
 
 					vector<double>::iterator index_iterator = min_element(costs.begin(), costs.end());
-					int index_mosse = distance(costs.begin(), index_iterator);
+					auto index_mosse = distance(costs.begin(), index_iterator);
 					double best_cost = costs[index_mosse];
 					costs.erase(costs.begin() + index_mosse);
 					vector<double>::iterator index_iterator2 = min_element(costs.begin(), costs.end());
@@ -3579,16 +3589,18 @@ void destroy_ls(int index, int node_destroy, vector<Passenger>& passenger_remove
 					}
 				}
 
-				for (int i = int_removed.size() - 1; i >= 0; i--) {
-					// code for repair forbidden***********************************************************
-					r.passengers_in_route[int_removed[i]].route_before = index;
-					//*************************************************************************************
-					passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-					vector<Passenger>::iterator it;
-					it = r.passengers_in_route.begin();
-					r.passengers_in_route.erase(it + int_removed[i]);
+				if (int_removed.size() > 0) {
+					for (int i = static_cast<int>(int_removed.size() - 1); i >= 0; i--) {
+						// code for repair forbidden***********************************************************
+						r.passengers_in_route[int_removed[i]].route_before = index;
+						//*************************************************************************************
+						passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
+						vector<Passenger>::iterator it;
+						it = r.passengers_in_route.begin();
+						r.passengers_in_route.erase(it + int_removed[i]);
+					}
 				}
-
+					
 				r.update_route_destroy(node_destroy, Min_From_Pass, Max_To_Pass, from_to, map_airplane, map_airstrip); //update of the time
 				int index_before = node_destroy - 1;
 				double diff = 0;
@@ -5453,7 +5465,7 @@ int main(int argc, char* argv[]) {
 	cout << endl;
 	vector<vector<Route>> solutionAll;
 	//vector<Route> best_solution_route_ever;
-	srand(time(NULL));
+	srand(static_cast<unsigned int>( time(0) ) );
 	int NumeroSA = 0;
 	int iterazioni_fallite = 0;
 	//double start_day = 360.0;    //ATTENTION, MAY BE YOU WILL HAVE TO USE IT
@@ -5497,12 +5509,16 @@ int main(int argc, char* argv[]) {
 				random_shuffle(begin(passengers), end(passengers));
 
 				npass = 0;
+				Penalty_Weights penalties{ peso_itermediate_stop, peso_TW,0 };
+				Input_maps maps{ map_airplane,map_airstrip };
+				
 				if (heuristic_choice < Accumulated(0, Weigth_heuristic)) {
-					start_solution_route = heuristic_costructive_first_fase(peso_TW, peso_itermediate_stop, airplanes, map_airplane, map_airstrip, end_day, passengers, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
+					
+					start_solution_route = heuristic_costructive_first_fase(penalties, airplanes, maps, end_day, passengers, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
 					choosen_heuristic = 0;
 				}
 				else {
-					start_solution_route = heuristic_costructive_first_fase_sequential(peso_TW, peso_itermediate_stop, airplanes, map_airplane, map_airstrip, end_day, passengers, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
+					start_solution_route = heuristic_costructive_first_fase_sequential(penalties, airplanes, maps, end_day, passengers, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
 					choosen_heuristic = 1;
 				}
 				for (Route& r : start_solution_route) npass += (int)r.passengers_in_route.size();

@@ -1,9 +1,7 @@
 #ifndef Airplane_h
 #define Airplane_h
 
-
 #include <string>
-#include <vector>
 
 using namespace std;
 
