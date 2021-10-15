@@ -1,9 +1,16 @@
+#define ILOUSESTL
+
 #include "Model_Cplex.h"
+#include <ilconcert/iloenv.h>
 
 #include <iostream>
 #include<string>
 #include <sstream>
 #include <vector>
+#include <ilconcert/iloexpression.h>
+#include <ilcplex/ilocplexi.h>
+
+
 #include "Route.h"
 
 Model_Cplex::Model_Cplex(vector<vector<vector<int>>> a, vector<vector<double>> c, vector<Airplane>& airplaneNew, map<int, vector<Route>>& airplane_routesNew, vector<Route>& all_Route, const int nrichieste, vector<Passenger>& all_passengers, vector<Route>& solution_model_new, map <int, Airplane>& map_airplane_new) {	//construtor
@@ -27,7 +34,7 @@ Model_Cplex::~Model_Cplex() { // Destrutor
 
 
 void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution_warm_up, map<string, int>& mappa_aereo_tipo, map<int, int>& codice_aereo_tipo, map<int, int>& tipo_numero, vector<vector<Route>>& solutionAll) {
-	/*
+
 	vector<vector<Route>> t_route(mappa_aereo_tipo.size());
 	vector<vector<double>> t_route_costi(mappa_aereo_tipo.size());
 	vector<vector<vector<int>>> A2(mappa_aereo_tipo.size());
@@ -202,7 +209,7 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 		cplex.setParam(IloCplex::IntParam::MIPEmphasis, 4);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Cliques, 2);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::LiftProj, -1);
-		cplex.setParam(IloCplex::Param::MIP::Cuts::BQP, -1);
+		//cplex.setParam(IloCplex::Param::MIP::Cuts::BQP, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Covers, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Disjunctive, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::FlowCovers, -1);
@@ -213,7 +220,7 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 		cplex.setParam(IloCplex::Param::MIP::Cuts::MCFCut, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::MIRCut, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::PathCut, -1);
-		cplex.setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
+		//cplex.setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::ZeroHalfCut, 1);
 		//cplex.setParam(IloCplex::Param::MIP::Strategy::VariableSelect, 3);
 		// End of Paramenters setting
@@ -281,7 +288,7 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 			*/
 
 			//for (Route& r : solution_model) cout << r.aircraft_code << endl;
-			/*
+			
 			for (size_t i = 0; i < solution_model.size(); i++) {
 				for (size_t j = 0; j < solution_model.size(); j++) {
 					if (i != j && solution_model[i].aircraft_code == solution_model[j].aircraft_code) {
@@ -308,11 +315,11 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 	}
 
 	env.end();
-	*/
+
 }
 
 void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation - Gurobi
-	/*
+	
 	IloEnv env;
 	try {
 		IloModel model(env);
@@ -428,7 +435,7 @@ void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation 
 		else {
 			cout << " Non ha Funzionato si vede che non ha chiuso all'ottimo " << endl;
 			cout << " Status " << cplex.getStatus() << endl;
-			//ystem("pause");
+			//system("pause");
 		}
 
 
@@ -441,5 +448,4 @@ void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation 
 	}
 
 	env.end();
-	*/
 }

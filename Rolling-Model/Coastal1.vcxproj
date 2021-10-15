@@ -80,10 +80,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(GUROBI_HOME)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\IBM\ILOG\CPLEX_Studio1261\concert\include;C:\Program Files\IBM\ILOG\CPLEX_Studio1261\cplex\include;$(GUROBI_HOME)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files\IBM\ILOG\CPLEX_Studio_Community201\concert\lib\x64_windows_msvc14\stat_mda\concert.lib;C:\Program Files\IBM\ILOG\CPLEX_Studio_Community201\cplex\lib\x64_windows_msvc14\stat_mda\cplex1261.lib;C:\Program Files\IBM\ILOG\CPLEX_Studio_Community201\cplex\lib\x64_windows_msvc14\stat_mda\ilocplex.lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

@@ -31,7 +31,7 @@ Model_Connection::~Model_Connection() { // Destrutor
 
 bool Model_Connection::create_Model_connection(vector<vector<bool>>& R, vector<vector<bool>>& S, vector<vector<bool>>& T, int num_req_day1, int num_req_day2, int num_req_day3, int num_aerei) {
 	return false; 
-	/*
+	
 	bool infeasible = false;
 	IloEnv env;
 	try {
@@ -332,7 +332,7 @@ bool Model_Connection::create_Model_connection(vector<vector<bool>>& R, vector<v
 		model.add(cons);
 		C9.end();
 
-		/*
+		
 		cout << "Creating constraint 10..." << endl;
 		// Devo capite come fare il For su tutti i Passeggieri........... Non so quanti siano
 		for (int i = 0; i < (int)flight_leg_day1.size(); i++) {
@@ -381,10 +381,10 @@ bool Model_Connection::create_Model_connection(vector<vector<bool>>& R, vector<v
 
 		}
 
-		*/
+		
 
 
-		/*
+		
 		cout << "vincolo del numero massimo di aerei da prendere" << endl;
 		cout << "vincolo del ritorno al deposito" << endl;
 
@@ -435,13 +435,13 @@ bool Model_Connection::create_Model_connection(vector<vector<bool>>& R, vector<v
 		cplex.setParam(IloCplex::Param::MIP::Tolerances::AbsMIPGap, 0.05);
 		cplex.setParam(IloCplex::NumParam::TiLim, 1200);			// Time Limit
 		cplex.setParam(IloCplex::IntParam::RootAlg, 0);			// Methodology 1= Primal simplex 2	= Dual simplex 3 = Network simplex, 4	= 	Barrier, 5	= 	Sifting, 6	= 	Concurrent(Dual, Barrier, and Primal in opportunistic parallel mode; Dual and Barrier in deterministic parallel mode)
-		/*
+	
 		cplex.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 0.0);			// MIP GAP
 		cplex.setParam(IloCplex::Param::MIP::Tolerances::AbsMIPGap, 0.0);
 		cplex.setParam(IloCplex::IntParam::MIPEmphasis, 4);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Cliques, 2);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::LiftProj, -1);
-		cplex.setParam(IloCplex::Param::MIP::Cuts::BQP, -1);
+		//cplex.setParam(IloCplex::Param::MIP::Cuts::BQP, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Covers, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Disjunctive, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::FlowCovers, -1);
@@ -452,14 +452,14 @@ bool Model_Connection::create_Model_connection(vector<vector<bool>>& R, vector<v
 		cplex.setParam(IloCplex::Param::MIP::Cuts::MCFCut, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::MIRCut, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::PathCut, -1);
-		cplex.setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
+		//cplex.setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::ZeroHalfCut, 1);
 		cplex.setParam(IloCplex::Param::MIP::Strategy::VariableSelect, 3);
-		*/
+		
 		// End of Paramenters setting
 		//cplex.exportModel("modello.lp");
 
-		/*
+		
 		cplex.solve();
 		env.out() << "Solution status = " << cplex.getStatus() << endl;
 		env.out() << "Solution value  = " << cplex.getObjValue() << endl;
@@ -557,6 +557,6 @@ bool Model_Connection::create_Model_connection(vector<vector<bool>>& R, vector<v
 
 	env.end();
 	return infeasible;
-	*/
+
 }
 
