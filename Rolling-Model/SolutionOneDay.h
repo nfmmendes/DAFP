@@ -24,14 +24,7 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 	double time_spent_model = 0.0;
 	double tempo_finale;
 	time_t time_now = time(NULL);
-	//input heuristic
-	//int number_airplane = stoi(argv[4]); // Per Modello
-	//int number_airplane = 12;
-	//cout << "il numero degli aerei e: " << number_airplane << endl;
-	//cin.get();
-	//int Iter_FirstDo = 0;
-	//int iterMAX_FirstDo = 10;
-	//double best_solution_ever = DBL_MAX;
+
 	int NDestroy = 4;
 	int NRepair = 5;
 	int NHeuristic = 2;
@@ -86,9 +79,7 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 		if (Iter_FirstDo == 0) {
 
 			double heuristic_choice = (double)rand() / RAND_MAX;
-			//cout << " heuristic_choice =  " << heuristic_choice << endl;
-			//for (int i = 0; i < NHeuristic; i++) cout << Accumulated(i, Weigth_heuristic) << " || ";
-			//cout << endl;
+
 			int npass = 0;
 			do {
 				//auto rng1 = default_random_engine{};
@@ -138,11 +129,6 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 		do {
 			NumeroSA++;
 			//*************************************heuristic costructive***************************************************************************************
-			//cout << "Iteration number: " << iteration << endl;
-			//cout << "Temperatura: " << T << endl;
-			//cout << "K: " << k << endl;
-			//cout << "The cost of the best solution X* is: " << best_solution << endl;
-			//cout << "The cost of the current X is: " << start_solution << endl;
 			double random = (double)rand() / RAND_MAX;
 			double percentage_route_destroy = (MinLevel + (random * (MaxLevel - MinLevel)));
 			//cout << "---> Percentuale di distruzione " << percentage_route_destroy << endl;
@@ -151,15 +137,10 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 			vector<Passenger> passenger_removed;
 			// REMOVING OF A RANDOM NODE
 			vector<Route> Input_destroy = start_solution_route;
-			//cout << "***************************DISTRUCTION*******************" << endl;
 			double destroy_choice = (double)rand() / RAND_MAX;
 			vector<Route> route_destroy;
-			//double starting_range = (Weigth_destroy[0]) / (Sum(Weigth_destroy));
-			//cout << " destroy_choice =  " << destroy_choice << endl;
-			//for (int i = 0; i < Weigth_destroy.size(); i++) cout << Accumulated(i, Weigth_destroy) << " || ";
-			//cout << endl;
-			//using namespace std::chrono;
 			auto start = chrono::high_resolution_clock::now();
+
 			if (destroy_choice < Accumulated(0, Weigth_destroy)) {
 				//cout << "*************** I am using the Cluster Destroy ************" << endl;
 				int num_passenger_cluster = (int)((passengers.size() * 0.14) + (random * ((passengers.size() * 0.24) - (passengers.size() * 0.14)))); //era 0.24 prima
@@ -184,42 +165,10 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 			auto stop = chrono::high_resolution_clock::now();
 			auto duration = chrono::duration_cast<chrono::seconds>(stop - start);
 			double time_spent = Time_Spend((double)duration.count());
-			//cout << " Tempo Destroy vero: " << duration.count() << " ma corrisponde al valore trasformato in double = " << time_spent << endl;
-			//cout << "***************************END DISTRUCTION*******************" << endl;
-			//cout << "ho appena fatto la distruzione" << endl;
-			//vector<Route> routes, map<string, double>& from_to, map<int, Airplane> map_airplane, map<int, string> legenda_inversa
-			//stampo_caso_strano_destroy(route_destroy, from_to_company, map_airplane, legenda_ritroso);
-			//for (Route p : route_destroy) p.print();
-			//for(Route p : route_destroy) p.print();
-			//cout << "ecco i passeggeri da reinserire: " << endl;
-			//for (Passenger p : passenger_removed) p.print();
+
 			//cout << "********************************REBUILT***************************" << endl;
 			vector <Route> solution_rebuilt;
 			double repair_choice = (double)rand() / RAND_MAX;
-			//cout << " repair_choice =  " << repair_choice << endl;
-			//for (int i = 0; i < Weigth_repair.size(); i++) cout << Accumulated(i, Weigth_repair) << " || ";
-			//cout << endl;
-
-
-			//PER TEST CON PUNTATORI************************************************************************
-			/*cout << "sono prima dei repair" << endl;
-			cout << "passeggeri rimossi " << passenger_removed.size() << endl;;
-			int pass_soluzione = 0;
-			for (Route r : solution_rebuilt) pass_soluzione += r.passengers_in_route.size();
-			cout << "passenger nella soluione " << pass_soluzione << endl;
-			int pass_dist = 0;
-			for (Route r : route_destroy) pass_dist += r.passengers_in_route.size();
-			cout << "passenger nella soluzione distrutta " << pass_dist << endl;
-			if (passengers.size() != (pass_dist + passenger_removed.size())) {
-				cout << "si creano dei passeggeri" << endl;
-				system("pause");
-			}
-			cout << endl;
-			cout << endl;
-			cout << endl;
-			cout << endl;
-			cout << endl;
-			*/
 
 			auto start_r = chrono::high_resolution_clock::now();
 			if (repair_choice < Accumulated(0, Weigth_repair)) {
@@ -255,59 +204,13 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 			auto duration_r = chrono::duration_cast<chrono::seconds>(stop_r - start_r);
 			double time_spent_r = Time_Spend((double)duration_r.count());
 
-			/*cout << "sono dopo dei repair" << endl;
-			cout << "passeggeri rimossi " << passenger_removed.size() << endl;
-			pass_soluzione = 0;
-			for (Route r : solution_rebuilt) pass_soluzione += r.passengers_in_route.size();
-			cout << "passenger nella soluzione " << pass_soluzione << endl;
-			pass_dist = 0;
-			for (Route r : route_destroy) pass_dist += r.passengers_in_route.size();
-			cout << "passenger nella soluzione distrutta " << pass_dist << endl;
-			*/
-
-
-			//cout << "ho appena fatto i repair" << endl;
-			//stampo_caso_strano(map_airstrip, peso_TW, peso_itermediate_stop, from_to, from_to_FuelConsumed, passengers_per_casostrano, solution_rebuilt, from_to_company, map_airplane, legenda_ritroso);
-
-
 			if (solution_rebuilt.size() > 0) {
 				double initial_cost = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-				//cout << "Cost of the solution rebuilt: " << initial_cost << endl;
-				//vector<Route> solution_rebuilt_without_LS = solution_rebuilt;
-				//cout << "sto iniziando il move" << endl;
 				solution_rebuilt = move(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airplane, map_airstrip, end_day, from_to, location_fuel, from_to_FuelConsumed);
-				//cout << "ho appena fatto il move" << endl;
-				//stampo_caso_strano(map_airstrip, peso_TW, peso_itermediate_stop, from_to, from_to_FuelConsumed, passengers_per_casostrano, solution_rebuilt, from_to_company, map_airplane, legenda_ritroso);
-				//cout << "Cost of the solution rebuilt after Move: " << calculate_ObjectiveFunction(solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
 				solution_rebuilt = swap(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airplane, map_airstrip, end_day, from_to, location_fuel, from_to_FuelConsumed);
-				//cout << "ho appena fatto lo swap" << endl;
-				//stampo_caso_strano(map_airstrip, peso_TW, peso_itermediate_stop, from_to, from_to_FuelConsumed, passengers_per_casostrano, solution_rebuilt, from_to_company, map_airplane, legenda_ritroso);
-				//cout << "Cost of the solution rebuilt after Move + Swap: " << calculate_ObjectiveFunction(solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
-				//initial_cost == calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed)
-				//initial_cost == calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed)
+
 				if (initial_cost == calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed)) {
-					//cout << "in questo caso ho fatto l'inter-move" << endl;
-					//int pass_per_test = 0;
-					//for (Route r : solution_rebuilt) cout << "- " << r.aircraft_code << endl;
-
 					solution_rebuilt = inter_move(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airplane, map_airstrip, end_day, from_to, location_fuel, from_to_FuelConsumed);
-					//cout << "ho appena fatto lo inter move" << endl;
-					//stampo_caso_strano(map_airstrip, peso_TW, peso_itermediate_stop, from_to, from_to_FuelConsumed, passengers_per_casostrano, solution_rebuilt, from_to_company, map_airplane, legenda_ritroso);
-
-					/*cout << "sono dentro l'inter-move" << endl;
-					cout << "passeggeri rimossi " << passenger_removed.size() << endl;
-					pass_soluzione = 0;
-					for (Route r : solution_rebuilt) pass_soluzione += r.passengers_in_route.size();
-					cout << "passenger nella soluzione " << pass_soluzione << endl;
-					pass_dist = 0;
-					for (Route r : route_destroy) pass_dist += r.passengers_in_route.size();
-					cout << "passenger nella soluzione distrutta " << pass_dist << endl;
-					cout << "prima del inter-move erano: " << pass_per_test << endl;
-					if(pass_per_test != pass_soluzione) system("pause");
-					*/
-
-
-					//cout << "Cost of the solution rebuilt after Move + Swap: " << calculate_ObjectiveFunction(solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
 				}
 				//cout << "passato if intermove" << endl;
 				solution_rebuilt = heuristic_costructive_second_fase(solution_rebuilt, end_day, peso_TW);
@@ -327,27 +230,16 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 					outfile << "NumeroSA:;" << NumeroSA << ";" << best_solution << ";tempo:;" << to_string(tempo_finale) << endl;
 					//outfile1.close();
 				}
-				//*********************************************************************************************************************************************************************************************************************
 
-
-
-
-
-				//if (cost_objectiveFunction_second_fase_after_rebuilt < initial_cost) solutionAll.push_back(solution_rebuilt_without_LS);
-				//cout << "costo routing: " << costo_senza_time_windows(solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
-				//cout << "costo time windows: " << costo_time_windows(solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
 				if (cost_objectiveFunction_second_fase_after_rebuilt < start_solution) {
 					//cout << "Ottimo aggiorno la soluzione da cui continuare a fare perturbazioni " << endl;
 					start_solution_route.clear();
 					//start_solution_route.shrink_to_fit();
-					//cout << " Ho cancellato " << endl;
-					//cout << " Adesso ho azzerato start_solution_route stampo la size: " << start_solution_route.size() << endl;
+
 					for (Route& so : solution_rebuilt) start_solution_route.push_back(so);
 					//cout << " Adesso ho aggiornato start_solution_route stampo la size: " << start_solution_route.size() << endl;
 					double award = Ob_Funct_Improvement(cost_objectiveFunction_second_fase_after_rebuilt, start_solution);
-					//cout << " Con un miglioramento di " << start_solution - cost_objectiveFunction_second_fase_after_rebuilt << " si ha un award di " << award << endl;
-					//cout << " ed un fattore tempo di Destroy di " << time_spent << endl;
-					//cout << " ed un fattore tempo di Repair di " << time_spent_r << endl;
+
 					start_solution = cost_objectiveFunction_second_fase_after_rebuilt;
 					iteration = 0;
 					//cout << " Aggiungo al destroy ad al Repair 1 + award =  " << award << endl;
@@ -369,19 +261,14 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 				else {
 
 					r = double(rand()) / (double(RAND_MAX) + 1.0);
-					//cout << " Ho generato numero random " << r << endl;
-					//cout << "-( " << cost_objectiveFunction_second_fase_after_rebuilt << " - " << start_solution << ") / " << T;
+
 					double espo = -(cost_objectiveFunction_second_fase_after_rebuilt - start_solution) / T;
-					//cout << " Adesso ho generato espo " << espo << endl;
-					//cout << " Se non lo � devo incrementare iterazione se lo � aggiorno valori X con X'  " << endl;
+
 					if (r <= exp(espo) && exp(espo) != 1) {
 						//cout << "Confrona i costi sono entrato perche: " << r << " < " << exp(espo) << endl;
 						start_solution_route.clear();
-						//start_solution_route.shrink_to_fit();
-						//cout << " Ho cancellato " << endl;
-						//cout << " Adesso ho azzerato start_solution_route stampo la size: " << start_solution_route.size() << endl;
+
 						for (Route& s : solution_rebuilt) start_solution_route.push_back(s);
-						//cout << " Adesso ho aggiornato start_solution_route stampo la size: " << start_solution_route.size() << endl;
 						start_solution = cost_objectiveFunction_second_fase_after_rebuilt;
 						iteration = 0;
 						Weigth_destroy[choosen_destroy] ++;
@@ -396,19 +283,17 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 				cout << "Numero iterazioni ---> " << NumeroSA << endl;
 			}
 			else {
-				//cout << " ************ ITERAZIONE FALLITA ************************* " << endl;
 				iterazioni_fallite++;
-				//system("pause");
 			}
 			k++;
-			//cout << " Valore attuale di K = " << k << " aggiorno temperatura dopo: " << DeltaK << endl;
+
 			if (k >= DeltaK) {
 				T = (int)(alpha * T);
-				//cout << " Aggiorno temperatura A: " << T << endl;
 				k = 0;
 			}
-			//cout << " A T < " << Tmin << " devi fermarti T= " << T << " or " << iteration << " > " << iteration_max << " Ciclo Grande fuori iterazione ------> " << Iter_FirstDo << endl;
+
 		} while ((iteration <= iteration_max) && (T > Tmin));
+
 		if (Iter_FirstDo > 4) cout << " Iterazioni senza migliorare " << iteration << " Temperaruta: " << T << endl;
 		tempo_finale = difftime(time(NULL), time_now);
 		outfile << "soluzione prima del modello:;" << NumeroSA << ";" << best_solution << ";tempo:; " << to_string(tempo_finale) << endl;
@@ -470,9 +355,6 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 			cout << "la size di airplanc routes e': " << endl;
 			cout << airplane_routes.size() << endl;
 			for (Route& r : airplane_routes[airplane.code]) {
-				//cout << "sto stampando il codice" << endl;
-				//cout << "-->" << r.aircraft_code << endl;
-				//r.print();
 				routes.push_back(r);
 				vector<int> A1;
 				for (Passenger& p : passengers) {
@@ -518,9 +400,6 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 		}
 		start_solution = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
 		cout << " Costo del Modello che sara nuovo costo di partenza = " << start_solution << endl;
-
-		//********************************************************************************************************************************************************************
-
 
 		vector_solution_for_FL.push_back(start_solution_route);
 		start_route_bs = (int)solutionAll.size();
@@ -576,9 +455,6 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 	map<double, int> cost;
 	map<double, int>::iterator it;
 
-
-
-
 	int i = 0;
 	double valore = 0.0;
 	for (auto vettore : vector_solution_for_FL) {
@@ -590,14 +466,13 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 		i++;
 	}
 	cout << " Stampo soluzioni con costo ...." << endl;
-	//for (auto& elemnt : cost) cout << elemnt.first << " " << elemnt.second << endl;
+
 	vector<vector<Route>> migliori;
 	i = 0;
 	for (auto& elemnt : cost) {
 		if (i == 80) break;
 		std::cout << " Butto dentro route con costo .. " << elemnt.first << " numero .. " << elemnt.second << std::endl;
 		std::vector<Route> vettore = (vector_solution_for_FL.at(elemnt.second));
-		//cout << " Controllo per sicurezza costo .. " << calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, vettore, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
 		migliori.push_back(vector_solution_for_FL.at(elemnt.second));
 		i++;
 	}
