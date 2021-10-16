@@ -1,5 +1,9 @@
-﻿
+﻿#ifndef DESTROYERS_H
+#define DESTROYERS_H
+
 //ECCO I NOSTRI DESTROY
+#include <unordered_map>
+
 #include "Route.h"
 
 
@@ -1376,3 +1380,5 @@ void destroy_ls(int index, int node_destroy, vector<Passenger>& passenger_remove
 	//cout << "passengers removed" << endl;
 	//for (Passenger p : passenger_removed) p.print();
 }
+
+#endif

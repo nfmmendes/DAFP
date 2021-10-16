@@ -4,6 +4,7 @@
 //********************************************************FUNZIONI CHE CALCOLANO I COSTI*******************************************************************************
 #include <iostream>
 #include <map>
+#include <set>
 #include <vector>
 
 

@@ -10,6 +10,7 @@
 #include "Utils.h"
 #include "Airplane.h"
 #include "Airstrip.h"
+#include "Fuel.h"
 #include "Route.h"
 
 
@@ -418,6 +419,73 @@ map<int, int> fill_location_request(vector<Passenger>& passengers) {
 
 
 	return mappa;
+}
+
+
+//per il tratto finale
+void fillLocation_fuel(vector<vector<double>>& risultato, vector<Airstrip> airstrips, vector<Airplane> airplanes, vector<vector<double>>& from_to, map<int, Airstrip>& map_airstrip) {
+
+
+	risultato.resize((size_t)numero_airplane_const);
+	for (int i = 0; i < numero_airplane_const; i++)
+		risultato[i].resize((size_t)numero_airstrip_const);
+
+
+
+	for (Airplane f : airplanes) {
+		for (Airstrip a : airstrips) {
+			if (a.fuel) {
+				risultato[f.code][a.code] = 0.0;
+				//risultato.insert(make_pair(f.code + "/" + a.code, 0.0));
+			}
+			else {
+				double fuel_needed = 0;
+				double time_fly = from_to[a.code][location_closest_with_fuel(a.code, from_to, map_airstrip)] / f.speed;
+				//double time_fly = from_to[a.code + ";" + location_closest_with_fuel(a.code, from_to, map_airstrip)] / f.speed;
+				if (time_fly <= 1) {
+					fuel_needed = time_fly * f.fuel_burn_first;
+				}
+				else {
+					fuel_needed = f.fuel_burn_first + (time_fly - 1) * f.fuel_burn_second;
+				}
+
+				risultato[f.code][a.code] = fuel_needed;
+				//risultato.insert(make_pair(f.code + "/" + a.code, fuel_needed));
+			}
+		}
+	}
+
+
+
+
+}
+
+
+map<string, double> fillLocation_fuel_string(vector<Airstrip> airstrips, vector<Airplane> airplanes, map<string, double>& from_to, map<string, Airstrip>& map_airstrip) {
+
+	map <string, double> risultato;
+	for (Airplane f : airplanes) {
+		for (Airstrip a : airstrips) {
+			if (a.fuel) {
+				risultato.insert(make_pair(f.code_company + "/" + a.code_string, 0.0));
+			}
+			else {
+				double fuel_needed = 0;
+				double time_fly = from_to[a.code_string + ";" + location_closest_with_fuel_string(a.code_string, from_to, map_airstrip)] / f.speed;
+				if (time_fly <= 1) {
+					fuel_needed = time_fly * f.fuel_burn_first;
+				}
+				else {
+					fuel_needed = f.fuel_burn_first + (time_fly - 1) * f.fuel_burn_second;
+				}
+				risultato.insert(make_pair(f.code_company + "/" + a.code_string, fuel_needed));
+			}
+		}
+	}
+
+
+	return risultato;
+
 }
 
 
