@@ -133,32 +133,6 @@ void creazione_route_three_Days_for_evaluation_Cost(vector<vector<double>>& from
 				}
 
 			}
-			/*else {
-				for (int k = 0; k < (int)flightlegs_day3.size(); k++) {
-					if (y_j_k[j][k]) {
-						cout << "j: " << j << " k: " << k << endl;
-						route_day2.push_back(flightlegs_day2[j].route_padre);
-						//per il costo***************************************************************************************************
-						costo += flightlegs_day2[j].cost;
-						cout << flightlegs_day2[j].cost << endl;
-						//***************************************************************************************************************
-						if (!flightlegs_day3[k].flight_leg_fittizzio) {
-							flightlegs_day3[k].route_padre.airplane_day_before = true;
-							route_day3.push_back(flightlegs_day3[k].route_padre);
-							//per il costo***************************************************************************************************
-							costo += costo_connessione[flightlegs_day2[j].cod_airplane][flightlegs_day2[j].to][flightlegs_day3[k].from];
-							cout << costo_connessione[flightlegs_day2[j].cod_airplane][flightlegs_day2[j].to][flightlegs_day3[k].from] << endl;
-							costo += flightlegs_day3[k].cost - map_airplane[flightlegs_day3[k].cod_airplane].fixed_cost;
-							cout << flightlegs_day3[k].cost << " - " << map_airplane[flightlegs_day3[k].cod_airplane].fixed_cost << endl;
-							//***************************************************************************************************************
-						}
-					}
-				}
-
-
-
-			}*/
-
 		}
 	}
 
@@ -166,7 +140,7 @@ void creazione_route_three_Days_for_evaluation_Cost(vector<vector<double>>& from
 	for (int j = 0; j < (int)flightlegs_day2.size(); j++) {
 		for (int k = 0; k < (int)flightlegs_day3.size(); k++) {
 			if (y_j_k[j][k]) {
-				string j_string = ";"+to_string(j)+";";
+				string j_string = ";" + to_string(j) + ";";
 				size_t found = check_per_j.find(j_string);
 				if (found == string::npos) {  //SE CI SONO DEI PROBLEMI GUARDA QUESTO IF
 					cout << "j: " << j << " k: " << k << endl;
@@ -190,10 +164,10 @@ void creazione_route_three_Days_for_evaluation_Cost(vector<vector<double>>& from
 				}
 			}
 		}
-		
+
 	}
 
-	
+
 
 	cout << "il costo e' prima del secondo big for: " << costo << endl;
 
@@ -259,29 +233,17 @@ int main(int argc, char* argv[]) {
 	map<int, int> tipo_numero;
 
 	//**************************INPUT***********************************
-	//creo la legenda
-	//cout << "start legenga_ritroso" << endl;
 	map<int, string> legenda_ritroso;
 	map<string, int> legenda = fillLegenda("legenda.csv", legenda_ritroso);
-	/*cout << "stampo la legenda" << endl;
-	for (auto x : legenda) {
-		cout << x.first << "----->" << x.second << "il ritroso e':  "<< x.second << " -----> " << legenda_ritroso[x.second] << endl;
-	}
-	system("pause");*/
 
 
 
 	//reading of AIRPLANE.CSV and creation VECTOR OF AIRPLANES
 	vector<Airplane> airplanes = fillAirplane("NewAirplaneAll.csv", legenda);
 	Build_structure_Model(airplanes, mappa_aereo_tipo, codice_aereo_tipo, tipo_numero);
-	//cout << "***********************Print airplane***********************" << endl;
-	//for (auto f : airplanes) cout << "il modello dell'aereo e': " << f.model << endl;
-	//system("pause");
-	//reading of AIRSTRIP.CSV and creation VECTOR OF AIRSTRIPS
+
 	vector<Airstrip> airstrips = fillAirstrip("NewAirstrip.csv", legenda);
-	//cout << "***********************Print airstrips***********************" << endl;
-	//for (auto f : airstrips) f.print();
-	//reading of INSTANCE.CSV and creation VECTOR OF PASSENGER
+
 	vector<Passenger> passengers_day1 = fillPassenger(argv[1], legenda);
 	vector<Passenger> passengers_day2 = fillPassenger(argv[5], legenda);
 	vector<Passenger> passengers_day3 = fillPassenger(argv[9], legenda);
@@ -293,9 +255,7 @@ int main(int argc, char* argv[]) {
 	unione_children_INTELLIGENTE(passengers_day2, passengers_for_company_solution_day2);
 	unione_children_INTELLIGENTE(passengers_day3, passengers_for_company_solution_day3);
 
-
 	fix_key_passenger_for_regret(passengers_day1, passengers_day2, passengers_day3);
-
 
 	map<int, Passenger> map_id_passenger_day1 = fillMapPassenger(passengers_day1);
 	map<int, Passenger> map_id_passenger_day2 = fillMapPassenger(passengers_day2);
@@ -319,19 +279,12 @@ int main(int argc, char* argv[]) {
 	fill_from_to_fuel_consumed(from_to_FuelConsumed, from_to, airplanes);
 	map<string, double> from_to_fuel_consumed_string = fill_from_to_fuel_consumed_string(from_to_company, airplanes);
 
-
-
 	vector<Passenger> passengers_per_casostrano_day1 = passengers_day1;
 	vector<Passenger> passengers_per_casostrano_day2 = passengers_day2;
 	vector<Passenger> passengers_per_casostrano_day3 = passengers_day3;
 
-
 	double Company_Solution = calculationCostCompany_three_days(peso_TW, from_to_fuel_consumed_string, peso_transhipment, peso_itermediate_stop, argv[2], argv[6], argv[10], argv[3], argv[7], argv[11], airstrips, airplanes, passengers_for_company_solution_day1, passengers_for_company_solution_day2, passengers_for_company_solution_day3, from_to_company);
 	cout << " Costo della soluzione della compagnia per i tre giorni = " << Company_Solution << endl;
-	//system("pause");
-
-
-
 	//ora creo la mappa che mi dice per ogni locazione dov'è il posto più vicino per fare benzina, se nel posto considerato posso fare benzina il valore sarà uguale alla chiave
 	map < int, int> to_closeness_fuel = fill_to_closeness_fuel(from_to, airstrips);
 
@@ -346,17 +299,15 @@ int main(int argc, char* argv[]) {
 	sort(passengers_day2.begin(), passengers_day2.end(), [](const Passenger& lhs, const Passenger& rhs) {
 		return lhs.mean_departure < rhs.mean_departure;
 		//return lhs.mean_arrival < rhs.mean_arrival;
-	});
+		});
 
 	sort(passengers_day3.begin(), passengers_day3.end(), [](const Passenger& lhs, const Passenger& rhs) {
 		return lhs.mean_departure < rhs.mean_departure;
 		//return lhs.mean_arrival < rhs.mean_arrival;
-	});
+		});
 
 	int best_location_4places_day2 = best_location_4place(location_request_day2, from_to, airstrips);
-	//cout << "ecco la migliore locazione più vincina alle migliori 4 per il giorno 2: " << best_location_4places_day2 << endl;
 	int best_location_4places_day3 = best_location_4place(location_request_day3, from_to, airstrips);
-	//cout << "ecco la migliore locazione più vincina alle migliori 4 per il giorno 3: " << best_location_4places_day3 << endl;
 
 	vector<vector<double>> min_fuel_day2;
 	vector<vector<double>> min_fuel_day3;
@@ -372,15 +323,7 @@ int main(int argc, char* argv[]) {
 
 	//******************************************************************************************************************************************************************
 	//******************************************************************************************************************************************************************
-	//******************************************************************************************************************************************************************
-	//******************************************************************************************************************************************************************
-	//******************************************************************************************************************************************************************
-	//******************************************************************************************************************************************************************
 	//*******************************************************DA QUA INCOMINCIA IL CODICE DEL MAIN, PRIMA CI SONO SOLO STRUTTURE DATI***********************************
-	//******************************************************************************************************************************************************************
-	//******************************************************************************************************************************************************************
-	//******************************************************************************************************************************************************************
-	//******************************************************************************************************************************************************************
 	//******************************************************************************************************************************************************************
 	//******************************************************************************************************************************************************************
 
@@ -444,21 +387,18 @@ int main(int argc, char* argv[]) {
 	cout << " -------------------->>> CHIAMO IL MODELLO CHE ABBIAMO CREATO <<<<-------------------------------------" << endl;
 	system("pause");
 	//chiamo il modello
-	Model_Connection *modello_connsessio = new Model_Connection(mat_depot_1_2, mat_depot_2_3, mat_depot_1_3, costo_connessione, A, B, C, flightlegs_day1, flightlegs_day2, flightlegs_day3, FL_pass_day1, FL_pass_day2, FL_pass_day3);
-	bool infeasible = modello_connsessio->create_Model_connection(R,S,T,(int)passengers_day1.size(), (int)passengers_day2.size(), (int)passengers_day3.size(), numero_aerei);
+	Model_Connection* modello_connsessio = new Model_Connection(mat_depot_1_2, mat_depot_2_3, mat_depot_1_3, costo_connessione, A, B, C, flightlegs_day1, flightlegs_day2, flightlegs_day3, FL_pass_day1, FL_pass_day2, FL_pass_day3);
+	bool infeasible = modello_connsessio->create_Model_connection(R, S, T, (int)passengers_day1.size(), (int)passengers_day2.size(), (int)passengers_day3.size(), numero_aerei);
 	cout << " -------------------->>> FINITO LA CHIAMATA DEL MODELLO  <<<<-------------------------------------" << endl;
-	if(!infeasible) Print_Model_Result(R, S, T, flightlegs_day1, flightlegs_day2, flightlegs_day3);
-	
+	if (!infeasible) Print_Model_Result(R, S, T, flightlegs_day1, flightlegs_day2, flightlegs_day3);
+
 	//ora creo le route dei tre giorni
 	vector<Route> route_finali_day1;
 	vector<Route> route_finali_day2;
 	vector<Route> route_finali_day3;
 	cout << "sto iniziando la creazione delle route con la valutazione del loro costo" << endl;
-	creazione_route_three_Days_for_evaluation_Cost(from_to, from_to_FuelConsumed,  map_airplane, route_finali_day1, route_finali_day2, route_finali_day3, R, S, T, flightlegs_day1, flightlegs_day2, flightlegs_day3, costo_connessione);
-	
-	
-	
-	
+	creazione_route_three_Days_for_evaluation_Cost(from_to, from_to_FuelConsumed, map_airplane, route_finali_day1, route_finali_day2, route_finali_day3, R, S, T, flightlegs_day1, flightlegs_day2, flightlegs_day3, costo_connessione);
+
 	cout << "QUESTA CHE RIPORTO è UNA STAMPA PER VALUTARE SE SONO STATE PRESE TUTTE LE ROUTE DEI DIVERSI GIORNI" << endl;
 	cout << "*********************************ecco il giorno 1*********************************" << endl;
 	int num_passenger_day1 = 0;
@@ -485,14 +425,14 @@ int main(int argc, char* argv[]) {
 	}
 	cout << "num_pass ---  pass_veri day3" << endl;
 	cout << num_passenger_day3 << " --- " << passengers_day3.size() << endl;
-	
-	
-	
-	
+
+
+
+
 	cout << "il costo e': " <<
 		calculate_ObjectiveFunction_complete_after_rolling(peso_TW, peso_itermediate_stop, route_finali_day1, route_finali_day2, route_finali_day3,
 			map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
-	
+
 
 	//ECCO LE STAMPE FINALI
 	double stampa_compagnia = calculationCostCompany_three_days(peso_TW, from_to_fuel_consumed_string, peso_transhipment, peso_itermediate_stop, argv[2], argv[6], argv[10], argv[3], argv[7], argv[11], airstrips, airplanes, passengers_for_company_solution_day1, passengers_for_company_solution_day2, passengers_for_company_solution_day3, from_to_company);
