@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include<string>
-#include <sstream>
 #include <vector>
 #include <ilconcert/iloexpression.h>
 #include <ilcplex/ilocplex.h>

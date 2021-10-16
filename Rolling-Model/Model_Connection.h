@@ -1,13 +1,7 @@
 #ifndef MODEL_CONNECTION_H
 #define MODEL_CONNECTION_H
 
-#include <map>
-#include <string>
 #include <vector>
-#include <algorithm>
-#include"Airplane.h"
-#include"Route.h"
-#include"Passenger.h"
 #include "Flightleg.h";  
 using namespace std;
 

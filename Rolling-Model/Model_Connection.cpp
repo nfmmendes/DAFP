@@ -1,10 +1,8 @@
 #include "Model_Connection.h"
 #include <string>
-#include <sstream>
 #include <vector>
 #include <iostream>
 #include <ilcplex/ilocplex.h>
-#include "Route.h"
 
 Model_Connection::Model_Connection( vector<vector<int>>& mat_depot_1_2, vector<vector<int>>& mat_depot_2_3, vector<vector<int>>& mat_depot_1_3, vector<vector<vector<double>>>& costo_connessione, vector<vector<int>>& A, vector<vector<int>>& B, vector<vector<int>>& C, vector <Flightleg>& flight_leg_day1, vector <Flightleg>& flight_leg_day2, vector <Flightleg>& flight_leg_day3, vector<vector<int>>& FL_P_day1, vector<vector<int>>& FL_P_day2, vector<vector<int>>& FL_P_day3) {	//construtor
 	this->A = A;

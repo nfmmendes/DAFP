@@ -160,12 +160,16 @@
   <ItemGroup>
     <ClInclude Include="Airplane.h" />
     <ClInclude Include="Airstrip.h" />
+    <ClInclude Include="Evaluate.h" />
+    <ClInclude Include="Fill.h" />
     <ClInclude Include="Flightleg.h" />
+    <ClInclude Include="Garbage.h" />
     <ClInclude Include="Model_Connection.h" />
     <ClInclude Include="Model_Cplex.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Passenger.h" />
     <ClInclude Include="Route.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
