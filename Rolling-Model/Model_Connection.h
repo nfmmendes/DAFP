@@ -1,9 +1,6 @@
 #ifndef MODEL_CONNECTION_H
 #define MODEL_CONNECTION_H
 
-#define ILOUSESTL
-#define ILO_WINDOWS
-
 #include <map>
 #include <string>
 #include <vector>
@@ -11,8 +8,7 @@
 #include"Airplane.h"
 #include"Route.h"
 #include"Passenger.h"
-#include "Flightleg.h";
-#include <ilcplex/ilocplex.h>  
+#include "Flightleg.h";  
 using namespace std;
 
 class Model_Connection {

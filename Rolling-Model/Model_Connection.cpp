@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include <ilcplex/ilocplex.h>
 #include "Route.h"
 
 Model_Connection::Model_Connection( vector<vector<int>>& mat_depot_1_2, vector<vector<int>>& mat_depot_2_3, vector<vector<int>>& mat_depot_1_3, vector<vector<vector<double>>>& costo_connessione, vector<vector<int>>& A, vector<vector<int>>& B, vector<vector<int>>& C, vector <Flightleg>& flight_leg_day1, vector <Flightleg>& flight_leg_day2, vector <Flightleg>& flight_leg_day3, vector<vector<int>>& FL_P_day1, vector<vector<int>>& FL_P_day2, vector<vector<int>>& FL_P_day3) {	//construtor
@@ -30,7 +31,6 @@ Model_Connection::~Model_Connection() { // Destrutor
 
 
 bool Model_Connection::create_Model_connection(vector<vector<bool>>& R, vector<vector<bool>>& S, vector<vector<bool>>& T, int num_req_day1, int num_req_day2, int num_req_day3, int num_aerei) {
-	return false; 
 	
 	bool infeasible = false;
 	IloEnv env;
@@ -381,10 +381,6 @@ bool Model_Connection::create_Model_connection(vector<vector<bool>>& R, vector<v
 
 		}
 
-		
-
-
-		
 		cout << "vincolo del numero massimo di aerei da prendere" << endl;
 		cout << "vincolo del ritorno al deposito" << endl;
 
@@ -441,7 +437,7 @@ bool Model_Connection::create_Model_connection(vector<vector<bool>>& R, vector<v
 		cplex.setParam(IloCplex::IntParam::MIPEmphasis, 4);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Cliques, 2);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::LiftProj, -1);
-		//cplex.setParam(IloCplex::Param::MIP::Cuts::BQP, -1);
+		cplex.setParam(IloCplex::Param::MIP::Cuts::BQP, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Covers, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Disjunctive, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::FlowCovers, -1);
@@ -452,7 +448,7 @@ bool Model_Connection::create_Model_connection(vector<vector<bool>>& R, vector<v
 		cplex.setParam(IloCplex::Param::MIP::Cuts::MCFCut, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::MIRCut, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::PathCut, -1);
-		//cplex.setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
+		cplex.setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::ZeroHalfCut, 1);
 		cplex.setParam(IloCplex::Param::MIP::Strategy::VariableSelect, 3);
 		

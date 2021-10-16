@@ -10250,7 +10250,9 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 			int npass = 0;
 			do {
 				//auto rng1 = default_random_engine{};
-				random_shuffle(begin(passengers), end(passengers));
+				std::random_device rd;
+				std::mt19937 g(rd());
+				shuffle(begin(passengers), end(passengers), g);
 
 				npass = 0;
 				if (heuristic_choice < Accumulated(0, Weigth_heuristic)) {

@@ -1,5 +1,3 @@
-#define ILOUSESTL
-
 #include "Model_Cplex.h"
 #include <ilconcert/iloenv.h>
 
@@ -8,7 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <ilconcert/iloexpression.h>
-#include <ilcplex/ilocplexi.h>
+#include <ilcplex/ilocplex.h>
 
 
 #include "Route.h"
@@ -209,7 +207,7 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 		cplex.setParam(IloCplex::IntParam::MIPEmphasis, 4);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Cliques, 2);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::LiftProj, -1);
-		//cplex.setParam(IloCplex::Param::MIP::Cuts::BQP, -1);
+		cplex.setParam(IloCplex::Param::MIP::Cuts::BQP, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Covers, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::Disjunctive, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::FlowCovers, -1);
@@ -220,7 +218,7 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 		cplex.setParam(IloCplex::Param::MIP::Cuts::MCFCut, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::MIRCut, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::PathCut, -1);
-		//cplex.setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
+		cplex.setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::ZeroHalfCut, 1);
 		//cplex.setParam(IloCplex::Param::MIP::Strategy::VariableSelect, 3);
 		// End of Paramenters setting
@@ -237,7 +235,7 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 			for (size_t i = 0; i < t_route[j].size(); i++) {
 				//cout << "Reduced Cost " << "  x[" << j << "," << i << "] = " << new_cplex.getReducedCost(x[j][i]) << endl;
 				//cout << "Variabile " << "  x[" << j << "," << i << "] = " << new_cplex.getValue(x[j][i]) << endl;
-				if (new_cplex.getReducedCost(x[j][i]) <= threshold) Imp_columns.push_back(t_route[j][i]);
+				if (new_cplex.getReducedCost((const IloIntVar)x[j][i]) <= threshold) Imp_columns.push_back(t_route[j][i]);
 			}
 		}
 		solutionAll.push_back(Imp_columns);
