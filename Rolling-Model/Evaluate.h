@@ -1973,4 +1973,313 @@ double cost_time_windows_for_route_passenger(Route& r, Passenger& p, double peso
 	return cost;
 }
 
+
+map<int, int> Compute_WorstNode(double peso_TW, double peso_intermediate_stop, Route& route, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to) {
+	//double costoWorstNode = 0.00;
+	//int WorstNode = -1;
+	map<double, int> Node;
+	map<int, int> NodeOrder;
+	set<double, MyCOMP<double>> Myset;
+	if (route.index <= 2) {
+		//route.print();
+		Node.insert(make_pair(100000, 1));
+		Myset.insert(100000);
+		//cout << " Route troppo piccola fisso indice a " << 1 << endl;
+	}
+	else {
+		for (int n = 1; n < route.index; n++) {
+			double dist = 0.0;
+			double cost_IS = 0.0;
+			vector<Passenger> PassengerNodo;
+			if (n != (route.index - 1)) {
+				//cout << " Calcolo per nodo n mezzo " << endl;
+				dist += map_airstrip[route.places[n]].landing_cost;
+				dist += from_to[route.places[n - 1]][route.places[n]] + from_to[route.places[n]][route.places[n + 1]] - from_to[route.places[n - 1]][route.places[n + 1]];
+				for (int p = 0; p < (int)route.passengers_in_route.size(); p++) {
+					if (route.passengers_in_route[p].solution_to == n || route.passengers_in_route[p].solution_from == n) {
+						PassengerNodo.push_back(route.passengers_in_route[p]);
+					}
+
+					//pezzo aggiunto per intermediate stop****************************************************************************************************
+					if (route.passengers_in_route[p].solution_from < n) {
+						if (route.passengers_in_route[p].solution_to > n) {
+							cost_IS += (peso_intermediate_stop)*route.passengers_in_route[p].capacity;
+						}
+					}
+					//****************************************************************************************************************************************
+
+
+				}
+			}
+			else {
+				//cout << " Calcolo per ultimo nodo " << endl;
+				dist += map_airstrip[route.places[n]].landing_cost;
+				dist += from_to[route.places[n - 1]][route.places[n]];
+				for (int p = 0; p < (int)route.passengers_in_route.size(); p++) {
+					if (route.passengers_in_route[p].solution_to == n) {
+						PassengerNodo.push_back(route.passengers_in_route[p]);
+					}
+
+
+					//pezzo aggiunto per intermediate stop****************************************************************************************************
+					if (route.passengers_in_route[p].solution_from < n) {
+						if (route.passengers_in_route[p].solution_to > n) {
+							cost_IS += (peso_intermediate_stop)*route.passengers_in_route[p].capacity;
+						}
+					}
+					//****************************************************************************************************************************************
+
+				}
+
+
+			}
+
+
+			dist += (cost_time_windows_for_node(route, PassengerNodo, peso_TW)) + cost_IS;
+			// / PassengerNodo.size());
+			//cout << " Inserisco nodo: " << n << " con il costo: " << dist << endl;
+			Node.insert(make_pair(dist, n));
+			Myset.insert(dist);
+			//cout << " ************** Nodo: " << n << " Ha un costo: " << dist << endl;
+			//cout << " ************** Nodo Peggiore finora: " << WorstNode << endl;
+			//if (costoWorstNode < dist) {
+				//costoWorstNode = dist;
+				//WorstNode = n;
+			//}
+		}
+	}
+
+	//cout << " **************Stampo la mappa non ordinata: "<< endl;
+	//for (auto x : Node) cout << x.first << " -----> " << x.second << endl;
+	//cout << " **************Stampo il Set: " << endl;
+	//for (auto setval : Myset) {
+		//cout << setval << endl;
+	//}
+
+	int i = 0;
+	for (auto setval : Myset) {
+		NodeOrder.insert(make_pair(i, Node[setval]));
+		i++;
+	}
+	//cout << " **************Stampo la mappa Ordinata: " << endl;
+	//for (auto x : NodeOrder) cout << x.first << " -----> " << x.second << endl;
+	return NodeOrder;
+}
+
+
+
+//calcola il valore della funzione obiettivo sui 3 giorni
+double calculate_ObjectiveFunction_complete_after_rolling(double peso_TW, double peso_intermediate_stop, vector<Route>& solution_day1, vector<Route>& solution_day2, vector<Route>& solution_day3, map<int, Airstrip>& map_airstrip, map<int, Airplane>& map_airplane, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+	double cost = 0.0;
+
+	double cost_time_intermediate = 0.0;
+
+
+
+	double COSTO_fisso = 0.0;
+	double COSTO_landing = 0.0;
+	double COSTO_fuel = 0.0;
+	double COSTO_km = 0.0;
+	double COSTO_intermediate = 0.0;
+	double COSTO_tw = 0.0;
+
+
+
+
+	for (Route& r : solution_day1) {
+
+		if (r.primo_pass && !r.airplane_day_before) {
+			cost += map_airplane[r.aircraft_code].fixed_cost;
+			COSTO_fisso += map_airplane[r.aircraft_code].fixed_cost;
+			//cost_route += map_airplane[r.aircraft_code].fixed_cost;
+		}
+
+
+
+		double mileage = 0.0;
+		double fuel_consumed = 0.0;
+
+
+		for (int i = 0; i < r.index; i++) {
+
+			if (i >= 1) {
+				cost += map_airstrip[r.places[i]].landing_cost;
+				COSTO_landing += map_airstrip[r.places[i]].landing_cost;
+			}
+			if (i < r.index - 1) {
+				if (i == 0 && r.capacity[i] == 0) {
+					mileage = 0.0;
+				}
+				else {
+					mileage += from_to[r.places[i]][r.places[i + 1]];
+					//time_travel = from_to[r.places[i] + ";" + r.places[i + 1]] / map_airplane[r.aircraft_code].speed;
+					fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
+				}
+			}
+		}
+
+		//now i add the mileage and the fuel consumption to the objective function
+		cost += mileage;
+		COSTO_km += mileage;
+		cost += fuel_consumed;
+		COSTO_fuel += fuel_consumed;
+
+		//now i have to calculate the penalitis regarding the time windows for each passeger
+		for (auto& p : r.passengers_in_route) {
+			//double time_departure = r.time_arr[p.solution_from];
+			//double time_arrival = r.time_arr[p.solution_to];
+			cost += (p.solution_to - p.solution_from - 1) * peso_intermediate_stop;  //riga aggiunta per le intermediate stop
+			cost_time_intermediate += (p.solution_to - p.solution_from - 1) * peso_intermediate_stop;
+			COSTO_intermediate += (p.solution_to - p.solution_from - 1) * peso_intermediate_stop;
+
+			double TW_departure = 0.0;
+			if (r.time_arr[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_arr[p.solution_from];
+			else if (r.time_arr[p.solution_from] > p.late_departure) TW_departure = r.time_arr[p.solution_from] - p.late_departure;
+
+			double TW_arrival = 0.0;
+			if (r.time_arr[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[p.solution_to];
+			else if (r.time_arr[p.solution_to] > p.late_arrival) TW_arrival = r.time_arr[p.solution_to] - p.late_arrival;
+
+			cost += TW_departure + TW_arrival;
+			cost_time_intermediate += TW_departure + TW_arrival;
+			COSTO_tw += TW_departure + TW_arrival;
+
+		}
+	}
+
+	for (Route& r : solution_day2) {
+
+		if (r.primo_pass && !r.airplane_day_before) {
+			cost += map_airplane[r.aircraft_code].fixed_cost;
+			COSTO_fisso += map_airplane[r.aircraft_code].fixed_cost;
+			//cost_route += map_airplane[r.aircraft_code].fixed_cost;
+		}
+
+
+
+		double mileage = 0.0;
+		double fuel_consumed = 0.0;
+
+
+		for (int i = 0; i < r.index; i++) {
+
+			if (i >= 1) {
+				cost += map_airstrip[r.places[i]].landing_cost;
+				COSTO_landing += map_airstrip[r.places[i]].landing_cost;
+			}
+			if (i < r.index - 1) {
+				if (i == 0 && r.capacity[i] == 0) {
+					mileage = 0.0;
+				}
+				else {
+					mileage += from_to[r.places[i]][r.places[i + 1]];
+					//time_travel = from_to[r.places[i] + ";" + r.places[i + 1]] / map_airplane[r.aircraft_code].speed;
+					fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
+				}
+			}
+		}
+
+		//now i add the mileage and the fuel consumption to the objective function
+		cost += mileage;
+		COSTO_km += mileage;
+		cost += fuel_consumed;
+		COSTO_fuel += fuel_consumed;
+
+		//now i have to calculate the penalitis regarding the time windows for each passeger
+		for (auto& p : r.passengers_in_route) {
+			//double time_departure = r.time_arr[p.solution_from];
+			//double time_arrival = r.time_arr[p.solution_to];
+			cost += (p.solution_to - p.solution_from - 1) * peso_intermediate_stop;  //riga aggiunta per le intermediate stop
+			cost_time_intermediate += (p.solution_to - p.solution_from - 1) * peso_intermediate_stop;
+			COSTO_intermediate += (p.solution_to - p.solution_from - 1) * peso_intermediate_stop;
+
+			double TW_departure = 0.0;
+			if (r.time_arr[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_arr[p.solution_from];
+			else if (r.time_arr[p.solution_from] > p.late_departure) TW_departure = r.time_arr[p.solution_from] - p.late_departure;
+
+			double TW_arrival = 0.0;
+			if (r.time_arr[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[p.solution_to];
+			else if (r.time_arr[p.solution_to] > p.late_arrival) TW_arrival = r.time_arr[p.solution_to] - p.late_arrival;
+
+			cost += TW_departure + TW_arrival;
+			cost_time_intermediate += TW_departure + TW_arrival;
+			COSTO_tw += TW_departure + TW_arrival;
+
+		}
+	}
+
+	for (Route& r : solution_day3) {
+
+		if (r.primo_pass && !r.airplane_day_before) {
+			cost += map_airplane[r.aircraft_code].fixed_cost;
+			COSTO_fisso += map_airplane[r.aircraft_code].fixed_cost;
+			//cost_route += map_airplane[r.aircraft_code].fixed_cost;
+		}
+
+
+
+		double mileage = 0.0;
+		double fuel_consumed = 0.0;
+
+
+		for (int i = 0; i < r.index; i++) {
+
+			if (i >= 1) {
+				cost += map_airstrip[r.places[i]].landing_cost;
+				COSTO_landing += map_airstrip[r.places[i]].landing_cost;
+			}
+			if (i < r.index - 1) {
+				if (i == 0 && r.capacity[i] == 0) {
+					mileage = 0.0;
+				}
+				else {
+					mileage += from_to[r.places[i]][r.places[i + 1]];
+					//time_travel = from_to[r.places[i] + ";" + r.places[i + 1]] / map_airplane[r.aircraft_code].speed;
+					fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
+				}
+			}
+		}
+
+		//now i add the mileage and the fuel consumption to the objective function
+		cost += mileage;
+		COSTO_km += mileage;
+		cost += fuel_consumed;
+		COSTO_fuel += fuel_consumed;
+
+		//now i have to calculate the penalitis regarding the time windows for each passeger
+		for (auto& p : r.passengers_in_route) {
+			//double time_departure = r.time_arr[p.solution_from];
+			//double time_arrival = r.time_arr[p.solution_to];
+			cost += (p.solution_to - p.solution_from - 1) * peso_intermediate_stop;  //riga aggiunta per le intermediate stop
+			cost_time_intermediate += (p.solution_to - p.solution_from - 1) * peso_intermediate_stop;
+			COSTO_intermediate += (p.solution_to - p.solution_from - 1) * peso_intermediate_stop;
+
+			double TW_departure = 0.0;
+			if (r.time_arr[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_arr[p.solution_from];
+			else if (r.time_arr[p.solution_from] > p.late_departure) TW_departure = r.time_arr[p.solution_from] - p.late_departure;
+
+			double TW_arrival = 0.0;
+			if (r.time_arr[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[p.solution_to];
+			else if (r.time_arr[p.solution_to] > p.late_arrival) TW_arrival = r.time_arr[p.solution_to] - p.late_arrival;
+
+			cost += TW_departure + TW_arrival;
+			cost_time_intermediate += TW_departure + TW_arrival;
+			COSTO_tw += TW_departure + TW_arrival;
+
+		}
+	}
+
+
+
+	cout << "costo fisso;costo landing;costo fuel; costo km;costo intermediate;costo tw; n° aerei;fuel;km;n° IS;min TW;costo_totale" << endl;
+	cout << COSTO_fisso << ";" << COSTO_landing << ";" << COSTO_fuel << ";" << COSTO_km << ";" << COSTO_intermediate << ";" << COSTO_tw << ";" <<
+		(COSTO_fisso / map_airplane[solution_day1[1].aircraft_code].fixed_cost) << ";" << COSTO_fuel << ";" << COSTO_km << ";" << (COSTO_intermediate / peso_intermediate_stop) << ";" <<
+		(COSTO_tw / peso_TW) << ";" << cost << endl;
+
+
+	//cout << "costo delle time window e dell'intermediate stop: " << cost_time_intermediate << endl;
+	return cost;
+}
+
+
 #endif

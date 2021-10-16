@@ -376,4 +376,50 @@ void check_mappa_location_fuel(std::map<std::string, Airplane> map_airplane, map
 
 }
 
+
+map < int, int > fill_to_closeness_fuel(vector<vector<double>>& from_to, vector<Airstrip>& airstrips) {
+	map <int, int> to_closeness_fuel;
+
+	for (const Airstrip& a : airstrips) {
+		double best_distance = DBL_MAX;
+		int best_location = -1;
+		if (a.fuel) to_closeness_fuel.insert(make_pair(a.code, a.code));
+		else {
+			for (const Airstrip& a1 : airstrips) {
+				if (a.code != a1.code) {
+					if (a1.fuel) {
+						if (best_distance > from_to[a.code][a1.code]) {
+							best_distance = from_to[a.code][a1.code];
+							best_location = a1.code;
+						}
+					}
+				}
+			}
+
+			to_closeness_fuel.insert(make_pair(a.code, best_location));
+		}
+	}
+
+	return to_closeness_fuel;
+}
+
+map<int, int> fill_location_request(vector<Passenger>& passengers) {
+
+	map<int, int> mappa;
+
+	for (const Passenger& p : passengers) {
+		if (mappa.count(p.departure_location) >= 1) {
+			mappa[p.departure_location]++;
+		}
+		else {
+			mappa.insert(make_pair(p.departure_location, 1));
+		}
+	}
+
+
+	return mappa;
+}
+
+
+
 #endif
