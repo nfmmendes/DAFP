@@ -117,15 +117,12 @@ void fix_key_passenger_for_regret(vector<Passenger>& passengers_day1, vector<Pas
 		}
 	}
 
-
-
 }
 
 
 void Build_structure_Model(vector<Airplane> airplane, map<string, int>& mappa_aereo_tipo, map<int, int>& codice_aereo_tipo, map<int, int>& tipo_numero) {
 	int tipo = 0;
 	for (int j = 0; j < (int)airplane.size(); j++) {
-		//cout << " Creo per aereo " << airplane[j].code << endl;
 		map<string, int>::iterator it = mappa_aereo_tipo.find(airplane[j].model + to_string(airplane[j].depot));
 		if (it == mappa_aereo_tipo.end()) {
 			mappa_aereo_tipo.insert(make_pair(airplane[j].model + to_string(airplane[j].depot), tipo));
@@ -196,15 +193,6 @@ void unione_children_INTELLIGENTE(vector<Passenger>& passengers, vector<Passenge
 			}
 		}
 		cout << "bimbi in questo gruppo: " << numero_bimbi << endl;
-		/*cout << "ora li guardiamo separati"<< endl;
-		cout << "i genitori sono: " << endl;
-		for(Passenger p: genitori) {
-			p.print();
-		}
-		cout << "i bambini sono: " << endl;
-		for(Passenger p: bambini) {
-			p.print();
-		}*/
 
 		if ((int)bambini.size() > 0) {
 			//incomincio a metterli con la mamma
@@ -218,7 +206,6 @@ void unione_children_INTELLIGENTE(vector<Passenger>& passengers, vector<Passenge
 				string attuale = to_string(p.departure_location) + to_string(p.arrival_location) + to_string(p.departure_time) + to_string(p.arrival_time);
 				if (precedente != attuale) indice_parent = 0;
 				precedente = attuale;
-
 
 				vector<Passenger> genitori_gruppo;
 
@@ -241,12 +228,8 @@ void unione_children_INTELLIGENTE(vector<Passenger>& passengers, vector<Passenge
 						if (g.departure_location == loc_dep && g.arrival_location == loc_arr && time_dep == g.departure_time && time_arr == g.arrival_time) {
 							genitori_gruppo.push_back(g);
 							non_ha_genitore = false;
-							/*g.capacity += p.capacity;
-							g.weight += p.weight;
-							break;*/
 						}
 					}
-
 
 				}
 				if (non_ha_genitore) {
@@ -277,12 +260,7 @@ void unione_children_INTELLIGENTE(vector<Passenger>& passengers, vector<Passenge
 
 				indice_parent++;
 				if (indice_parent == genitori_gruppo.size()) indice_parent = 0;
-
-
 			}
-
-
-
 		}
 
 		cout << endl;
@@ -329,14 +307,12 @@ int best_location(map <int, int>& location_request) {
 	int best_richieste = 0;
 	int best_location = -1;
 
-
 	for (auto x : location_request) {
 		if (best_richieste < x.second) {
 			best_richieste = x.second;
 			best_location = x.first;
 		}
 	}
-
 
 	return best_location;
 }
@@ -352,15 +328,12 @@ int best_location_4place(map<int, int>& location_request, vector<vector<double>>
 	vector <int> best_places;
 	int index = 0;
 	for (auto x : map_support) {
-		//cout << x.first << " ***---> " << x.second << endl;
 		if (index >= map_support.size() - 4) best_places.push_back(x.second);
 		index++;
 	}
-	//for (auto x : best_places) cout << "- " << x << endl;
 
 	int best_place = -1;
 	double best_distance = DBL_MAX;
-
 
 	for (const Airstrip& a : airstrips) {
 		if (a.code != best_places[0] && a.code != best_places[1] && a.code != best_places[2] && a.code != best_places[3]) {
@@ -369,11 +342,8 @@ int best_location_4place(map<int, int>& location_request, vector<vector<double>>
 				best_distance = distance;
 				best_place = a.code;
 			}
-
 		}
 	}
-
-
 
 	return best_place;
 }
@@ -388,8 +358,6 @@ vector <Flightleg> creazione_flightleg(bool fittizio_da_mettere, vector<vector<R
 
 	for (vector<Route>& routes : vector_solution_for_FL) {
 		for (Route& r : routes) {
-
-
 			if (r.index > 1) {
 				if (r.capacity[0] >= 1) {
 					//in questo caso sono obbligato a creare un solo flight leg
@@ -425,10 +393,8 @@ vector <Flightleg> creazione_flightleg(bool fittizio_da_mettere, vector<vector<R
 						for (int i = index_refueling + 1; i < r.index; i++) {
 							fuel_pesc -= from_to_fuelConsumed[r.aircraft_code][i - 1][i];
 						}
-
 						f.fuel_pescabile = fuel_pesc;
 					}
-
 
 					flightlegs.push_back(f);
 				}
@@ -504,8 +470,6 @@ vector <Flightleg> creazione_flightleg(bool fittizio_da_mettere, vector<vector<R
 							f1.fuel_necessario_per_essere_fatta = fuel_necess;
 						}
 
-
-
 						if (f1.refuel_to) {
 							f1.fuel_pescabile = map_airplane[f1.cod_airplane].max_fuel - map_airplane[f1.cod_airplane].min_fuel;
 						}
@@ -525,30 +489,13 @@ vector <Flightleg> creazione_flightleg(bool fittizio_da_mettere, vector<vector<R
 							f1.fuel_pescabile = fuel_pesc;
 						}
 
-
 						flightlegs.push_back(f1);
-
 					}
-
-
-
-
-
 				}
-
-
-
 			}
-
-
-
-
-
-
 
 		}
 	}
-
 
 	//ora aggiungo il flightleg fittizio solo se è necessario aggiungerlo, quindi se la variabile fittizio_da_aggiungere è vera
 	if (fittizio_da_mettere) {
@@ -557,12 +504,7 @@ vector <Flightleg> creazione_flightleg(bool fittizio_da_mettere, vector<vector<R
 		flightlegs.push_back(f);
 	}
 
-
-
-
 	return flightlegs;
 }
-
-
 
 #endif
