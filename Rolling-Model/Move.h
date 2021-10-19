@@ -2,13 +2,20 @@
 #define MOVE_H
 
 #include <algorithm>
-#include <stdlib.h>
 
 
 #include "Destroyers.h"
 #include "Evaluate.h"
 #include "Feasibility.h"
 #include "Repair.h"
+#include "Utils.h"
+
+struct MoveParamSet
+{
+	double peso_TW;
+	double inter_stop_weight;
+	double end_day;
+};
 
 int sequential_same_node(const Route& r) {
 	int node = -1;
@@ -151,7 +158,7 @@ bool swap_is_allowed(int A, int B, const Route& r) {
 }
 
 //qua purtroppo non posso mettere usare i puntatori
-Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double3DVector& from_to_FuelConsumed) {
 	Route r_new;
 	r_new.aircraft_code = r.aircraft_code;
 	r_new.primo_pass = r.primo_pass;
@@ -206,88 +213,62 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 			r_new.weight[t] -= p.weight;
 		}
 	}
-	//cout << "finito" << endl;
-
-	//cout << "aggiorno il fuel se peso negativo" << endl;
+	
 	//aggiorno fuel se il peso � negatico
 	for (int i = 0; i < r_new.index; i++) {
-		//cout << " Sono all inizio del For valutabdo il nodo " << i << endl;
 		if (r_new.weight[i] < 0) {
-			//	cout << " Trovato nodo con peso negativo in --> " << i << endl;
 			int index_refueling = i;
 			for (int t = i; t >= 0; t--) {
 				if (r_new.refueling[t]) {
 					index_refueling = t;
-					//	cout << " Index dove si fa refuel prima o coincidente a valore di peso negativo " << index_refueling<<  endl;
 					break;
 				}
 			}
 			double Update_value = r_new.weight[i];
-			//cout << " r_new.quantity_fuel[index_refueling] : " << r_new.quantity_fuel[index_refueling] << " +=  r_new.weight[i] : " << r_new.weight[i] << endl;
 			r_new.quantity_fuel[index_refueling] += r_new.weight[i];
-			//cout << " r_new.weight[index_refueling] : " << r_new.weight[index_refueling] << " -=  r_new.weight[i] : " << r_new.weight[i] << endl;
 			r_new.weight[index_refueling] -= r_new.weight[i];
-			//cout << " Adesso tolgo ai nodi senza possibilit� di fare refuel successvi " << endl;
+			
 			for (int j = index_refueling + 1; j < r_new.index; j++) {
 				if (r_new.refueling[j]) break;
 				else {
 					r_new.quantity_fuel[j] += Update_value;
-					//cout << " Dopo Fuel era = " << r_new.quantity_fuel[j] << endl;
-					//cout << " Prima Weight era = " << r_new.weight[j] << endl;
 					r_new.weight[j] -= Update_value;
-					//cout << " Dopo Weight era = " << r_new.weight[j] << endl;
 				}
 			}
-
-			//r_new.weight[i] = 0;
-
 		}
 	}
-
-
 
 	return r_new;
 }
 
-vector <Route> swap(double peso_TW, double peso_intermediate_stop, vector<Route>& routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double end_day, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector <Route> swap(MoveParamSet param_set, vector<Route>& routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double2DVector& location_fuel, double3DVector& from_to_FuelConsumed) {
+	const auto peso_TW = param_set.peso_TW;
+	const auto inter_stop_weight = param_set.inter_stop_weight;
+	const auto end_day = param_set.end_day;
+	
 	vector<Route> routes_after_swap;
 
 	for (const Route& r : routes) {
-		//cout << " sto provando a fare lo swap in questa route: " << endl;
-		//r.print();
 		Route r_support = r;
 		for (int A = 1; A < r_support.index - 1; A++) {
 			for (int B = A + 1; B < r_support.index; B++) {
 
 				if (swap_is_allowed(A, B, r_support)) {
-					//cout << "******************************************************Sto provando a fare lo swap fra " << A << " e " << B << endl;
 					Route r_new = update_route_after_swap(A, B, r_support, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
-					//cout << "ho finito l'update" << endl;
-					//r_new.print();
-					double cost_route_support = cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-					double cost_route_new = cost_single_route(peso_TW, peso_intermediate_stop, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-					//cout << cost_route_support << " c_supp > c_new " << cost_route_new << " &&  route feasible: " << route_feasible(r_new, map_airplane, end_day, from_to) << endl;
+					double cost_route_support = cost_single_route(peso_TW, inter_stop_weight, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+					double cost_route_new = cost_single_route(peso_TW, inter_stop_weight, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+					
 					if (cost_route_support > cost_route_new && route_feasible(r_new, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
-						//cout << " OK ! dopo move Migliora ------- Ma prima devo controllare che non sia con nodi doppi " << endl;
 						int node = sequential_same_node(r_new);
 						bool fatto = false;
 						while (node != -1) {
-							/*
-							cout << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ERROR STESSI NODI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endl;
-							r_new.print();
-							// i have two airports close to each other
-							cout << " Nodo dove inizia coppia --> " << node << endl;
-							system("pause");
-							*/
 							aggregate_same_nodes(r_new, node);
-							//r_new.print();
-							cost_route_new = cost_single_route(peso_TW, peso_intermediate_stop, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-							//cout << " Deve valere ANCORA che " << cost_route_support << "  >  " << cost_route_new << " &&  route feasible: " << route_feasible(r_new, map_airplane, end_day, from_to) << endl;
+							cost_route_new = cost_single_route(peso_TW, inter_stop_weight, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
 
 							fatto = true;
 							node = sequential_same_node(r_new);
 						}
-						//cout << " Ok non aveva nodi doppi ! " << endl;
+
 						if (fatto == false) {
 							r_support = r_new;
 							A = 1;
@@ -310,49 +291,30 @@ vector <Route> swap(double peso_TW, double peso_intermediate_stop, vector<Route>
 		//Modifico Fuel quando non massimo
 		for (int k = 0; k < r_support.index; k++) {
 			if (r_support.refueling[k] && r_support.quantity_fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
-			//cout << " Sto valutando il caso del nodo " << k << endl;
 				int Node_min = k;
 				double min_weight = r_support.weight[k];
-				int index_updating_from = k;
+				const int index_updating_from = k;
 				int index_updating_to = r_support.index;  //qua prima c'era -1
 				for (int i = k + 1; i < r_support.index; i++) {
-					//cout << " Sto guardando il nodo " << i << endl;
-					//if (!(r.weight[i] > 0 && r.quantity_fuel[i] == map_airplane[r.aircraft_code].max_fuel)) {
-					//cout << " Ho passato IF di controllo " << endl;
 					if (r_support.refueling[i]) break;
 					if (r_support.weight[i] < min_weight) {
 						min_weight = r_support.weight[i];
 						Node_min = i;
 					}
-					//}
 				}
-				//cout << " Nodo di minimo ---> " << Node_min << endl;
-				//cout << " Valore di minimi --> " << min_weight << endl;
+				
 				if (Node_min >= 0) {
-					/*
-					for (int i = Node_min; i >= 0; i--) {
-					if (r.refueling[i] && i != node_destroy) {
-					index_updating_from = i;
-					break;
-					}
-					}
-					*/
 					for (int i = k + 1; i < r_support.index; i++) {
 						if (r_support.refueling[i]) {   // && i != node_destroy ho tolto questo perch� se no se oltre quel nodo non c'� ne erano altri di fuell non trovavo un to
 							index_updating_to = i;
 							break;
 						}
 					}
-					//cout << "Adesso che ho trovato il minimo devo aggiornare da ---> " << index_updating_from << endl;
-					//cout << "Adesso che ho trovato il minimo devo aggiornare a ---> " << index_updating_to << endl;
-					double Fuel_before = r_support.quantity_fuel[index_updating_from];
-					//cout << " Valore Fuel Before ------> " << Fuel_before << endl;
-					//cout << " Quindi alla fine parto ad aggiornare " << index_updating_from << " dove prendo il minimo tra " << map_airplane[r.aircraft_code].max_fuel << " e " << r.quantity_fuel[index_updating_from] + min_weight << endl;
+
+					const double Fuel_before = r_support.quantity_fuel[index_updating_from];
 					r_support.quantity_fuel[index_updating_from] = min(map_airplane[r_support.aircraft_code].max_fuel, r_support.quantity_fuel[index_updating_from] + min_weight);
-					//cout << " Valore Fuel After ------> " << r.quantity_fuel[index_updating_from] << endl;
-					//cout << " Valore Weigth Before ------> " << r.weight[index_updating_from] << endl;
 					r_support.weight[index_updating_from] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
-					//cout << " Valore Weigth After ------> " << r.weight[index_updating_from] << endl;
+
 					for (int i = index_updating_from + 1; i < index_updating_to; i++) {
 						r_support.quantity_fuel[i] += (r_support.quantity_fuel[index_updating_from] - Fuel_before);
 						r_support.weight[i] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
@@ -376,13 +338,11 @@ int move_from(int node, const Route& r) {
 			if (p.solution_from > swap_from) swap_from = p.solution_from;
 		}
 	}
-
-
+	
 	return swap_from;
-
 }
 
-int move_to(int node, const Route& r) {
+inline int move_to(int node, const Route& r) {
 	int swap_to = 1000;
 
 	for (const Passenger& p : r.passengers_in_route) {
@@ -393,14 +353,14 @@ int move_to(int node, const Route& r) {
 	return swap_to;
 }
 
-bool move_is_allowed(int A, int B, Route& r) {
+inline bool move_is_allowed(int A, int B, Route& r) {
 	bool move = false;
 	if (B > A && B < move_to(A, r))move = true;
 	if (B < A && move_from(A, r) < B) move = true;
 	return move;
 }
 
-bool move_flightleg_is_allowed(int A, Route& r) {
+inline bool move_flightleg_is_allowed(int A, Route& r) {
 	bool move = true;
 	
 	for (Passenger& p : r.passengers_in_route) {
@@ -420,7 +380,45 @@ bool move_flightleg_is_allowed(int A, Route& r) {
 	return move;
 }
 
-Route update_route_after_move(int A, int B, const Route& r, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+inline void update_passenger_to(int A, int B, Passenger& p)
+{
+	if (p.solution_from == A && A > B) {
+		p.solution_from = B + 1;
+	}
+	else if (p.solution_to == A && A > B) {
+		p.solution_to = B + 1;
+	}
+	else if (p.solution_to == A && A < B) {
+		p.solution_to = B;
+	}
+	else if (p.solution_from == A && A < B) {
+		p.solution_from = B;
+	}
+	else if (p.solution_from <= B && B < p.solution_to && A > p.solution_to) {
+		p.solution_to++;
+	}
+	else if (p.solution_from <= B && B < p.solution_to && A < p.solution_from) {
+		p.solution_from--;
+	}
+	else if (p.solution_from > B && A > p.solution_to) {
+		p.solution_from++;
+		p.solution_to++;
+
+	}
+	else if (p.solution_from < A && A < p.solution_to && B < p.solution_from) {
+		p.solution_from++;
+	}
+	else if (p.solution_from < A && A < p.solution_to && B >= p.solution_to && A < B) {
+		p.solution_to--;
+	}
+	else if (p.solution_from > A && A < p.solution_to && B >= p.solution_to) {
+		p.solution_to--;
+		p.solution_from--;
+	}
+}
+
+inline Route create_new_route(int A, int B, const Route& r, map<int, Airplane>& map_airplane)
+{
 	Route r_new;
 	r_new.aircraft_code = r.aircraft_code;
 	r_new.primo_pass = r.primo_pass;
@@ -457,6 +455,12 @@ Route update_route_after_move(int A, int B, const Route& r, map<int, Airplane>& 
 		}
 	}
 
+	return r_new;
+}
+
+inline Route update_route_after_move(int A, int B, const Route& r, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double3DVector& from_to_FuelConsumed) {
+	Route r_new = create_new_route(A, B, r, map_airplane);
+
 	for (int i = 0; i < r_new.index; i++) {
 		if (i > 0) {
 			r_new.time_arr[i] = r_new.time_dep[i - 1] + (((from_to[r_new.places[i - 1]][r_new.places[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
@@ -479,39 +483,7 @@ Route update_route_after_move(int A, int B, const Route& r, map<int, Airplane>& 
 	}
 
 	for (Passenger p : r.passengers_in_route) {
-		if (p.solution_from == A && A > B) {
-			p.solution_from = B + 1;
-		}
-		else if (p.solution_to == A && A > B) {
-			p.solution_to = B + 1;
-		}
-		else if (p.solution_to == A && A < B) {
-			p.solution_to = B;
-		}
-		else if (p.solution_from == A && A < B) {
-			p.solution_from = B;
-		}
-		else if (p.solution_from <= B && B < p.solution_to && A > p.solution_to) {
-			p.solution_to++;
-		}
-		else if (p.solution_from <= B && B < p.solution_to && A < p.solution_from) {
-			p.solution_from--;
-		}
-		else if (p.solution_from > B && A > p.solution_to) {
-			p.solution_from++;
-			p.solution_to++;
-
-		}
-		else if (p.solution_from < A && A < p.solution_to && B < p.solution_from) {
-			p.solution_from++;
-		}
-		else if (p.solution_from < A && A < p.solution_to && B >= p.solution_to && A < B) {
-			p.solution_to--;
-		}
-		else if (p.solution_from > A && A < p.solution_to && B >= p.solution_to) {
-			p.solution_to--;
-			p.solution_from--;
-		}
+		update_passenger_to(A, B, p);
 		r_new.passengers_in_route.push_back(p);
 
 		for (int t = p.solution_from; t < p.solution_to; t++) {
@@ -547,7 +519,45 @@ Route update_route_after_move(int A, int B, const Route& r, map<int, Airplane>& 
 	return r_new;
 }
 
-vector <Route> move(double peso_TW, double peso_intermediate_stop, vector<Route>& routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double end_day, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+void update_fuel_on_non_maximum(map<int, Airplane>& map_airplane, Route& r_support, int k)
+{
+	int Node_min = k;
+	double min_weight = r_support.weight[k];
+	int index_updating_from = k;
+	int index_updating_to = r_support.index;  //qua prima c'era -1
+	for (int i = k + 1; i < r_support.index; i++) {  // SECONDO ME QUA NON CI VA <=
+		if (r_support.refueling[i]) break;
+		if (r_support.weight[i] < min_weight) {
+			min_weight = r_support.weight[i];
+			Node_min = i;
+		}
+		//}
+	}
+				
+	if (Node_min >= 0) {
+		for (int i = k + 1; i < r_support.index; i++) {
+			if (r_support.refueling[i]) {   // && i != node_destroy ho tolto questo perch� se no se oltre quel nodo non c'� ne erano altri di fuell non trovavo un to
+				index_updating_to = i;
+				break;
+			}
+		}
+					
+		double Fuel_before = r_support.quantity_fuel[index_updating_from];
+		r_support.quantity_fuel[index_updating_from] = std::min(map_airplane[r_support.aircraft_code].max_fuel, r_support.quantity_fuel[index_updating_from] + min_weight);
+					
+		r_support.weight[index_updating_from] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
+		for (int i = index_updating_from + 1; i < index_updating_to; i++) {
+			r_support.quantity_fuel[i] += (r_support.quantity_fuel[index_updating_from] - Fuel_before);
+			r_support.weight[i] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
+		}
+	}
+}
+
+vector <Route> move(MoveParamSet param_set, vector<Route>& routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double2DVector& location_fuel, double3DVector& from_to_FuelConsumed) {
+
+	const auto peso_TW = param_set.peso_TW;
+	const auto inter_stop_weight = param_set.inter_stop_weight;
+	const auto end_day = param_set.end_day;
 	vector<Route> routes_after_move;
 
 	for (const Route& r : routes) {
@@ -558,8 +568,8 @@ vector <Route> move(double peso_TW, double peso_intermediate_stop, vector<Route>
 					if (move_is_allowed(A, B, r_support)) {
 						Route r_new = update_route_after_move(A, B, r_support, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
 						
-						double cost_route_support = cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-						double cost_route_new = cost_single_route(peso_TW, peso_intermediate_stop, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+						double cost_route_support = cost_single_route(peso_TW, inter_stop_weight, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+						double cost_route_new = cost_single_route(peso_TW, inter_stop_weight, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
 
 						if (cost_route_support > cost_route_new && route_feasible(r_new, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
 							int node = sequential_same_node(r_new);
@@ -570,7 +580,7 @@ vector <Route> move(double peso_TW, double peso_intermediate_stop, vector<Route>
 								aggregate_same_nodes(r_new, node);
 								if (A > node) num_aggregazioni++;
 								
-								cost_route_new = cost_single_route(peso_TW, peso_intermediate_stop, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+								cost_route_new = cost_single_route(peso_TW, inter_stop_weight, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
 								node = sequential_same_node(r_new);
 								fatto = true;
 							}
@@ -594,36 +604,7 @@ vector <Route> move(double peso_TW, double peso_intermediate_stop, vector<Route>
 		//Modifico Fuel quando non massimo
 		for (int k = 0; k < r_support.index; k++) {
 			if (r_support.refueling[k] && r_support.quantity_fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
-				int Node_min = k;
-				double min_weight = r_support.weight[k];
-				int index_updating_from = k;
-				int index_updating_to = r_support.index;  //qua prima c'era -1
-				for (int i = k + 1; i < r_support.index; i++) {  // SECONDO ME QUA NON CI VA <=
-					if (r_support.refueling[i]) break;
-					if (r_support.weight[i] < min_weight) {
-						min_weight = r_support.weight[i];
-						Node_min = i;
-					}
-					//}
-				}
-				
-				if (Node_min >= 0) {
-					for (int i = k + 1; i < r_support.index; i++) {
-						if (r_support.refueling[i]) {   // && i != node_destroy ho tolto questo perch� se no se oltre quel nodo non c'� ne erano altri di fuell non trovavo un to
-							index_updating_to = i;
-							break;
-						}
-					}
-					
-					double Fuel_before = r_support.quantity_fuel[index_updating_from];
-					r_support.quantity_fuel[index_updating_from] = std::min(map_airplane[r_support.aircraft_code].max_fuel, r_support.quantity_fuel[index_updating_from] + min_weight);
-					
-					r_support.weight[index_updating_from] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
-					for (int i = index_updating_from + 1; i < index_updating_to; i++) {
-						r_support.quantity_fuel[i] += (r_support.quantity_fuel[index_updating_from] - Fuel_before);
-						r_support.weight[i] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
-					}
-				}
+				update_fuel_on_non_maximum(map_airplane, r_support, k);
 			}
 
 		}
@@ -635,7 +616,12 @@ vector <Route> move(double peso_TW, double peso_intermediate_stop, vector<Route>
 
 
 
-vector <Route> inter_move(double peso_TW, double peso_intermediate_stop, vector<Route> routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double end_day, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector <Route> inter_move(MoveParamSet param_set, vector<Route> routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double2DVector& location_fuel, double3DVector& from_to_FuelConsumed) {
+
+	const auto peso_TW = param_set.peso_TW;
+	const auto inter_stop_weight = param_set.inter_stop_weight;
+	const auto end_day = param_set.end_day;
+	
 	vector<Route> routes_after_move;
 	int n_route = -1;
 
@@ -661,14 +647,14 @@ vector <Route> inter_move(double peso_TW, double peso_intermediate_stop, vector<
 				if (r_new.index != -1) {
 					
 					if (r_new.index != -1) {
-						solution_rebuilt = repair_one_inter_move(peso_TW, peso_intermediate_stop, end_day, routes_destroyed, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+						solution_rebuilt = repair_one_inter_move(peso_TW, inter_stop_weight, end_day, routes_destroyed, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
 
-						if (solution_rebuilt.size() != 0) {
+						if (!solution_rebuilt.empty()) {
 							
 							solution_rebuilt.push_back(r_new);
 
-							double before = calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, routes, map_airstrip, map_airplane, from_to, from_to_FuelConsumed); // Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
-							double after = calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+							double before = calculate_ObjectiveFunction(peso_TW, inter_stop_weight, routes, map_airstrip, map_airplane, from_to, from_to_FuelConsumed); // Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
+							double after = calculate_ObjectiveFunction(peso_TW, inter_stop_weight, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
 							if (before > after) {
 								
 								int node = sequential_same_node(solution_rebuilt.back());
@@ -678,7 +664,7 @@ vector <Route> inter_move(double peso_TW, double peso_intermediate_stop, vector<
 								while (node != -1) {
 									aggregate_same_nodes_inter_ls(solution_rebuilt.back(), node);
 									if (A > node) num_aggregazioni++;
-									after = calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+									after = calculate_ObjectiveFunction(peso_TW, inter_stop_weight, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
 									node = sequential_same_node(solution_rebuilt.back());
 									fatto = true;
 								}
@@ -754,9 +740,11 @@ vector <Route> inter_move(double peso_TW, double peso_intermediate_stop, vector<
 	}
 	if (routes_after_move.size() == 0) return routes;
 	else {
-		if (calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, routes, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) != calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, routes_after_move, map_airstrip, map_airplane, from_to, from_to_FuelConsumed)) {
-			cout << " Costo Routes: " << calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, routes, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
-			cout << " Costo routes_after_move: " << calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, routes_after_move, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
+		double cost_before_move = calculate_ObjectiveFunction(peso_TW, inter_stop_weight, routes, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+		double cost_after_move = calculate_ObjectiveFunction(peso_TW, inter_stop_weight, routes_after_move, map_airstrip, map_airplane, from_to, from_to_FuelConsumed); 
+		if ( cost_before_move != cost_after_move) {
+			cout << " Costo Routes: " << cost_before_move << endl;
+			cout << " Costo routes_after_move: " << cost_after_move << endl;
 		}
 		return routes_after_move;
 	}

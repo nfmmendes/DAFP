@@ -28,12 +28,13 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 		int to_per_route = 0;
 
 		for (int r = 0; r < (int)routes_destroyed.size(); r++) {
-			if (routes_destroyed[r].primo_pass == false) {
-				if (routes_destroyed[r].index == 1) {
+			auto* route_ptr = &routes_destroyed[r]; 
+			if (route_ptr->primo_pass == false) {
+				if (route_ptr->index == 1) {
 					//c'� solo il deposito in questo caso
-					double cost = from_to[routes_destroyed[r].places[0]][p.departure_location] + from_to[p.departure_location][p.arrival_location] + map_airplane[routes_destroyed[r].aircraft_code].fixed_cost;
-					cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][routes_destroyed[r].places[0]][p.departure_location];
-					cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.departure_location][p.arrival_location];
+					double cost = from_to[route_ptr->places[0]][p.departure_location] + from_to[p.departure_location][p.arrival_location] + map_airplane[route_ptr->aircraft_code].fixed_cost;
+					cost += from_to_FuelConsumed[route_ptr->aircraft_code][routes_destroyed[r].places[0]][p.departure_location];
+					cost += from_to_FuelConsumed[route_ptr->aircraft_code][p.departure_location][p.arrival_location];
 
 					if (cost < best_cost) {
 						best_cost = cost;
@@ -44,8 +45,8 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 			}
 			else {
 				double cost_route_before = cost_single_route(peso_TW, peso_intermediate_stop, routes_destroyed[r], map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-				for (int n = 0; n < routes_destroyed[r].index - 1; n++) {
-					if (p.departure_location != routes_destroyed[r].places[n] || n == 0) {
+				for (int n = 0; n < route_ptr->index - 1; n++) {
+					if (p.departure_location != route_ptr->places[n] || n == 0) {
 						for (int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
 							if (p.arrival_location != routes_destroyed[r].places[n1]) {
 								Route r_support = routes_destroyed[r];
@@ -181,11 +182,9 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 					routes_destroyed[best_route].move_c(p, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
 				}
 				else {
-					//routes_destroyed[best_route].update_route_rebuilt_one(best_arc_from, best_arc_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed);
 					routes_destroyed[best_route] = route_best;
 					p.solution_from = from_per_route;
 					p.solution_to = to_per_route;
-					//routes_destroyed[best_route].print();
 				}
 			}
 			
@@ -229,13 +228,13 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 
 			int chiave = p.chiave_regret;
 			if (map_pass_aggragati.count(chiave) >= 1) {
-
-				regret_diff.push_back(regret_diff[map_pass_aggragati[chiave]]);
-				regret_move_c.push_back(regret_move_c[map_pass_aggragati[chiave]]);
-				regret_best_route.push_back(regret_best_route[map_pass_aggragati[chiave]]);
-				regret_arc_from.push_back(regret_arc_from[map_pass_aggragati[chiave]]);
-				regret_arc_to.push_back(regret_arc_to[map_pass_aggragati[chiave]]);
-				regret_index_pass.push_back(regret_index_pass[map_pass_aggragati[chiave]]);
+				const int index = map_pass_aggragati[chiave];
+				regret_diff.push_back(regret_diff[index]);
+				regret_move_c.push_back(regret_move_c[index]);
+				regret_best_route.push_back(regret_best_route[index]);
+				regret_arc_from.push_back(regret_arc_from[index]);
+				regret_arc_to.push_back(regret_arc_to[index]);
+				regret_index_pass.push_back(regret_index_pass[index]);
 			}
 			else {
 
@@ -366,8 +365,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 								f_after_secondo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
 							}
 
-							//cout << "cost for move c" << cost << endl;
-							//cout << t_arr_arrival << " <= " << end_day << " && " << f_after_primo_tratto << " >= " << map_airplane[routes_destroyed[r].aircraft_code].min_fuel << " && " << f_after_secondo_tratto << " >= " << map_airplane[routes_destroyed[r].aircraft_code].min_fuel << endl;
 							if (t_arr_arrival <= end_day) {
 								if (f_after_primo_tratto >= map_airplane[routes_destroyed[r].aircraft_code].min_fuel) {
 									if (f_after_secondo_tratto >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
@@ -376,16 +373,12 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 										arc_from.push_back(-2);
 										arc_to.push_back(-2);
 										route.push_back(r);
-
-										//cout << "cost: " << cost << " from: " << -2 << " to: " << -2 << " route: " << r << " mossa c: " << 1 << endl;
 									}
 								}
 							}
 						}
 					}
 				}
-
-
 
 				if (costs.size() == 1) {
 					//regret_diff.push_back(0);
@@ -434,7 +427,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 				move_c.clear();
 
 			}
-			
 			index_p++;
 		}
 
@@ -472,8 +464,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 		vector<Passenger>::iterator it;
 		it = passengers_removed.begin();
 		passengers_removed.erase(it + regret_index_pass[index]);
-
-
 
 		regret_diff.clear();
 		regret_move_c.clear(); //1 move C, 0 no move C
@@ -562,16 +552,17 @@ vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, d
 
 				//for move C
 				if (routes_destroyed[r].primo_pass) {
+					auto* route_ptr = &routes_destroyed[r];
 					//if there is at least one passenger inside the route, i evaluete the possibility to put him/her inside the route with the move C
-					if (routes_destroyed[r].places[routes_destroyed[r].index - 1] == p.departure_location) {
+					if (route_ptr->places[route_ptr->index - 1] == p.departure_location) {
 						double dist = from_to[p.departure_location][p.arrival_location];
-						double time = (from_to[p.departure_location][p.arrival_location] / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60;
+						double time = (from_to[p.departure_location][p.arrival_location] / map_airplane[route_ptr->aircraft_code].speed) * 60;
 
-						double fuel_consumed = from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.departure_location][p.arrival_location];
+						double fuel_consumed = from_to_FuelConsumed[route_ptr->aircraft_code][p.departure_location][p.arrival_location];
 
 						double time_window_cost = 0.0;
-						double t_arr_departure = routes_destroyed[r].time_arr[routes_destroyed[r].index - 1];
-						double t_arr_arrival = routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time;
+						double t_arr_departure = route_ptr->time_arr[route_ptr->index - 1];
+						double t_arr_arrival = route_ptr->time_dep[route_ptr->index - 1] + time;
 						if (t_arr_departure < p.early_departure) time_window_cost += p.early_departure - t_arr_departure;
 						else if (t_arr_departure > p.late_departure) time_window_cost += t_arr_departure - p.late_departure;
 
@@ -580,8 +571,8 @@ vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, d
 
 						double cost = dist + ((time_window_cost * peso_TW) * p.capacity) + fuel_consumed;
 						if (best_cost > cost) {
-							if (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time <= end_day) {
-								if (routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
+							if (route_ptr->time_dep[routes_destroyed[r].index - 1] + time <= end_day) {
+								if (route_ptr->quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[route_ptr->aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
 									best_cost = cost;
 									best_route = r;
 									move_c = true;

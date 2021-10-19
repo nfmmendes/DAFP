@@ -7,6 +7,9 @@
 
 #include "Flightleg.h"
 
+typedef vector<vector<double>> double2DVector;
+typedef vector<vector<vector<double>>> double3DVector;
+
 template<typename type>
 struct MyCOMP {
 	bool operator() (
@@ -216,9 +219,6 @@ void unione_children_INTELLIGENTE(vector<Passenger>& passengers, vector<Passenge
 						if (g.departure_location == loc_dep && g.arrival_location == loc_arr && time_dep == g.departure_time && time_arr == g.arrival_time) {
 							genitori_gruppo.push_back(g);
 							non_ha_genitore = false;
-							//g.capacity += p.capacity;
-							//g.weight += p.weight;
-							//break;
 						}
 					}
 				}
@@ -280,9 +280,6 @@ void unione_children_INTELLIGENTE(vector<Passenger>& passengers, vector<Passenge
 		cout << endl;
 		cout << endl;
 		cout << endl;
-		//system("pause");
-
-		//cin.get();
 	}
 	cout << "ora faccio il check per vedere se le capacita' dei due gruppi tornano" << endl;
 	int capacita_aggr = 0;

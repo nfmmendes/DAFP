@@ -1,7 +1,4 @@
-﻿
-
-//codice per la risoluzione di un giorno e che salva anche dentro un vettore di route tutte le route create, sarà questo da passare a creazione flightleg
-#include <chrono>
+﻿#include <chrono>
 #include <iostream>
 #include <vector>
 
@@ -16,6 +13,8 @@
 #include "Move.h"
 #include "Route.h"
 
+typedef vector<vector<vector<int>>> intVector3D;
+
 vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, int Iter_FirstDo, int iterMAX_FirstDo, int number_airplane, vector<Airplane> airplanes, double peso_TW, double peso_itermediate_stop, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed, vector<Passenger>& passengers_per_casostrano, map<string, double>& from_to_company, map<int, string>& legenda_ritroso, map<int, Passenger>& map_id_passenger, vector<Passenger>& passengers, map<string, int>& mappa_aereo_tipo, map<int, int>& codice_aereo_tipo, map<int, int>& tipo_numero) {
 	ofstream outfile; //per il file di input grafico.txt++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	outfile.open("grafico.txt");
@@ -25,15 +24,17 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 	double tempo_finale;
 	time_t time_now = time(NULL);
 
-	int NDestroy = 4;
-	int NRepair = 5;
-	int NHeuristic = 2;
+	const int NDestroy = 4;
+	const int NRepair = 5;
+	const int NHeuristic = 2;
 	int initial_weigth = 5;
 	vector<double> Weigth_destroy;
 	vector<double> Weigth_repair;
 	vector<double> Weigth_heuristic(NHeuristic);
+	
 	for (int i = 0; i < NDestroy; i++) Weigth_destroy.push_back(initial_weigth);
 	for (int i = 0; i < NRepair; i++) Weigth_repair.push_back(initial_weigth);
+	
 	Weigth_heuristic[0] = 1.00; //parallel
 	Weigth_heuristic[1] = 0.00; //sequential
 	for (double i : Weigth_destroy) cout << i << " || ";
@@ -41,7 +42,7 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 	for (double i : Weigth_repair) cout << i << " || ";
 	cout << endl;
 	vector<vector<Route>> solutionAll;
-	//vector<Route> best_solution_route_ever;
+	
 	srand(time(NULL));
 	int NumeroSA = 0;
 	int iterazioni_fallite = 0;
@@ -89,34 +90,23 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 
 				npass = 0;
 				if (heuristic_choice < Accumulated(0, Weigth_heuristic)) {
-					//cout << "*************** I am using the Parallel Heuristic ************" << endl;
 					start_solution_route = heuristic_costructive_first_fase(peso_TW, peso_itermediate_stop, airplanes, map_airplane, map_airstrip, end_day, passengers, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
 				}
 				else {
-					//cout << "*************** I am using the Sequential Heuristic ************" << endl;
 					start_solution_route = heuristic_costructive_first_fase_sequential(peso_TW, peso_itermediate_stop, airplanes, map_airplane, map_airstrip, end_day, passengers, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
 				}
 				for (Route& r : start_solution_route) npass += (int)r.passengers_in_route.size();
-				//cout << "ecco le route" << endl;
-				//for (Route r : start_solution_route) r.print();
 				cout << "numero di passeggeri " << npass << endl;
 				cout << "passengers.size()= " << passengers.size() << endl;
-				//system("pause");
-				//cin.get();
 				number_iteration_in_heuristic++;
 			} while ((int)passengers.size() > npass);
 		}
 
 		start_solution = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-		//cout << "il costo del costruttivo e': " << start_solution << endl;
-		//system("pause");
 		cout << "ho appena fatto il costruttivo" << endl;
 		stampo_caso_strano(map_airstrip, peso_TW, peso_itermediate_stop, from_to, from_to_FuelConsumed, passengers_per_casostrano, start_solution_route, from_to_company, map_airplane, legenda_ritroso);
 		solutionAll.push_back(start_solution_route);
 		vector_solution_for_FL.push_back(start_solution_route);
-		//cout << "Costo Starting Greedy Solution: " << start_solution << endl;
-		//for (Route r : start_solution_route) r.print();
-		//system("pause");
 
 		//*************************************************************per scrittura su .txt per grafico**************************************************************************************************************************************************
 		outfile << "soluzione euristica di partenza:;0;" << start_solution << endl;
@@ -142,7 +132,6 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 			auto start = chrono::high_resolution_clock::now();
 
 			if (destroy_choice < Accumulated(0, Weigth_destroy)) {
-				//cout << "*************** I am using the Cluster Destroy ************" << endl;
 				int num_passenger_cluster = (int)((passengers.size() * 0.14) + (random * ((passengers.size() * 0.24) - (passengers.size() * 0.14)))); //era 0.24 prima
 				route_destroy = destroy_cluster_aggr2(peso_TW, num_passenger_cluster, passenger_removed, Input_destroy, map_airplane, from_to, passengers, map_id_passenger, peso_itermediate_stop);
 				choosen_destroy = 0;
@@ -174,10 +163,6 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 			if (repair_choice < Accumulated(0, Weigth_repair)) {
 				//cout << "*************** I am using the Repair One ************" << endl;
 				solution_rebuilt = repair_one(peso_TW, peso_itermediate_stop, end_day, route_destroy, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
-				//for (Route r : solution_rebuilt) r.print();
-				//system("pause");
-
-
 				choosen_repair = 0;
 			}
 			else if (repair_choice < Accumulated(1, Weigth_repair)) {
@@ -206,66 +191,48 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 
 			if (solution_rebuilt.size() > 0) {
 				double initial_cost = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-				solution_rebuilt = move(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airplane, map_airstrip, end_day, from_to, location_fuel, from_to_FuelConsumed);
-				solution_rebuilt = swap(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airplane, map_airstrip, end_day, from_to, location_fuel, from_to_FuelConsumed);
+				MoveParamSet param_set{ peso_TW, peso_itermediate_stop, end_day };
+				solution_rebuilt = move(param_set, solution_rebuilt, map_airplane, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = swap(param_set, solution_rebuilt, map_airplane, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
 
 				if (initial_cost == calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed)) {
-					solution_rebuilt = inter_move(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airplane, map_airstrip, end_day, from_to, location_fuel, from_to_FuelConsumed);
+					solution_rebuilt = inter_move(param_set, solution_rebuilt, map_airplane, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
 				}
-				//cout << "passato if intermove" << endl;
+				
 				solution_rebuilt = heuristic_costructive_second_fase(solution_rebuilt, end_day, peso_TW);
 				double cost_objectiveFunction_second_fase_after_rebuilt = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-				//cout << "Cost of the solution rebuilt with Move + Swap + Second phase: " << cost_objectiveFunction_second_fase_after_rebuilt << endl;
-				//cout << "la best solution fino a questo punto e': " << best_solution << endl;
-				//*************************************************************per scrittura su .txt per grafico**************************************************************************************************************************************************
-				if (NumeroSA == 1000 || NumeroSA == 2000 || NumeroSA == 3000 || NumeroSA == 4000 || NumeroSA == 5000 || NumeroSA == 6000 || NumeroSA == 7000 || NumeroSA == 8000 || NumeroSA == 9000 || NumeroSA == 10000 ||
-					NumeroSA == 11000 || NumeroSA == 12000 || NumeroSA == 13000 || NumeroSA == 14000 || NumeroSA == 15000 || NumeroSA == 16000 || NumeroSA == 17000 || NumeroSA == 18000 || NumeroSA == 19000 || NumeroSA == 20000 ||
-					NumeroSA == 21000 || NumeroSA == 22000 || NumeroSA == 23000 || NumeroSA == 24000 || NumeroSA == 25000 || NumeroSA == 26000 || NumeroSA == 27000 || NumeroSA == 28000 || NumeroSA == 29000 || NumeroSA == 30000 ||
-					NumeroSA == 31000 || NumeroSA == 32000 || NumeroSA == 33000 || NumeroSA == 34000 || NumeroSA == 35000 || NumeroSA == 36000 || NumeroSA == 37000 || NumeroSA == 38000 || NumeroSA == 39000 || NumeroSA == 40000 ||
-					NumeroSA == 41000 || NumeroSA == 42000 || NumeroSA == 43000 || NumeroSA == 44000 || NumeroSA == 45000 || NumeroSA == 46000 || NumeroSA == 47000 || NumeroSA == 48000 || NumeroSA == 49000 || NumeroSA == 50000 ||
-					NumeroSA == 51000 || NumeroSA == 52000 || NumeroSA == 53000 || NumeroSA == 54000 || NumeroSA == 55000 || NumeroSA == 56000 || NumeroSA == 57000 || NumeroSA == 58000 || NumeroSA == 59000 || NumeroSA == 60000) {
-					//ofstream outfile1;
-					//outfile1.open("grafico.txt");
+				
+				if(NumeroSA%1000 == 0 && NumeroSA > 0 && NumeroSA <= 60000){
 					tempo_finale = difftime(time(NULL), time_now);
 					outfile << "NumeroSA:;" << NumeroSA << ";" << best_solution << ";tempo:;" << to_string(tempo_finale) << endl;
-					//outfile1.close();
 				}
 
 				if (cost_objectiveFunction_second_fase_after_rebuilt < start_solution) {
-					//cout << "Ottimo aggiorno la soluzione da cui continuare a fare perturbazioni " << endl;
 					start_solution_route.clear();
-					//start_solution_route.shrink_to_fit();
 
 					for (Route& so : solution_rebuilt) start_solution_route.push_back(so);
-					//cout << " Adesso ho aggiornato start_solution_route stampo la size: " << start_solution_route.size() << endl;
 					double award = Ob_Funct_Improvement(cost_objectiveFunction_second_fase_after_rebuilt, start_solution);
 
 					start_solution = cost_objectiveFunction_second_fase_after_rebuilt;
 					iteration = 0;
-					//cout << " Aggiungo al destroy ad al Repair 1 + award =  " << award << endl;
 					Weigth_destroy[choosen_destroy] += (1 + award - time_spent);
 					Weigth_repair[choosen_repair] += (1 + award - time_spent_r);
 					if (cost_objectiveFunction_second_fase_after_rebuilt < best_solution) {
-						//cout << "Aggiorno migliore soluzione " << endl;
 						best_solution_route.clear();
-						//best_solution_route.shrink_to_fit();
+						
 						for (Route& s : solution_rebuilt) best_solution_route.push_back(s);
 						best_solution = cost_objectiveFunction_second_fase_after_rebuilt;
 						best_iteration = iteration;
 						start_route_bs = (int)solutionAll.size();
 						size_route_bs = (int)solution_rebuilt.size();
-						//cout << " Ho aggiornato la migliore soluzione le route adesso si trovano nella posizione: " << start_route_bs << " con size: " << size_route_bs << endl;
-						//system("pause");
 					}
 				}
 				else {
-
 					r = double(rand()) / (double(RAND_MAX) + 1.0);
 
 					double espo = -(cost_objectiveFunction_second_fase_after_rebuilt - start_solution) / T;
 
 					if (r <= exp(espo) && exp(espo) != 1) {
-						//cout << "Confrona i costi sono entrato perche: " << r << " < " << exp(espo) << endl;
 						start_solution_route.clear();
 
 						for (Route& s : solution_rebuilt) start_solution_route.push_back(s);
@@ -345,11 +312,10 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 		}
 		cout << " Soluzione contiene numero di passeggieri pari a " << n << endl;
 		//finito di fissare gli aerei
-		vector<vector<vector<int>>> A3;  //matrix A
+		intVector3D A3;  //matrix A
 		vector<vector<double>> C;  //cost
 		vector<Route> routes;
 		for (auto& airplane : airplanes_model) {
-			//cout << "Airplane: " << airplane.code << endl;
 			vector<double> c;
 			vector<vector<int>> A2;
 			cout << "la size di airplanc routes e': " << endl;
@@ -359,20 +325,15 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 				vector<int> A1;
 				for (Passenger& p : passengers) {
 					auto it = find_if(r.passengers_in_route.begin(), r.passengers_in_route.end(),
-						[=](Passenger p_)
+						[&p](Passenger other)
 						{
-							return p.pnr == p_.pnr;
+							return p.pnr == other.pnr;
 						});
-					if (it != r.passengers_in_route.end())
-					{
-						A1.push_back(1);
-					}
-					else {
-						A1.push_back(0);
-					}
+
+					A1.push_back((it != r.passengers_in_route.end()) ? 1 : 0);
+
 				}
 				A2.push_back(A1);
-				//cout << "- " << r.cost << endl;
 				c.push_back(r.cost);
 			}
 			A3.push_back(A2);
@@ -426,14 +387,12 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 	cout << calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
 	cout << " Routing cost : " << costo_senza_time_windows(start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
 	cout << " Time windows cost: " << costo_time_windows_and_intermediate_stop(peso_TW, peso_itermediate_stop, start_solution_route) << endl;
-	//stampo_caso_strano(map_airstrip, peso_TW, peso_itermediate_stop, from_to, from_to_FuelConsumed, passengers, start_solution_route, from_to_company, map_airplane, legenda_ritroso);
 	//*********************************************************************************AGGREGAZIONE COMPLESSA***************************************************************
 	cout << "ora faccio l'aggregazione complessa" << endl;
 	start_solution_route = aggrezione_complex_after_model(start_solution_route, map_airplane, from_to, from_to_FuelConsumed);
 	cout << calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
 	cout << " Routing cost : " << costo_senza_time_windows(start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
 	cout << " Time windows cost: " << costo_time_windows_and_intermediate_stop(peso_TW, peso_itermediate_stop, start_solution_route) << endl;
-	//stampo_caso_strano(map_airstrip, peso_TW, peso_itermediate_stop, from_to, from_to_FuelConsumed, passengers, start_solution_route, from_to_company, map_airplane, legenda_ritroso);
 	//*********************************************************************************************************************************************************************
 	cout << " ********** Final Weight ************ " << endl;
 	cout << " Cluster || Worst || 2-Regret || Thanos " << endl;
