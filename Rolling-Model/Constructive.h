@@ -109,7 +109,14 @@ vector<Route> heuristic_costructive_second_fase_SP(vector<Route>& solution, doub
 	return sol;
 }
 
-vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_intermediate_stop, vector<Airplane>& airplanes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double end_day, vector<Passenger>& passengers, int number_of_aircraft, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Airplane>& airplanes, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
+
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	//creo i punti di partenza
 	vector<Route> solution;
 	int cont = 0;
@@ -628,7 +635,14 @@ vector<Route> heuristic_costructive_first_fase(double peso_TW, double peso_inter
 	return solution_clean;
 }
 
-vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double peso_intermediate_stop, vector<Airplane>& airplanes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double end_day, vector<Passenger> passengers, int number_of_aircraft, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Airplane>& airplanes, double end_day, vector<Passenger> passengers, int number_of_aircraft) {
+
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	//creo i punti di partenza
 	vector<Route> solution;
 	int cont = 0;
@@ -1155,7 +1169,13 @@ vector<Route> heuristic_costructive_first_fase_sequential(double peso_TW, double
 }
 
 
-double costo_senza_time_windows(vector<Route>& solution, map<int, Airstrip>& map_airstrip, map<int, Airplane>& map_airplane, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+double costo_senza_time_windows(ProcessedInput* input, vector<Route>& solution) {
+
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	double cost = 0.0;
 
 	for (auto& r : solution) {
@@ -1189,8 +1209,6 @@ double costo_senza_time_windows(vector<Route>& solution, map<int, Airstrip>& map
 	}
 
 	return cost;
-
-
 };
 
 double costo_time_windows_and_intermediate_stop(double peso_TW, double peso_intermediate_stop, vector<Route>& solution) {
@@ -1218,10 +1236,14 @@ double costo_time_windows_and_intermediate_stop(double peso_TW, double peso_inte
 	return cost;
 }
 
+void heuristic_costructive_first_fase_secIter(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Route>& solution, vector<Airplane>& airplanes, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
 
-
-void heuristic_costructive_first_fase_secIter(double peso_TW, double peso_intermediate_stop, vector<Route>& solution, vector<Airplane>& airplanes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double end_day, vector<Passenger>& passengers, int number_of_aircraft, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
-
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	//cout << " ----------------- Sono al secondo giro adesso ho gia soddisfatto alcuni passeggieri me ne mancano alcuni -----------------" << endl;
 	int situation = -1;
 	int cont = 0;

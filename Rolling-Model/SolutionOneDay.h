@@ -2,8 +2,6 @@
 #include <iostream>
 #include <vector>
 
-
-
 #include "Aggregate.h"
 #include "Constructive.h"
 #include "Destroyers.h"
@@ -13,9 +11,17 @@
 #include "Move.h"
 #include "Route.h"
 
-typedef vector<vector<vector<int>>> intVector3D;
+typedef vector<vector<vector<int>>> int3DVector;
+typedef vector<vector<Route>> Route2DVector;
 
-vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, int Iter_FirstDo, int iterMAX_FirstDo, int number_airplane, vector<Airplane> airplanes, double peso_TW, double peso_itermediate_stop, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed, vector<Passenger>& passengers_per_casostrano, map<string, double>& from_to_company, map<int, string>& legenda_ritroso, map<int, Passenger>& map_id_passenger, vector<Passenger>& passengers, map<string, int>& mappa_aereo_tipo, map<int, int>& codice_aereo_tipo, map<int, int>& tipo_numero) {
+vector<Route> solution_one_day(ProcessedInput* input, Route2DVector& vector_solution_for_FL, int Iter_FirstDo, int iterMAX_FirstDo, int number_airplane, vector<Airplane> airplanes, double peso_TW, double peso_itermediate_stop, vector<Passenger>& passengers_per_casostrano, map<string, double>& from_to_company, map<int, string>& legenda_ritroso, map<int, Passenger>& map_id_passenger, vector<Passenger>& passengers, map<string, int>& mappa_aereo_tipo, map<int, int>& codice_aereo_tipo, map<int, int>& tipo_numero) {
+
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	ofstream outfile; //per il file di input grafico.txt++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	outfile.open("grafico.txt");
 	int number_iteration_in_heuristic = 0;
@@ -90,10 +96,10 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 
 				npass = 0;
 				if (heuristic_choice < Accumulated(0, Weigth_heuristic)) {
-					start_solution_route = heuristic_costructive_first_fase(peso_TW, peso_itermediate_stop, airplanes, map_airplane, map_airstrip, end_day, passengers, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
+					start_solution_route = heuristic_costructive_first_fase(input, peso_TW, peso_itermediate_stop, airplanes, end_day, passengers, number_of_aircraft);
 				}
 				else {
-					start_solution_route = heuristic_costructive_first_fase_sequential(peso_TW, peso_itermediate_stop, airplanes, map_airplane, map_airstrip, end_day, passengers, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
+					start_solution_route = heuristic_costructive_first_fase_sequential(input, peso_TW, peso_itermediate_stop, airplanes, end_day, passengers, number_of_aircraft);
 				}
 				for (Route& r : start_solution_route) npass += (int)r.passengers_in_route.size();
 				cout << "numero di passeggeri " << npass << endl;
@@ -102,7 +108,7 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 			} while ((int)passengers.size() > npass);
 		}
 
-		start_solution = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+		start_solution = calculate_ObjectiveFunction(input, peso_TW, peso_itermediate_stop, start_solution_route);
 		cout << "ho appena fatto il costruttivo" << endl;
 		stampo_caso_strano(map_airstrip, peso_TW, peso_itermediate_stop, from_to, from_to_FuelConsumed, passengers_per_casostrano, start_solution_route, from_to_company, map_airplane, legenda_ritroso);
 		solutionAll.push_back(start_solution_route);
@@ -133,22 +139,22 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 
 			if (destroy_choice < Accumulated(0, Weigth_destroy)) {
 				int num_passenger_cluster = (int)((passengers.size() * 0.14) + (random * ((passengers.size() * 0.24) - (passengers.size() * 0.14)))); //era 0.24 prima
-				route_destroy = destroy_cluster_aggr2(peso_TW, num_passenger_cluster, passenger_removed, Input_destroy, map_airplane, from_to, passengers, map_id_passenger, peso_itermediate_stop);
+				route_destroy = destroy_cluster_aggr2(input, peso_TW, num_passenger_cluster, passenger_removed, Input_destroy, passengers, map_id_passenger, peso_itermediate_stop);
 				choosen_destroy = 0;
 			}
 			else if (destroy_choice < Accumulated(1, Weigth_destroy)) {
 				//cout << "*************** I am using the Worst Destroy ************" << endl;
-				route_destroy = destroy_worst(peso_TW, peso_itermediate_stop, percentage_route_destroy, passenger_removed, Input_destroy, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
+				route_destroy = destroy_worst(input, peso_TW, peso_itermediate_stop, percentage_route_destroy, passenger_removed, Input_destroy);
 				choosen_destroy = 1;
 			}
 			else if (destroy_choice < Accumulated(2, Weigth_destroy)) {
 				//cout << "*************** I am using the Casual Destroy ************" << endl;
-				route_destroy = destroy_casual(percentage_route_destroy, passenger_removed, Input_destroy, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
+				route_destroy = destroy_casual(input, percentage_route_destroy, passenger_removed, Input_destroy);
 				choosen_destroy = 2;
 			}
 			else {
 				//cout << "*************** I am using the Thanos Destroy ************" << endl;
-				route_destroy = destroy_thanos(percentage_route_destroy, passenger_removed, Input_destroy, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
+				route_destroy = destroy_thanos(input, percentage_route_destroy, passenger_removed, Input_destroy);
 				choosen_destroy = 3;
 			}
 			auto stop = chrono::high_resolution_clock::now();
@@ -162,27 +168,27 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 			auto start_r = chrono::high_resolution_clock::now();
 			if (repair_choice < Accumulated(0, Weigth_repair)) {
 				//cout << "*************** I am using the Repair One ************" << endl;
-				solution_rebuilt = repair_one(peso_TW, peso_itermediate_stop, end_day, route_destroy, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = repair_one(input, peso_TW, peso_itermediate_stop, end_day, route_destroy, passenger_removed);
 				choosen_repair = 0;
 			}
 			else if (repair_choice < Accumulated(1, Weigth_repair)) {
 				//cout << "*************** I am using the Repair SP ************" << endl;
-				solution_rebuilt = repairSP(peso_TW, peso_itermediate_stop, route_destroy, passenger_removed, map_airplane, map_airstrip, from_to, airplanes, end_day, passengers, number_of_aircraft, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = repairSP(input, peso_TW, peso_itermediate_stop, route_destroy, passenger_removed, airplanes, end_day, passengers, number_of_aircraft);
 				choosen_repair = 1;
 			}
 			else if (repair_choice < Accumulated(2, Weigth_repair)) {
 				//cout << "*************** I am using the Repair 2 Regret ************" << endl;
-				solution_rebuilt = two_regret_repair_aggragati(peso_TW, peso_itermediate_stop, end_day, route_destroy, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = two_regret_repair_aggragati(input, peso_TW, peso_itermediate_stop, end_day, route_destroy, passenger_removed);
 				choosen_repair = 2;
 			}
 			else if (repair_choice < Accumulated(3, Weigth_repair)) {
 				//cout << "*************** I am using the Repair Forbidden ************" << endl;
-				solution_rebuilt = repair_forbidden(peso_TW, peso_itermediate_stop, end_day, route_destroy, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = repair_forbidden(input, peso_TW, peso_itermediate_stop, end_day, route_destroy, passenger_removed);
 				choosen_repair = 3;
 			}
 			else {
 				//cout << "*************** I am using the Repair Perturbation ************" << endl;
-				solution_rebuilt = repair_perturbation(peso_TW, peso_itermediate_stop, end_day, route_destroy, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = repair_perturbation(input, peso_TW, peso_itermediate_stop, end_day, route_destroy, passenger_removed);
 				choosen_repair = 4;
 			}
 			auto stop_r = chrono::high_resolution_clock::now();
@@ -190,17 +196,17 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 			double time_spent_r = Time_Spend((double)duration_r.count());
 
 			if (solution_rebuilt.size() > 0) {
-				double initial_cost = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+				double initial_cost = calculate_ObjectiveFunction(input, peso_TW, peso_itermediate_stop, solution_rebuilt);
 				MoveParamSet param_set{ peso_TW, peso_itermediate_stop, end_day };
-				solution_rebuilt = move(param_set, solution_rebuilt, map_airplane, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
-				solution_rebuilt = swap(param_set, solution_rebuilt, map_airplane, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = move(input, param_set, solution_rebuilt);
+				solution_rebuilt = swap(input,param_set, solution_rebuilt);
 
-				if (initial_cost == calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed)) {
-					solution_rebuilt = inter_move(param_set, solution_rebuilt, map_airplane, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+				if (initial_cost == calculate_ObjectiveFunction(input, peso_TW, peso_itermediate_stop, solution_rebuilt)) {
+					solution_rebuilt = inter_move(input, param_set, solution_rebuilt);
 				}
 				
 				solution_rebuilt = heuristic_costructive_second_fase(solution_rebuilt, end_day, peso_TW);
-				double cost_objectiveFunction_second_fase_after_rebuilt = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+				double cost_objectiveFunction_second_fase_after_rebuilt = calculate_ObjectiveFunction(input, peso_TW, peso_itermediate_stop, solution_rebuilt);
 				
 				if(NumeroSA%1000 == 0 && NumeroSA > 0 && NumeroSA <= 60000){
 					tempo_finale = difftime(time(NULL), time_now);
@@ -304,7 +310,7 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 				Prova.push_back(a.second[solution_warm_up[a.first]]);
 			}
 		}
-		cout << " il costo della soluzione che mi sono salvato nella mappa: " << calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, Prova, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
+		cout << " il costo della soluzione che mi sono salvato nella mappa: " << calculate_ObjectiveFunction(input, peso_TW, peso_itermediate_stop, Prova) << endl;
 		int n = 0;
 		for (Route& path : Prova) {
 			//path.print();
@@ -312,7 +318,7 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 		}
 		cout << " Soluzione contiene numero di passeggieri pari a " << n << endl;
 		//finito di fissare gli aerei
-		intVector3D A3;  //matrix A
+		int3DVector A3;  //matrix A
 		vector<vector<double>> C;  //cost
 		vector<Route> routes;
 		for (auto& airplane : airplanes_model) {
@@ -359,7 +365,7 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 		else {
 			for (Route& s : best_solution_route) start_solution_route.push_back(s);
 		}
-		start_solution = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+		start_solution = calculate_ObjectiveFunction(input, peso_TW, peso_itermediate_stop, start_solution_route);
 		cout << " Costo del Modello che sara nuovo costo di partenza = " << start_solution << endl;
 
 		vector_solution_for_FL.push_back(start_solution_route);
@@ -377,21 +383,21 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 	} while ((Iter_FirstDo <= iterMAX_FirstDo));
 
 	cout << "Best solution herurisic: " << start_solution << endl;
-	cout << "costo routing: " << costo_senza_time_windows(start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
+	cout << "costo routing: " << costo_senza_time_windows(input, start_solution_route) << endl;
 	cout << "costo time windows: " << costo_time_windows_and_intermediate_stop(peso_TW, peso_itermediate_stop, start_solution_route) << endl;
 	cout << " Alla iterazione numero: " << best_iteration << endl;
 	for (Route s : start_solution_route) cout << s.cost << " -- " << endl;
 	//*********************************************************************************AGGREGAZIONE SEMPLICE***************************************************************
 	cout << "ora faccio l'aggregazione semplice" << endl;
 	start_solution_route = aggrezione_simple_after_model(start_solution_route, map_airplane, from_to);
-	cout << calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
-	cout << " Routing cost : " << costo_senza_time_windows(start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
+	cout << calculate_ObjectiveFunction(input, peso_TW, peso_itermediate_stop, start_solution_route) << endl;
+	cout << " Routing cost : " << costo_senza_time_windows(input, start_solution_route) << endl;
 	cout << " Time windows cost: " << costo_time_windows_and_intermediate_stop(peso_TW, peso_itermediate_stop, start_solution_route) << endl;
 	//*********************************************************************************AGGREGAZIONE COMPLESSA***************************************************************
 	cout << "ora faccio l'aggregazione complessa" << endl;
 	start_solution_route = aggrezione_complex_after_model(start_solution_route, map_airplane, from_to, from_to_FuelConsumed);
-	cout << calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
-	cout << " Routing cost : " << costo_senza_time_windows(start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
+	cout << calculate_ObjectiveFunction(input, peso_TW, peso_itermediate_stop, start_solution_route) << endl;
+	cout << " Routing cost : " << costo_senza_time_windows(input, start_solution_route) << endl;
 	cout << " Time windows cost: " << costo_time_windows_and_intermediate_stop(peso_TW, peso_itermediate_stop, start_solution_route) << endl;
 	//*********************************************************************************************************************************************************************
 	cout << " ********** Final Weight ************ " << endl;
@@ -417,7 +423,7 @@ vector<Route> solution_one_day(vector<vector<Route>>& vector_solution_for_FL, in
 	int i = 0;
 	double valore = 0.0;
 	for (auto vettore : vector_solution_for_FL) {
-		valore = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, vettore, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+		valore = calculate_ObjectiveFunction(input, peso_TW, peso_itermediate_stop, vettore);
 		it = cost.find(valore);
 		if (it == cost.end()) {
 			cost.insert(make_pair(valore, i));

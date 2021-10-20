@@ -1,5 +1,5 @@
-#ifndef Flightleg_h
-#define Flightleg_h
+#ifndef FLIGHTLEG_H
+#define FLIGHTLEG_H
 
 #include "Passenger.h"
 #include "Route.h"

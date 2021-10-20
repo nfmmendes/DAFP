@@ -12,356 +12,142 @@
 #include "Fill.h"
 #include "Passenger.h"
 #include "Route.h"
+#include "ProcessedInput.h"
 
-double calculationCostCompany(double peso_TW, double peso_trashipment, double peso_intermediate_stop, std::string route_azienza, std::string passengers_azienda, std::vector<Airstrip> airstrips, vector<Airplane> airplanes, vector<Passenger> passengers, map<string, double>& from_to_company) {
-	vector<Route> routes_company_solution = fillRoute(route_azienza);
-
-	map <string, Route> codice_routeAzienda;
-	for (Route r : routes_company_solution) {
-		codice_routeAzienda.insert(make_pair(r.aircraft_code_company_comparison, r));
-	}
-
-	int costi_time_windows = 0;
-	double costi_intermediate_stop = 0.0;
-
-	vector<double> cost_route;
-	//build an hashmap of airstip where the key is the code of the airstip
-	map<string, Airstrip> airstrips_map;
-	for (int i = 0; i < (int)airstrips.size(); i++) {
-		airstrips_map.insert(make_pair(airstrips[i].code_string, airstrips[i]));
-	}
-
-	map<string, Airplane> airplanes_map;
-	for (int i = 0; i < (int)airplanes.size(); i++) {
-		airplanes_map.insert(make_pair(airplanes[i].code_company, airplanes[i]));
-	}
-
-	for (int r = 0; r < (int)routes_company_solution.size(); r++) {
-		double c = airplanes_map[routes_company_solution[r].aircraft_code_company_comparison].fixed_cost; //ho aggiunto il costo fisso
-		string places = ";";
-		for (int i = 0; i < (int)routes_company_solution[r].places_company.size(); i++) {
-			places += routes_company_solution[r].places_company[i] + ";";
-
-			if (i >= 1) {
-				//ho messo che parto da uno in modo tale da non considerare il leading cost del primo aereoporto
-				c += airstrips_map[routes_company_solution[r].places_company[i]].landing_cost; //aggiungo il leading cost
-			}
-
-			//aggiungo il costo dei kilometri e del fuel
-			if (i < (int)routes_company_solution[r].places_company.size() - 1) {
-				c += from_to_company[routes_company_solution[r].places_company[i] + ";" + routes_company_solution[r].places_company[i + 1]];
-				double time_flight = (from_to_company[routes_company_solution[r].places_company[i] + ";" + routes_company_solution[r].places_company[i + 1]]) / airplanes_map[routes_company_solution[r].aircraft_code_company_comparison].speed;
-				double cost_fuel = 0;
-				if (time_flight <= 1) {
-					cost_fuel = time_flight * airplanes_map[routes_company_solution[r].aircraft_code_company_comparison].fuel_burn_first;
-				}
-				else {
-					cost_fuel = airplanes_map[routes_company_solution[r].aircraft_code_company_comparison].fuel_burn_first + (time_flight - 1) * airplanes_map[routes_company_solution[r].aircraft_code_company_comparison].fuel_burn_second;
-				}
-
-				c += cost_fuel;
-			}
-		}
-
-		cost_route.push_back(c);
-	}
-
-	double costo_routing = 0.0;
-	for (double c : cost_route) costo_routing += c;
-	cout << "Costo Routing per la compagnia: " << costo_routing << endl;
-
-	vector<Passenger> passengers_solution; //il code_flight qui � l'aereo
-	ifstream file;
-	file.open(passengers_azienda);
-	if (file.fail()) {
-		cerr << "Error Opening File passenger azienda" << endl;
-		system("pause");
-		exit(1);
-	}
-	while (!file.eof()) {
-		string row;
-		getline(file, row);
-		vector<string> e = split(row, ';');
-		int min_dep;
-		int min_arr;
-
-		if (e[2] != "Charter") {
-			vector<string> dep_min = split(e[4], ':');
-			min_dep = (stoi(dep_min[0]) * 60) + stoi(dep_min[1]);
-			vector<string> arr_min = split(e[5], ':');
-			min_arr = (stoi(arr_min[0]) * 60) + stoi(arr_min[1]);
-		}
-		else {
-			min_arr = 0;
-			min_dep = 0;
-		}
-		Passenger p(0, 0, 0, e[0], e[2], e[3], "", e[1], "", "", min_dep, min_arr);
-		passengers_solution.push_back(p);
-
-	}
-	file.close();
-	//***********************************************************************************************************************************
-	//calcolo matrice A e costo della penalit� per essere fuori dall'orario previsto
-	for (int p = 0; p < (int)passengers.size(); p++) {
-		int c = 0; //costo_time_windows
-		size_t trovato_pass_name;
-		size_t trovato_pass_cognome;
-		int controllo = 0;
-		vector<Passenger> pass_trovato;
-		transform(passengers[p].name.begin(), passengers[p].name.end(), passengers[p].name.begin(), ::tolower);
-		transform(passengers[p].surname.begin(), passengers[p].surname.end(), passengers[p].surname.begin(), ::tolower);
-
-		for (int j = 0; j < (int)passengers_solution.size(); j++) {
-			trovato_pass_name = passengers_solution[j].name.find(passengers[p].name);
-			if (trovato_pass_name <= passengers_solution[j].name.size()) {
-				trovato_pass_cognome = passengers_solution[j].name.find(passengers[p].surname);
-				if (trovato_pass_cognome <= passengers_solution[j].name.size()) {
-					pass_trovato.push_back(passengers_solution[j]);
-					controllo += 1;
-				}
-			}
-
-		}
-
-		//questa � la parte del calcolo delle time window
-		if (controllo >= 1) {
-			//vuol dire che ho trovato il passeggero
-			//controllo se trovo l'andata
-			for (int z = 0; z < (int)pass_trovato.size(); z++) {
-				if (pass_trovato[z].departure_location_company == passengers[p].departure_location_company) {
-					//calcolo la time windows
-					int differenza_dep = passengers[p].departure_time - pass_trovato[z].departure_time;
-					if (differenza_dep > 25) {
-						c += differenza_dep - 25;
-					}
-
-					if (differenza_dep < -5) {
-						c += (differenza_dep + 5) * (-1);
-					}
-				}
-				if (pass_trovato[z].arrival_location_company == passengers[p].arrival_location_company) {
-					//calcolo la time windows
-					int differenza_arr = passengers[p].arrival_time - pass_trovato[z].arrival_time;
-					if (differenza_arr > 30) {
-						c += differenza_arr - 30;
-					}
-					if (differenza_arr < 0) {
-						c += (differenza_arr) * (-1);
-					}
-				}
-			}
-		}
-
-		//parte per gli intermediate stop
-
-		//parte per il calcolo del costo degli intermediate stop*********************************************************************************
-		if (controllo == 1) {
-			vector<int> int_from; //vettore con tutti i from
-			vector<int> int_to; // vettore con tutti i to 
-			//scorro tutte le localit� della route
-			for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
-				//salvo tutti i from e tutti i to che trovo
-				if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == passengers[p].departure_location_company) {
-					int_from.push_back(i);
-				}
-				if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == passengers[p].arrival_location_company) {
-					int_to.push_back(i);
-				}
-			}
-
-			if (!int_from.empty() && !int_to.empty()) {
-				double best_differenza = DBL_MAX;
-				int best_from = -1;
-				int best_to = -1;
-				for (int from : int_from) {
-					for (int to : int_to) {
-						if (to > from) {
-							double diff = to - from;
-							if (diff < best_differenza) {
-								best_differenza = diff;
-								best_from = from;
-								best_to = to;
-							}
-						}
-					}
-				}
-
-				costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1));
-			}
-			else if (int_from.empty() && !int_to.empty()) {
-				//qua ha fatto un transhipment sul from
-				//devo cercare tutti i from partendo dal from sulla soluzione
-				vector<int> int_from_soluz;
-				for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
-					if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == pass_trovato[0].departure_location_company) {
-						int_from_soluz.push_back(i);
-					}
-				}
-				if (int_from_soluz.empty()) {
-					cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul from ma non trova il from della soluzione" << endl;
-					system("pause");
-				}
-
-				double best_differenza = DBL_MAX;
-				int best_from = -1;
-				int best_to = -1;
-				for (int from : int_from_soluz) {
-					for (int to : int_to) {
-						if (to > from) {
-							double diff = to - from;
-							if (diff < best_differenza) {
-								best_differenza = diff;
-								best_from = from;
-								best_to = to;
-							}
-						}
-					}
-				}
-
-				costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1)) + peso_trashipment;
-			}
-			else if (!int_from.empty() && int_to.empty()) {
-				//qua ha fatto un transhipment sul to
-				//devo cercare tutti i to partendo dal from sulla soluzione
-				vector<int> int_to_soluz;
-				for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
-					if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == pass_trovato[0].arrival_location_company) {
-						int_to_soluz.push_back(i);
-					}
-				}
-				if (int_to_soluz.empty()) {
-					cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul to ma non trova il to della soluzione" << endl;
-					system("pause");
-				}
-
-				double best_differenza = DBL_MAX;
-				int best_from = -1;
-				int best_to = -1;
-				for (int from : int_from) {
-					for (int to : int_to_soluz) {
-						if (to > from) {
-							double diff = to - from;
-							if (diff < best_differenza) {
-								best_differenza = diff;
-								best_from = from;
-								best_to = to;
-							}
-						}
-					}
-				}
-
-				costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1)) + peso_trashipment;
-			}
-			else {
-				cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  c'� un problema con il passeggero: ";
-				passengers[p].print();
-				cout << "in quanto la sua soluzione non trova from e to nel volo" << endl;
-				system("pause");
-			}
-		}
-		else if (controllo == 2) {
-
-			costi_intermediate_stop += peso_trashipment;
-
-			//*********************************primo passeggero trovato**********************************************************************************************
-			vector<int> int_from1; //vettore con tutti i from
-			vector<int> int_to1; // vettore con tutti i to 
-			//scorro tutte le localit� della route
-			for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
-				//salvo tutti i from e tutti i to che trovo
-				//cout << codice_routeAzienda[pass_trovato[0].code_flight].places[i] << " - " << endl;
-				if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == pass_trovato[0].departure_location_company) {
-					int_from1.push_back(i);
-				}
-				if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == pass_trovato[0].arrival_location_company) {
-					int_to1.push_back(i);
-				}
-			}
-
-			if (int_from1.empty() || int_to1.empty()) {
-				cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << endl;
-				pass_trovato[0].print();
-			}
-			double best_differenza1 = DBL_MAX;
-			int best_from1 = -1;
-			int best_to1 = -1;
-			for (int from : int_from1) {
-				for (int to : int_to1) {
-					if (to > from) {
-						double diff = to - from;
-						if (diff < best_differenza1) {
-							best_differenza1 = diff;
-							best_from1 = from;
-							best_to1 = to;
-						}
-					}
-				}
-			}
-
-			costi_intermediate_stop += (peso_intermediate_stop * (best_to1 - best_from1 - 1));
-			//****************************************************************************************************************************************************************
-
-			//*********************************secondo pezzo del passeggero trovato**********************************************************************************************
-			vector<int> int_from2; //vettore con tutti i from
-			vector<int> int_to2; // vettore con tutti i to 
-			//scorro tutte le localit� della route
-			for (int i = 0; i < codice_routeAzienda[pass_trovato[1].code_flight].index; i++) {
-				//salvo tutti i from e tutti i to che trovo
-				if (codice_routeAzienda[pass_trovato[1].code_flight].places_company[i] == pass_trovato[1].departure_location_company) {
-					int_from2.push_back(i);
-				}
-				if (codice_routeAzienda[pass_trovato[1].code_flight].places_company[i] == pass_trovato[1].arrival_location_company) {
-					int_to2.push_back(i);
-				}
-			}
-
-			if (int_from2.empty() || int_to2.empty()) {
-				cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << endl;
-				pass_trovato[1].print();
-				system("pause");
-			}
-			double best_differenza2 = DBL_MAX;
-			int best_from2 = -1;
-			int best_to2 = -1;
-			for (int from : int_from2) {
-				for (int to : int_to2) {
-					if (to > from) {
-						double diff = to - from;
-						if (diff < best_differenza2) {
-							best_differenza2 = diff;
-							best_from2 = from;
-							best_to2 = to;
-						}
-					}
-				}
-			}
-
-			costi_intermediate_stop += (peso_intermediate_stop * (best_to2 - best_from2 - 1));
-		}
-		else if (controllo > 2) {
-			cout << "c'� un problema con il passeggero: ";
-			passengers[p].print();
-			cout << "in quanto trova pi� di due corrispondenze nelle soluzioni" << endl;
-			system("pause");
-		}
-		costi_time_windows += c;
-	}
-
-	costi_time_windows = costi_time_windows * peso_TW; //per valutare cosa succede al cambiare del peso dato alle time windows
-
-	double costo_Soluzione = costi_time_windows + costi_intermediate_stop;
-	for (int i = 0; i < (int)cost_route.size(); i++) {
-		costo_Soluzione += cost_route[i];
-	}
-	//cout << "the cost of the company solution is:   " << costo_Soluzione << endl;
-	//cout << endl;
-	cout << "costo delle time windows per la compagnia: " << costi_time_windows << endl;
-	cout << "costo delle soste intermedie e del transhipment per la compagnia: " << costi_intermediate_stop << endl;
-
-	return costo_Soluzione;
+struct Input
+{
+	std::vector<Airstrip> airstrips;
+	vector<Airplane> airplanes;
+	vector<Passenger> passengers;
 };
 
+void printError1(vector<Passenger> passengers_day3, int p)
+{
+	std::cout << "Error 1\n";
+	std::cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  c'è un problema con il passeggero: ";
+	passengers_day3[p].print();
+	std::cout << "in quanto la sua soluzione non trova from e to nel volo" << std::endl;
+	system("pause");
+}
+
+void print_error_2()
+{
+	std::cout << "Error 2\n";
+	std::cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul to ma non trova il to della soluzione" << std::endl;
+	system("pause");
+}
+
+void print_error_3(vector<Passenger> pass_trovato)
+{
+	std::cout << "Error 3\n";
+	std::cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << std::endl;
+	pass_trovato[0].print();
+}
+
+void print_error_4(vector<Passenger> pass_trovato)
+{
+	std::cout << "Error 4\n";
+	std::cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << std::endl;
+	pass_trovato[1].print();
+	system("pause");
+}
+
+void print_error_5(vector<Passenger> passengers_day3, int p)
+{
+	std::cout << "Error 5\n";
+	std::cout << "c'è un problema con il passeggero: ";
+	passengers_day3[p].print();
+	cout << "in quanto trova più di due corrispondenze nelle soluzioni" << endl;
+	system("pause");
+}
+
+void print_error_6(vector<Passenger> passengers, int p)
+{
+	std::cout << "Error 6\n";
+	cout << "ce un problema con il passeggero: ";
+	passengers[p].print();
+	cout << "in quanto trova pi� di due corrispondenze nelle soluzioni" << endl;
+	system("pause");
+}
+
+void print_error_7(vector<Passenger> pass_trovato)
+{
+	std::cout << "Error 7\n";
+	cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << endl;
+	pass_trovato[1].print();
+	system("pause");
+}
+
+void print_error_8(vector<Passenger> pass_trovato)
+{
+	std::cout << "Error 8\n";
+	cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << endl;
+	pass_trovato[0].print();
+}
+
+void print_error_9(vector<Passenger> passengers, int p)
+{
+	std::cout << "Error 9\n";
+	cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  c'� un problema con il passeggero: ";
+	passengers[p].print();
+	cout << "in quanto la sua soluzione non trova from e to nel volo" << endl;
+	system("pause");
+}
+
+void print_error_10()
+{
+	std::cout << "Error 10\n";
+	cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul to ma non trova il to della soluzione" << endl;
+	system("pause");
+}
+
+void print_error_11()
+{
+	std::cout << "Error 11\n";
+	cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul from ma non trova il from della soluzione" << endl;
+	system("pause");
+}
+
+void print_error_12(vector<Passenger> pass_trovato)
+{
+	std::cout << "Error 12\n";
+	cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << endl;
+	pass_trovato[1].print();
+	system("pause");
+}
+
+void print_error_13(vector<Passenger> passengers_day1, int p)
+{
+	std::cout << "Error 13\n";
+	cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  c'è un problema con il passeggero: ";
+	passengers_day1[p].print();
+	cout << "in quanto la sua soluzione non trova from e to nel volo" << endl;
+	system("pause");
+}
+
+void print_error_14()
+{
+	std::cout << "Error 14\n";
+	cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul to ma non trova il to della soluzione" << endl;
+	system("pause");
+}
+
+void print_error_15()
+{
+	std::cout << "Error 15\n";
+	cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul from ma non trova il from della soluzione" << endl;
+	system("pause");
+}
+
+void print_error_16(vector<Passenger> pass_trovato)
+{
+	std::cout << "Error 16\n";
+	cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << endl;
+	pass_trovato[0].print();
+}
+
 double calculationCostCompany_three_days(double peso_TW, std::map<string, double>& from_to_FuelConsumed_company, double peso_trashipment, double peso_intermediate_stop, string route_azienza_day1, string route_azienza_day2, string route_azienza_day3, string passengers_azienda_day1, string passengers_azienda_day2, string passengers_azienda_day3, vector<Airstrip> airstrips, vector<Airplane> airplanes, vector<Passenger> passengers_day1, vector<Passenger> passengers_day2, vector<Passenger> passengers_day3, std::map<std::string, double>& from_to_company) {
+
 	double check_fixed_cost = 0.0;
 	double COSTO_fisso = 0.0;
 	double COSTO_landing = 0.0;
@@ -625,12 +411,6 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 		vector<Passenger> pass_trovato;
 		transform(passengers_day1[p].name.begin(), passengers_day1[p].name.end(), passengers_day1[p].name.begin(), ::tolower);
 		transform(passengers_day1[p].surname.begin(), passengers_day1[p].surname.end(), passengers_day1[p].surname.begin(), ::tolower);
-		//cout << "- " << passengers[p].name << endl;
-
-		//cout << " Dato il passeggiero: " << endl;
-		//passengers_day1[p].print();
-		//cout << endl;
-		//cout << " Cerco corrispondenze ...... " << endl;
 
 		for (int j = 0; j < passengers_solution_day1.size(); j++) {
 			trovato_pass_name = passengers_solution_day1[j].name.find(passengers_day1[p].name);
@@ -639,8 +419,6 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 				if (trovato_pass_cognome <= passengers_solution_day1[j].name.size()) {
 					pass_trovato.push_back(passengers_solution_day1[j]);
 					controllo += 1;
-					//cout << " Trovato corrispondenza: " << endl;
-					//passengers_solution_day1[j].print();
 				}
 			}
 		}
@@ -679,11 +457,10 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 		//parte per il calcolo del costo degli intermediate stop*********************************************************************************
 		if (controllo == 1) {
 			vector<int> int_from; //vettore con tutti i from
-			vector<int> int_to; // vettore con tutti i to 
-			//scorro tutte le località della route
+			vector<int> int_to; // vettore con tutti i to
+			
 			for (int i = 0; i < codice_routeAzienda_day1[pass_trovato[0].code_flight].index; i++) {
 				//salvo tutti i from e tutti i to che trovo
-				//cout << codice_routeAzienda_day1[pass_trovato[0].code_flight].places[i] << " - " << endl;
 				if (codice_routeAzienda_day1[pass_trovato[0].code_flight].places_company[i] == passengers_day1[p].departure_location_company) {
 					int_from.push_back(i);
 				}
@@ -720,8 +497,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 					}
 				}
 				if (int_from_soluz.empty()) {
-					cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul from ma non trova il from della soluzione" << endl;
-					system("pause");
+					print_error_15();
 				}
 
 				double best_differenza = DBL_MAX;
@@ -753,8 +529,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 					}
 				}
 				if (int_to_soluz.empty()) {
-					cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul to ma non trova il to della soluzione" << endl;
-					system("pause");
+					print_error_14();
 				}
 
 				double best_differenza = DBL_MAX;
@@ -777,10 +552,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 				COSTO_transhipment += peso_trashipment;
 			}
 			else {
-				cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  c'è un problema con il passeggero: ";
-				passengers_day1[p].print();
-				cout << "in quanto la sua soluzione non trova from e to nel volo" << endl;
-				system("pause");
+				print_error_13(passengers_day1, p);
 			}
 		}
 		else if (controllo == 2) {
@@ -804,8 +576,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 			}
 
 			if (int_from1.empty() || int_to1.empty()) {
-				cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << endl;
-				pass_trovato[0].print();
+				print_error_16(pass_trovato);
 			}
 			double best_differenza1 = DBL_MAX;
 			int best_from1 = -1;
@@ -822,9 +593,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 					}
 				}
 			}
-			//cout << "la differenza è: " << best_differenza1 << endl;
-			//cout << "il miglior from è: " << best_from1 << endl;
-			//cout << "il miglior to è: " << best_to1 << endl;
+
 			costi_intermediate_stop += (peso_intermediate_stop * (best_to1 - best_from1 - 1));
 			//****************************************************************************************************************************************************************
 
@@ -844,9 +613,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 			}
 
 			if (int_from2.empty() || int_to2.empty()) {
-				cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << endl;
-				pass_trovato[1].print();
-				system("pause");
+				print_error_12(pass_trovato);
 			}
 			double best_differenza2 = DBL_MAX;
 			int best_from2 = -1;
@@ -1059,9 +826,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 						}
 					}
 				}
-				//cout << "la differenza è: " << best_differenza << endl;
-				//cout << "il miglior from è: " << best_from << endl;
-				//cout << "il miglior to è: " << best_to << endl;
+
 				costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1)) + peso_trashipment;
 				COSTO_transhipment += peso_trashipment;
 
@@ -1211,8 +976,6 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 				if (trovato_pass_cognome <= passengers_solution_day3[j].name.size()) {
 					pass_trovato.push_back(passengers_solution_day3[j]);
 					controllo += 1;
-					//cout << " Trovato corrispondenza: " << endl;
-					//passengers_solution_day3[j].print();
 				}
 			}
 
@@ -1330,8 +1093,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 					}
 				}
 				if (int_to_soluz.empty()) {
-					std::cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul to ma non trova il to della soluzione" << std::endl;
-					system("pause");
+					print_error_2();
 				}
 
 				double best_differenza = DBL_MAX;
@@ -1355,10 +1117,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 
 			}
 			else {
-				std::cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  c'è un problema con il passeggero: ";
-				passengers_day3[p].print();
-				std::cout << "in quanto la sua soluzione non trova from e to nel volo" << std::endl;
-				system("pause");
+				printError1(passengers_day3, p);
 			}
 		}
 		else if (controllo == 2) {
@@ -1381,8 +1140,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 			}
 
 			if (int_from1.empty() || int_to1.empty()) {
-				std::cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << std::endl;
-				pass_trovato[0].print();
+				print_error_3(pass_trovato);
 			}
 			double best_differenza1 = DBL_MAX;
 			int best_from1 = -1;
@@ -1417,9 +1175,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 			}
 
 			if (int_from2.empty() || int_to2.empty()) {
-				std::cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  problema nel caso controllo == 2 con il passeggero" << std::endl;
-				pass_trovato[1].print();
-				system("pause");
+				print_error_4(pass_trovato);
 			}
 			double best_differenza2 = DBL_MAX;
 			int best_from2 = -1;
@@ -1442,10 +1198,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 
 		}
 		else if (controllo > 2) {
-			std::cout << "c'è un problema con il passeggero: ";
-			passengers_day3[p].print();
-			cout << "in quanto trova più di due corrispondenze nelle soluzioni" << endl;
-			system("pause");
+			print_error_5(passengers_day3, p);
 		}
 		costi_time_windows += (c * peso_TW);
 	}
@@ -1470,8 +1223,13 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 	return costo_Soluzione;
 };
 
-double cost_single_route(double peso_TW, double peso_intermediate_stop, Route& r, map<int, Airstrip>& map_airstrip, map<int, Airplane>& map_airplane, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+double cost_single_route(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, Route& r) {
 
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	double cost = map_airplane[r.aircraft_code].fixed_cost;
 	//for (int i = 1; i < r.index; i++) cost += map_airstrip[r.places[i]].landing_cost;
 
@@ -1516,7 +1274,13 @@ double cost_single_route(double peso_TW, double peso_intermediate_stop, Route& r
 	return cost;
 }
 
-double calculate_ObjectiveFunction(double peso_TW, double peso_intermediate_stop, vector<Route>& solution, map<int, Airstrip>& map_airstrip, map<int, Airplane>& map_airplane, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+double calculate_ObjectiveFunction(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Route>& solution) {
+
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	double cost = 0.0;
 
 	for (auto& r : solution) {
@@ -1634,10 +1398,8 @@ double cost_time_windows_for_node(Route& r, vector<Passenger>& pass, double peso
 
 double cost_time_windows_for_route_passenger(Route& r, Passenger& p, double peso_TW) {
 	double cost = 0.0;
-
-
-
 	double TW_departure = 0.0;
+	
 	if (r.time_arr[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_arr[p.solution_from];
 	else if (r.time_arr[p.solution_from] > p.late_departure) TW_departure = r.time_arr[p.solution_from] - p.late_departure;
 
@@ -1649,7 +1411,6 @@ double cost_time_windows_for_route_passenger(Route& r, Passenger& p, double peso
 
 	return cost;
 }
-
 
 map<int, int> Compute_WorstNode(double peso_TW, double peso_intermediate_stop, Route& route, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to) {
 	map<double, int> Node;
@@ -1713,7 +1474,13 @@ map<int, int> Compute_WorstNode(double peso_TW, double peso_intermediate_stop, R
 }
 
 //calcola il valore della funzione obiettivo sui 3 giorni
-double calculate_ObjectiveFunction_complete_after_rolling(double peso_TW, double peso_intermediate_stop, vector<Route>& solution_day1, vector<Route>& solution_day2, vector<Route>& solution_day3, map<int, Airstrip>& map_airstrip, map<int, Airplane>& map_airplane, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+double calculate_ObjectiveFunction_complete_after_rolling(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Route>& solution_day1, vector<Route>& solution_day2, vector<Route>& solution_day3) {
+
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	double cost = 0.0;
 
 	double cost_time_intermediate = 0.0;

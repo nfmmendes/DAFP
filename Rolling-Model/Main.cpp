@@ -28,7 +28,165 @@ using namespace std;
 //const int numero_airstrip_const = 58;
 //const int numero_airplane_const = 36;
 
+inline vector <Flightleg> creazione_flightleg(ProcessedInput* input, bool fittizio_da_mettere, vector<vector<Route>>& vector_solution_for_FL) {
 
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_fuelConsumed = input->get_from_to_fuel_consumed();
+
+	vector<Flightleg> flightlegs;
+
+	for (vector<Route>& routes : vector_solution_for_FL) {
+		for (Route& r : routes) {
+			if (r.index > 1) {
+				if (r.capacity[0] >= 1) {
+					//in questo caso sono obbligato a creare un solo flight leg
+					Flightleg f;
+					f.cod_airplane = r.aircraft_code;
+					f.from = r.places[0];
+					f.to = r.places[r.index - 1];
+					f.time_arr_from = r.time_arr[0];
+					f.time_arr_to = r.time_arr[r.index - 1];
+					f.time_dep_from = r.time_dep[0];
+					f.time_dep_to = r.time_dep[r.index - 1];
+					f.refuel_from = r.refueling[0];
+					f.refuel_to = r.refueling[r.index - 1];
+					f.quantity_fuel_from = r.quantity_fuel[0];
+					f.quantity_fuel_to = r.quantity_fuel[r.index - 1];
+					f.cost = r.cost;
+					f.passengers_in_flightleg = r.passengers_in_route;
+					f.route_padre = r;
+
+					//in questo caso devo calcolare solo il fuel che può essere pescato
+					if (f.refuel_to) {
+						f.fuel_pescabile = map_airplane[f.cod_airplane].max_fuel - map_airplane[f.cod_airplane].min_fuel;
+					}
+					else {
+						int index_refueling = 0;
+						for (int i = r.index - 1; i >= 0; i--) {
+							if (r.refueling[i]) {
+								index_refueling = i;
+								break;
+							}
+						}
+						double fuel_pesc = r.quantity_fuel[index_refueling] - map_airplane[r.aircraft_code].min_fuel;
+						for (int i = index_refueling + 1; i < r.index; i++) {
+							fuel_pesc -= from_to_fuelConsumed[r.aircraft_code][i - 1][i];
+						}
+						f.fuel_pescabile = fuel_pesc;
+					}
+
+					flightlegs.push_back(f);
+				}
+				else {
+					//in questo caso posso creare due flightleg
+					//faccio la prima creazione uguale a quella precedente anche se il primo arco è 0
+					Flightleg f;
+					f.cod_airplane = r.aircraft_code;
+					f.from = r.places[0];
+					f.to = r.places[r.index - 1];
+					f.time_arr_from = r.time_arr[0];
+					f.time_arr_to = r.time_arr[r.index - 1];
+					f.time_dep_from = r.time_dep[0];
+					f.time_dep_to = r.time_dep[r.index - 1];
+					f.refuel_from = r.refueling[0];
+					f.refuel_to = r.refueling[r.index - 1];
+					f.quantity_fuel_from = r.quantity_fuel[0];
+					f.quantity_fuel_to = r.quantity_fuel[r.index - 1];
+					f.cost = r.cost;
+					f.passengers_in_flightleg = r.passengers_in_route;
+					f.route_padre = r;
+
+					//in questo caso devo calcolare solo il fuel che può essere pescato
+					if (f.refuel_to) {
+						f.fuel_pescabile = map_airplane[f.cod_airplane].max_fuel - map_airplane[f.cod_airplane].min_fuel;
+					}
+					else {
+						int index_refueling = 0;
+						for (int i = r.index - 1; i >= 0; i--) {
+							if (r.refueling[i]) {
+								index_refueling = i;
+								break;
+							}
+						}
+						double fuel_pesc = r.quantity_fuel[index_refueling] - map_airplane[r.aircraft_code].min_fuel;
+						for (int i = index_refueling + 1; i < r.index; i++) {
+							fuel_pesc -= from_to_fuelConsumed[r.aircraft_code][i - 1][i];
+						}
+
+						f.fuel_pescabile = fuel_pesc;
+					}
+
+					flightlegs.push_back(f);
+
+					//ora faccio la seconda creazione se e solo se index è maggiore di 2 
+					if (r.index > 2) {
+
+						double costo_da_sottrarre = from_to[r.places[0]][r.places[1]] + from_to_fuelConsumed[r.aircraft_code][r.places[0]][r.places[1]];
+
+						Flightleg f1;
+						f1.cod_airplane = r.aircraft_code;
+						f1.from = r.places[1];
+						f1.to = r.places[r.index - 1];
+						f1.time_arr_from = r.time_arr[1];
+						f1.time_arr_to = r.time_arr[r.index - 1];
+						f1.time_dep_from = r.time_dep[1];
+						f1.time_dep_to = r.time_dep[r.index - 1];
+						f1.refuel_from = r.refueling[1];
+						f1.refuel_to = r.refueling[r.index - 1];
+						f1.quantity_fuel_from = r.quantity_fuel[1];
+						f1.quantity_fuel_to = r.quantity_fuel[r.index - 1];
+						f1.cost = r.cost - costo_da_sottrarre;
+						f1.passengers_in_flightleg = r.passengers_in_route;
+						f1.route_padre = r;
+
+						//devo calcolare il fuel minimo che necessita per essere percorsa
+						if (!f1.refuel_from) {
+							double fuel_necess = map_airplane[r.aircraft_code].min_fuel;
+							for (int i = 2; i < r.index; i++) {
+								fuel_necess += from_to_fuelConsumed[r.aircraft_code][i - 1][i];
+								if (r.refueling[i])	break;
+							}
+							f1.fuel_necessario_per_essere_fatta = fuel_necess;
+						}
+
+						if (f1.refuel_to) {
+							f1.fuel_pescabile = map_airplane[f1.cod_airplane].max_fuel - map_airplane[f1.cod_airplane].min_fuel;
+						}
+						else {
+							int index_refueling = 0;
+							for (int i = r.index - 1; i >= 0; i--) {
+								if (r.refueling[i]) {
+									index_refueling = i;
+									break;
+								}
+							}
+							double fuel_pesc = r.quantity_fuel[index_refueling] - map_airplane[r.aircraft_code].min_fuel;
+							for (int i = index_refueling + 1; i < r.index; i++) {
+								fuel_pesc -= from_to_fuelConsumed[r.aircraft_code][i - 1][i];
+							}
+
+							f1.fuel_pescabile = fuel_pesc;
+						}
+
+						flightlegs.push_back(f1);
+					}
+				}
+			}
+
+		}
+	}
+
+	//ora aggiungo il flightleg fittizio solo se è necessario aggiungerlo, quindi se la variabile fittizio_da_aggiungere è vera
+	if (fittizio_da_mettere) {
+		Flightleg f;
+		f.flight_leg_fittizzio = true;
+		flightlegs.push_back(f);
+	}
+
+	return flightlegs;
+}
 
 void Print_Model_Result(vector<vector<bool>>& R, vector<vector<bool>>& S, vector<vector<bool>>& T, vector <Flightleg> flight_leg_day1, vector <Flightleg> flight_leg_day2, vector <Flightleg> flight_leg_day3) {
 	cout << " Stampo variabili X  .. " << endl;
@@ -50,8 +208,13 @@ void Print_Model_Result(vector<vector<bool>>& R, vector<vector<bool>>& S, vector
 }
 
 
-void creazione_route_three_Days_for_evaluation_Cost(vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed, map<int, Airplane>& map_airplane, vector<Route>& route_day1, vector<Route>& route_day2, vector<Route>& route_day3, vector<vector<bool>>& x_i_j, vector<vector<bool>>& y_j_k, vector<vector<bool>>& z_i_k, vector<Flightleg>& flightlegs_day1, vector<Flightleg>& flightlegs_day2, vector<Flightleg>& flightlegs_day3, vector<vector<vector<double>>>& costo_connessione) {
+void creazione_route_three_Days_for_evaluation_Cost(ProcessedInput* input, vector<Route>& route_day1, vector<Route>& route_day2, vector<Route>& route_day3, vector<vector<bool>>& x_i_j, vector<vector<bool>>& y_j_k, vector<vector<bool>>& z_i_k, vector<Flightleg>& flightlegs_day1, vector<Flightleg>& flightlegs_day2, vector<Flightleg>& flightlegs_day3, double3DVector& costo_connessione) {
 
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	cout << "day 1: " << flightlegs_day1.size() << endl;
 	cout << "day 2: " << flightlegs_day2.size() << endl;
 	cout << "day 3: " << flightlegs_day3.size() << endl;
@@ -220,11 +383,6 @@ void creazione_route_three_Days_for_evaluation_Cost(vector<vector<double>>& from
 //***********************************MAIN****************************
 int main(int argc, char* argv[]) {
 
-
-	//cout << argv[1] << endl;
-	//cout << argv[2] << endl;
-	//cout << argv[3] << endl;
-
 	double peso_itermediate_stop = 10.0;  //valore che si da ad una sosta intermedia 
 	double peso_transhipment = 20.0;  //valore che si da ad un transhipment
 	double peso_TW = 1.0; //peso dato ad un minuto di Time Windows
@@ -235,8 +393,6 @@ int main(int argc, char* argv[]) {
 	//**************************INPUT***********************************
 	map<int, string> legenda_ritroso;
 	map<string, int> legenda = fillLegenda("legenda.csv", legenda_ritroso);
-
-
 
 	//reading of AIRPLANE.CSV and creation VECTOR OF AIRPLANES
 	vector<Airplane> airplanes = fillAirplane("NewAirplaneAll.csv", legenda);
@@ -275,15 +431,19 @@ int main(int argc, char* argv[]) {
 	vector<vector<double>> location_fuel;
 	fillLocation_fuel(location_fuel, airstrips, airplanes, from_to, map_airstrip);
 
-	vector<vector<vector<double>>> from_to_FuelConsumed;
+	double3DVector from_to_FuelConsumed;
 	fill_from_to_fuel_consumed(from_to_FuelConsumed, from_to, airplanes);
 	map<string, double> from_to_fuel_consumed_string = fill_from_to_fuel_consumed_string(from_to_company, airplanes);
 
+
+	ProcessedInput input(map_airplane, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+	
 	vector<Passenger> passengers_per_casostrano_day1 = passengers_day1;
 	vector<Passenger> passengers_per_casostrano_day2 = passengers_day2;
 	vector<Passenger> passengers_per_casostrano_day3 = passengers_day3;
 
-	double Company_Solution = calculationCostCompany_three_days(peso_TW, from_to_fuel_consumed_string, peso_transhipment, peso_itermediate_stop, argv[2], argv[6], argv[10], argv[3], argv[7], argv[11], airstrips, airplanes, passengers_for_company_solution_day1, passengers_for_company_solution_day2, passengers_for_company_solution_day3, from_to_company);
+	double Company_Solution = calculationCostCompany_three_days(peso_TW, from_to_fuel_consumed_string, peso_transhipment, peso_itermediate_stop, argv[2], argv[6], argv[10], argv[3], argv[7], argv[11],
+																 airstrips, airplanes, passengers_for_company_solution_day1, passengers_for_company_solution_day2, passengers_for_company_solution_day3, from_to_company);
 	cout << " Costo della soluzione della compagnia per i tre giorni = " << Company_Solution << endl;
 	//ora creo la mappa che mi dice per ogni locazione dov'è il posto più vicino per fare benzina, se nel posto considerato posso fare benzina il valore sarà uguale alla chiave
 	map < int, int> to_closeness_fuel = fill_to_closeness_fuel(from_to, airstrips);
@@ -309,8 +469,8 @@ int main(int argc, char* argv[]) {
 	int best_location_4places_day2 = best_location_4place(location_request_day2, from_to, airstrips);
 	int best_location_4places_day3 = best_location_4place(location_request_day3, from_to, airstrips);
 
-	vector<vector<double>> min_fuel_day2;
-	vector<vector<double>> min_fuel_day3;
+	double2DVector min_fuel_day2;
+	double2DVector min_fuel_day3;
 	fuel_min_80_major_places(min_fuel_day2, from_to_FuelConsumed, location_request_day2, airplanes, airstrips);
 	fuel_min_80_major_places(min_fuel_day3, from_to_FuelConsumed, location_request_day3, airplanes, airstrips);
 
@@ -326,7 +486,7 @@ int main(int argc, char* argv[]) {
 	//*******************************************************DA QUA INCOMINCIA IL CODICE DEL MAIN, PRIMA CI SONO SOLO STRUTTURE DATI***********************************
 	//******************************************************************************************************************************************************************
 	//******************************************************************************************************************************************************************
-
+	
 	int numero_aerei = 20;
 
 
@@ -342,42 +502,42 @@ int main(int argc, char* argv[]) {
 	//risolvo il giorno 1
 	vector<vector<Route>> vector_solution_for_FL_day1;
 	vector<Route> best_route_day1;
-	best_route_day1 = solution_one_day(vector_solution_for_FL_day1, Iter_FirstDo, iterMAX_FirstDo, numero_aerei_1, airplanes, peso_TW, peso_itermediate_stop, map_airplane,
-		map_airstrip, from_to, location_fuel, from_to_FuelConsumed, passengers_per_casostrano_day1, from_to_company, legenda_ritroso, map_id_passenger_day1, passengers_day1, mappa_aereo_tipo,
+	best_route_day1 = solution_one_day(&input, vector_solution_for_FL_day1, Iter_FirstDo, iterMAX_FirstDo, numero_aerei_1, airplanes, peso_TW, peso_itermediate_stop, 
+		passengers_per_casostrano_day1, from_to_company, legenda_ritroso, map_id_passenger_day1, passengers_day1, mappa_aereo_tipo,
 		codice_aereo_tipo, tipo_numero);
 	cout << " Ho numero di route pari a ... " << vector_solution_for_FL_day1.size() << endl;
-	vector<Flightleg> flightlegs_day1 = creazione_flightleg(true, vector_solution_for_FL_day1, map_airplane, from_to_FuelConsumed, from_to);
+	vector<Flightleg> flightlegs_day1 = creazione_flightleg(&input, true, vector_solution_for_FL_day1);
 	cout << " Ho numero di flightlegs pari a ... " << flightlegs_day1.size() << endl;
 	cout << " --------------->>>>>>>>>>>> Finito il primo giorno <<<<<<<<<<< -----------------------------------------" << endl;
 	system("pause");
 	//risolvo il giorno 2
 	vector<vector<Route>> vector_solution_for_FL_day2;
 	vector<Route> best_route_day2;
-	best_route_day2 = solution_one_day(vector_solution_for_FL_day2, Iter_FirstDo, iterMAX_FirstDo, numero_aerei_2, airplanes, peso_TW, peso_itermediate_stop, map_airplane,
-		map_airstrip, from_to, location_fuel, from_to_FuelConsumed, passengers_per_casostrano_day2, from_to_company, legenda_ritroso, map_id_passenger_day2, passengers_day2, mappa_aereo_tipo,
+	best_route_day2 = solution_one_day(&input, vector_solution_for_FL_day2, Iter_FirstDo, iterMAX_FirstDo, numero_aerei_2, airplanes, peso_TW, peso_itermediate_stop, 
+		passengers_per_casostrano_day2, from_to_company, legenda_ritroso, map_id_passenger_day2, passengers_day2, mappa_aereo_tipo,
 		codice_aereo_tipo, tipo_numero);
 	cout << " Ho numero di route pari a ... " << vector_solution_for_FL_day2.size() << endl;
-	vector<Flightleg> flightlegs_day2 = creazione_flightleg(false, vector_solution_for_FL_day2, map_airplane, from_to_FuelConsumed, from_to);
+	vector<Flightleg> flightlegs_day2 = creazione_flightleg(&input, false, vector_solution_for_FL_day2);
 	cout << " --------------->>>>>>>>>>>> Finito il secondo giorno <<<<<<<<<<< -----------------------------------------" << endl;
 	cout << " Ho numero di flightlegs pari a ... " << flightlegs_day2.size() << endl;
 	system("pause");
 	//risolvo il giorno 3
 	vector<vector<Route>> vector_solution_for_FL_day3;
 	vector<Route> best_route_day3;
-	best_route_day3 = solution_one_day(vector_solution_for_FL_day3, Iter_FirstDo, iterMAX_FirstDo, numero_aerei_3, airplanes, peso_TW, peso_itermediate_stop, map_airplane,
-		map_airstrip, from_to, location_fuel, from_to_FuelConsumed, passengers_per_casostrano_day3, from_to_company, legenda_ritroso, map_id_passenger_day3, passengers_day3, mappa_aereo_tipo,
+	best_route_day3 = solution_one_day(&input, vector_solution_for_FL_day3, Iter_FirstDo, iterMAX_FirstDo, numero_aerei_3, airplanes, peso_TW, peso_itermediate_stop, 
+		passengers_per_casostrano_day3, from_to_company, legenda_ritroso, map_id_passenger_day3, passengers_day3, mappa_aereo_tipo,
 		codice_aereo_tipo, tipo_numero);
 	cout << " Ho numero di route pari a ... " << vector_solution_for_FL_day3.size() << endl;
-	vector<Flightleg> flightlegs_day3 = creazione_flightleg(true, vector_solution_for_FL_day3, map_airplane, from_to_FuelConsumed, from_to);
+	vector<Flightleg> flightlegs_day3 = creazione_flightleg(&input, true, vector_solution_for_FL_day3);
 	cout << " Ho numero di flightlegs pari a ... " << flightlegs_day3.size() << endl;
 	cout << " --------------->>>>>>>>>>>> Finito il terzo giorno <<<<<<<<<<< -----------------------------------------" << endl;
 	system("pause");
 
 	//creo le strutture per il modello
 
-	vector<vector<int>> A = creazione_matrice_connection_FL(start_day, end_day, flightlegs_day1, flightlegs_day2, map_airplane, from_to, from_to_FuelConsumed);
-	vector<vector<int>> B = creazione_matrice_connection_FL(start_day, end_day, flightlegs_day2, flightlegs_day3, map_airplane, from_to, from_to_FuelConsumed);
-	vector<vector<int>> C = creazione_matrice_connection_FL(start_day, end_day, flightlegs_day1, flightlegs_day3, map_airplane, from_to, from_to_FuelConsumed);
+	vector<vector<int>> A = creazione_matrice_connection_FL(&input, start_day, end_day, flightlegs_day1, flightlegs_day2);
+	vector<vector<int>> B = creazione_matrice_connection_FL(&input, start_day, end_day, flightlegs_day2, flightlegs_day3);
+	vector<vector<int>> C = creazione_matrice_connection_FL(&input, start_day, end_day, flightlegs_day1, flightlegs_day3);
 	vector<vector<int>> FL_pass_day1 = creazione_matrice_flightleg_passengers(flightlegs_day1, passengers_day1);
 	vector<vector<int>> FL_pass_day2 = creazione_matrice_flightleg_passengers(flightlegs_day2, passengers_day2);
 	vector<vector<int>> FL_pass_day3 = creazione_matrice_flightleg_passengers(flightlegs_day3, passengers_day3);
@@ -397,7 +557,7 @@ int main(int argc, char* argv[]) {
 	vector<Route> route_finali_day2;
 	vector<Route> route_finali_day3;
 	cout << "sto iniziando la creazione delle route con la valutazione del loro costo" << endl;
-	creazione_route_three_Days_for_evaluation_Cost(from_to, from_to_FuelConsumed, map_airplane, route_finali_day1, route_finali_day2, route_finali_day3, R, S, T, flightlegs_day1, flightlegs_day2, flightlegs_day3, costo_connessione);
+	creazione_route_three_Days_for_evaluation_Cost(&input, route_finali_day1, route_finali_day2, route_finali_day3, R, S, T, flightlegs_day1, flightlegs_day2, flightlegs_day3, costo_connessione);
 
 	cout << "QUESTA CHE RIPORTO è UNA STAMPA PER VALUTARE SE SONO STATE PRESE TUTTE LE ROUTE DEI DIVERSI GIORNI" << endl;
 	cout << "*********************************ecco il giorno 1*********************************" << endl;
@@ -426,22 +586,12 @@ int main(int argc, char* argv[]) {
 	cout << "num_pass ---  pass_veri day3" << endl;
 	cout << num_passenger_day3 << " --- " << passengers_day3.size() << endl;
 
-
-
-
-	cout << "il costo e': " <<
-		calculate_ObjectiveFunction_complete_after_rolling(peso_TW, peso_itermediate_stop, route_finali_day1, route_finali_day2, route_finali_day3,
-			map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
-
+	cout << "il costo e': " <<calculate_ObjectiveFunction_complete_after_rolling(&input, peso_TW, peso_itermediate_stop, route_finali_day1, route_finali_day2, route_finali_day3) << endl;
 
 	//ECCO LE STAMPE FINALI
 	double stampa_compagnia = calculationCostCompany_three_days(peso_TW, from_to_fuel_consumed_string, peso_transhipment, peso_itermediate_stop, argv[2], argv[6], argv[10], argv[3], argv[7], argv[11], airstrips, airplanes, passengers_for_company_solution_day1, passengers_for_company_solution_day2, passengers_for_company_solution_day3, from_to_company);
-	double stampa_nostra = calculate_ObjectiveFunction_complete_after_rolling(peso_TW, peso_itermediate_stop, route_finali_day1, route_finali_day2, route_finali_day3,
-		map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-
-
-
-
+	double stampa_nostra = calculate_ObjectiveFunction_complete_after_rolling(&input, peso_TW, peso_itermediate_stop, route_finali_day1, route_finali_day2, route_finali_day3);
+	
 	cout << "fine del main" << endl;
 	system("pause");
 	return 0;

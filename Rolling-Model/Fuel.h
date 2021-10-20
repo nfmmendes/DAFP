@@ -10,7 +10,7 @@
 
 
 //data una location mi restituisce la location pi� vicina
-int location_closest_with_fuel(int location, vector<vector<double>>& from_to, map<int, Airstrip>& map_airstrip) {
+inline int location_closest_with_fuel(int location, vector<vector<double>>& from_to, map<int, Airstrip>& map_airstrip) {
 	int result = -1;
 	double value = DBL_MAX;
 
@@ -23,22 +23,11 @@ int location_closest_with_fuel(int location, vector<vector<double>>& from_to, ma
 		}
 	}
 
-
-
-	/*for (auto x : from_to) {
-		if (split(x.first, ';')[0] == location && x.second < value && x.second != 0 && map_airstrip[split(x.first, ';')[1]].fuel) {
-			result = split(x.first, ';')[1];
-			value = x.second;
-		}
-	}*/
-
-
 	return result;
-
 }
 
 
-string location_closest_with_fuel_string(string location, map<string, double> from_to, map<string, Airstrip>& map_airstrip) {
+inline string location_closest_with_fuel_string(string location, map<string, double> from_to, map<string, Airstrip>& map_airstrip) {
 	std::string result = "";
 	double value = DBL_MAX;
 
@@ -55,15 +44,12 @@ string location_closest_with_fuel_string(string location, map<string, double> fr
 }
 
 
-void fuel_min_80_major_places(vector<vector<double>>& mappa_da_tornare, vector<vector<vector<double>>>& from_to_FuelConsumed, map<int, int>& location_request, vector<Airplane>& airplanes, vector<Airstrip>& airstrips) {
+inline void fuel_min_80_major_places(double2DVector& mappa_da_tornare, double3DVector& from_to_FuelConsumed, map<int, int>& location_request, vector<Airplane>& airplanes, vector<Airstrip>& airstrips) {
 
 	//ho inizializato la mappa
 	mappa_da_tornare.resize((size_t)numero_airplane_const);
 	for (int i = 0; i < numero_airplane_const; i++)
 		mappa_da_tornare[i].resize((size_t)numero_airstrip_const);
-
-
-
 
 	map <int, int> map_support;
 	for (auto x : location_request) {
@@ -94,11 +80,8 @@ void fuel_min_80_major_places(vector<vector<double>>& mappa_da_tornare, vector<v
 		}
 		for (const Airplane& f : airplanes) {
 			mappa_da_tornare[f.code][a.code] = from_to_FuelConsumed[f.code][a.code][destination];
-			//mappa_da_tornare.insert(make_pair(f.code + ";" + a.code, from_to_FuelConsumed[f.code + ";" + a.code + ";" + destination]));
 		}
 	}
-
-	//return mappa_da_tornare;
 }
 
 

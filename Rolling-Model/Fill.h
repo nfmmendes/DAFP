@@ -153,7 +153,7 @@ vector<Route> fillRoute(string file_input) {
 	return routes;
 }
 
-void fill_from_to_fuel_consumed(vector<vector<vector<double>>>& from_to_fuel_consumed, vector<vector<double>>& from_to, vector<Airplane> airplanes) {
+void fill_from_to_fuel_consumed(double3DVector& from_to_fuel_consumed, vector<vector<double>>& from_to, vector<Airplane> airplanes) {
 
 
 	from_to_fuel_consumed.resize((size_t)numero_airplane_const);
@@ -321,7 +321,7 @@ map<string, double> fill_from_to_fuel_consumed_string(map<string, double>& from_
 }
 
 
-void check_mappa_from_to_fuel_consumed(map<string, Airplane> map_airplane, map<string, double> from_to_fuel_consumed_string, vector<vector<vector<double>>>& from_to_FuelConsumed, map<string, int> legenda) {
+void check_mappa_from_to_fuel_consumed(map<string, Airplane> map_airplane, map<string, double> from_to_fuel_consumed_string, double3DVector& from_to_FuelConsumed, map<string, int> legenda) {
 
 
 	for (auto x : from_to_fuel_consumed_string) {

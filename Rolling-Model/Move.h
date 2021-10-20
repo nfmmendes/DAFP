@@ -9,6 +9,7 @@
 #include "Feasibility.h"
 #include "Repair.h"
 #include "Utils.h"
+#include "ProcessedInput.h"
 
 struct MoveParamSet
 {
@@ -158,7 +159,13 @@ bool swap_is_allowed(int A, int B, const Route& r) {
 }
 
 //qua purtroppo non posso mettere usare i puntatori
-Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double3DVector& from_to_FuelConsumed) {
+Route update_route_after_swap(ProcessedInput * input, int A, int B, const Route& r) {
+
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	Route r_new;
 	r_new.aircraft_code = r.aircraft_code;
 	r_new.primo_pass = r.primo_pass;
@@ -241,7 +248,14 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 	return r_new;
 }
 
-vector <Route> swap(MoveParamSet param_set, vector<Route>& routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double2DVector& location_fuel, double3DVector& from_to_FuelConsumed) {
+vector <Route> swap(ProcessedInput* input, MoveParamSet param_set, vector<Route>& routes) {
+
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	const auto peso_TW = param_set.peso_TW;
 	const auto inter_stop_weight = param_set.inter_stop_weight;
 	const auto end_day = param_set.end_day;
@@ -254,16 +268,16 @@ vector <Route> swap(MoveParamSet param_set, vector<Route>& routes, map<int, Airp
 			for (int B = A + 1; B < r_support.index; B++) {
 
 				if (swap_is_allowed(A, B, r_support)) {
-					Route r_new = update_route_after_swap(A, B, r_support, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
-					double cost_route_support = cost_single_route(peso_TW, inter_stop_weight, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-					double cost_route_new = cost_single_route(peso_TW, inter_stop_weight, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+					Route r_new = update_route_after_swap(input, A, B, r_support);
+					double cost_route_support = cost_single_route(input, peso_TW, inter_stop_weight, r_support);
+					double cost_route_new = cost_single_route(input, peso_TW, inter_stop_weight, r_new);
 					
 					if (cost_route_support > cost_route_new && route_feasible(r_new, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
 						int node = sequential_same_node(r_new);
 						bool fatto = false;
 						while (node != -1) {
 							aggregate_same_nodes(r_new, node);
-							cost_route_new = cost_single_route(peso_TW, inter_stop_weight, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+							cost_route_new = cost_single_route(input, peso_TW, inter_stop_weight, r_new);
 
 							fatto = true;
 							node = sequential_same_node(r_new);
@@ -458,7 +472,13 @@ inline Route create_new_route(int A, int B, const Route& r, map<int, Airplane>& 
 	return r_new;
 }
 
-inline Route update_route_after_move(int A, int B, const Route& r, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double3DVector& from_to_FuelConsumed) {
+inline Route update_route_after_move(ProcessedInput* input, int A, int B, const Route& r) {
+
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	Route r_new = create_new_route(A, B, r, map_airplane);
 
 	for (int i = 0; i < r_new.index; i++) {
@@ -553,8 +573,14 @@ void update_fuel_on_non_maximum(map<int, Airplane>& map_airplane, Route& r_suppo
 	}
 }
 
-vector <Route> move(MoveParamSet param_set, vector<Route>& routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double2DVector& location_fuel, double3DVector& from_to_FuelConsumed) {
+vector <Route> move(ProcessedInput* input, MoveParamSet param_set, vector<Route>& routes) {
 
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	const auto peso_TW = param_set.peso_TW;
 	const auto inter_stop_weight = param_set.inter_stop_weight;
 	const auto end_day = param_set.end_day;
@@ -566,10 +592,10 @@ vector <Route> move(MoveParamSet param_set, vector<Route>& routes, map<int, Airp
 			for (int B = 1; B < r_support.index; B++) {
 				if (A != B && B != (A - 1) && B != (A - 2)) {    //Il caso B != (A-1) || B!= (A-2) sono casi che valutiamo gia quando sposriamo avanti
 					if (move_is_allowed(A, B, r_support)) {
-						Route r_new = update_route_after_move(A, B, r_support, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
+						Route r_new = update_route_after_move(input, A, B, r_support);
 						
-						double cost_route_support = cost_single_route(peso_TW, inter_stop_weight, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-						double cost_route_new = cost_single_route(peso_TW, inter_stop_weight, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+						double cost_route_support = cost_single_route(input, peso_TW, inter_stop_weight, r_support);
+						double cost_route_new = cost_single_route(input, peso_TW, inter_stop_weight, r_new);
 
 						if (cost_route_support > cost_route_new && route_feasible(r_new, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
 							int node = sequential_same_node(r_new);
@@ -580,7 +606,7 @@ vector <Route> move(MoveParamSet param_set, vector<Route>& routes, map<int, Airp
 								aggregate_same_nodes(r_new, node);
 								if (A > node) num_aggregazioni++;
 								
-								cost_route_new = cost_single_route(peso_TW, inter_stop_weight, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+								cost_route_new = cost_single_route(input, peso_TW, inter_stop_weight, r_new);
 								node = sequential_same_node(r_new);
 								fatto = true;
 							}
@@ -614,10 +640,14 @@ vector <Route> move(MoveParamSet param_set, vector<Route>& routes, map<int, Airp
 	return routes_after_move;
 }
 
+vector <Route> inter_move(ProcessedInput* input, MoveParamSet param_set, vector<Route> routes) {
 
-
-vector <Route> inter_move(MoveParamSet param_set, vector<Route> routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double2DVector& location_fuel, double3DVector& from_to_FuelConsumed) {
-
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	const auto peso_TW = param_set.peso_TW;
 	const auto inter_stop_weight = param_set.inter_stop_weight;
 	const auto end_day = param_set.end_day;
@@ -642,19 +672,19 @@ vector <Route> inter_move(MoveParamSet param_set, vector<Route> routes, map<int,
 				Route r_new = r_support;
 				int NomeA1 = r_new.places[A + 1];
 
-				destroy_ls(n_route, A, passenger_removed, r_new, map_airplane, map_airstrip, from_to);
+				destroy_ls(input, n_route, A, passenger_removed, r_new);
 
 				if (r_new.index != -1) {
 					
 					if (r_new.index != -1) {
-						solution_rebuilt = repair_one_inter_move(peso_TW, inter_stop_weight, end_day, routes_destroyed, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+						solution_rebuilt = repair_one_inter_move(input, peso_TW, inter_stop_weight, end_day, routes_destroyed, passenger_removed);
 
 						if (!solution_rebuilt.empty()) {
 							
 							solution_rebuilt.push_back(r_new);
 
-							double before = calculate_ObjectiveFunction(peso_TW, inter_stop_weight, routes, map_airstrip, map_airplane, from_to, from_to_FuelConsumed); // Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
-							double after = calculate_ObjectiveFunction(peso_TW, inter_stop_weight, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+							double before = calculate_ObjectiveFunction(input, peso_TW, inter_stop_weight, routes); // Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
+							double after = calculate_ObjectiveFunction(input, peso_TW, inter_stop_weight, solution_rebuilt);
 							if (before > after) {
 								
 								int node = sequential_same_node(solution_rebuilt.back());
@@ -664,7 +694,7 @@ vector <Route> inter_move(MoveParamSet param_set, vector<Route> routes, map<int,
 								while (node != -1) {
 									aggregate_same_nodes_inter_ls(solution_rebuilt.back(), node);
 									if (A > node) num_aggregazioni++;
-									after = calculate_ObjectiveFunction(peso_TW, inter_stop_weight, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+									after = calculate_ObjectiveFunction(input, peso_TW, inter_stop_weight, solution_rebuilt);
 									node = sequential_same_node(solution_rebuilt.back());
 									fatto = true;
 								}
@@ -679,9 +709,6 @@ vector <Route> inter_move(MoveParamSet param_set, vector<Route> routes, map<int,
 									for (int s = 0; s < solution_rebuilt.size() - 1; s++) routes_destroyed.push_back(solution_rebuilt[s]);
 									A = 1;
 									r--;
-									if (A >= (r_support.index - 1)) {
-										//cout << " caso Loop " << endl;
-									}
 								}
 								else {
 									if (before > after) {
@@ -740,8 +767,8 @@ vector <Route> inter_move(MoveParamSet param_set, vector<Route> routes, map<int,
 	}
 	if (routes_after_move.size() == 0) return routes;
 	else {
-		double cost_before_move = calculate_ObjectiveFunction(peso_TW, inter_stop_weight, routes, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-		double cost_after_move = calculate_ObjectiveFunction(peso_TW, inter_stop_weight, routes_after_move, map_airstrip, map_airplane, from_to, from_to_FuelConsumed); 
+		double cost_before_move = calculate_ObjectiveFunction(input, peso_TW, inter_stop_weight, routes);
+		double cost_after_move = calculate_ObjectiveFunction(input, peso_TW, inter_stop_weight, routes_after_move); 
 		if ( cost_before_move != cost_after_move) {
 			cout << " Costo Routes: " << cost_before_move << endl;
 			cout << " Costo routes_after_move: " << cost_after_move << endl;
@@ -749,6 +776,5 @@ vector <Route> inter_move(MoveParamSet param_set, vector<Route> routes, map<int,
 		return routes_after_move;
 	}
 }
-
 
 #endif
