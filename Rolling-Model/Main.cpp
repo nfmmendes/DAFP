@@ -435,7 +435,6 @@ int main(int argc, char* argv[]) {
 	fill_from_to_fuel_consumed(from_to_FuelConsumed, from_to, airplanes);
 	map<string, double> from_to_fuel_consumed_string = fill_from_to_fuel_consumed_string(from_to_company, airplanes);
 
-
 	ProcessedInput input(map_airplane, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
 	
 	vector<Passenger> passengers_per_casostrano_day1 = passengers_day1;
@@ -488,7 +487,6 @@ int main(int argc, char* argv[]) {
 	//******************************************************************************************************************************************************************
 	
 	int numero_aerei = 20;
-
 
 	int numero_aerei_1 = stoi(argv[4]);
 	int numero_aerei_2 = stoi(argv[8]);
