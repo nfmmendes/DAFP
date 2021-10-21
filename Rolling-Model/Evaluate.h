@@ -146,8 +146,294 @@ void print_error_16(vector<Passenger> pass_trovato)
 	pass_trovato[0].print();
 }
 
-double calculationCostCompany_three_days(double peso_TW, std::map<string, double>& from_to_FuelConsumed_company, double peso_trashipment, double peso_intermediate_stop, string route_azienza_day1, string route_azienza_day2, string route_azienza_day3, string passengers_azienda_day1, string passengers_azienda_day2, string passengers_azienda_day3, vector<Airstrip> airstrips, vector<Airplane> airplanes, vector<Passenger> passengers_day1, vector<Passenger> passengers_day2, vector<Passenger> passengers_day3, std::map<std::string, double>& from_to_company) {
+void print_error_17(vector<Passenger> passengers_day1, int p)
+{
+	cout << "c'è un problema con il passeggero: ";
+	passengers_day1[p].print();
+	cout << "in quanto trova più di due corrispondenze nelle soluzioni" << endl;
+	system("pause");
+}
 
+void print_error_18()
+{
+	cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul from ma non trova il from della soluzione" << endl;
+	system("pause");
+}
+
+void manage_transhipment(map<string, Route>& codice_routeAzienda_day2, vector<Passenger>& pass_trovato, vector<int>& int_to, int& best_from, int& best_to)
+{
+	vector<int> int_from_soluz;
+	for (int i = 0; i < codice_routeAzienda_day2[pass_trovato[0].code_flight].index; i++) {
+		if (codice_routeAzienda_day2[pass_trovato[0].code_flight].places_company[i] == pass_trovato[0].departure_location_company) {
+			int_from_soluz.push_back(i);
+		}
+	}
+	if (int_from_soluz.empty()) {
+		print_error_18();
+	}
+
+	double best_differenza = DBL_MAX;
+	best_from = -1;
+	best_to = -1;
+	for (int from : int_from_soluz) {
+		for (int to : int_to) {
+			if (to > from) {
+				double diff = to - from;
+				if (diff < best_differenza) {
+					best_differenza = diff;
+					best_from = from;
+					best_to = to;
+				}
+			}
+		}
+	}
+}
+
+void initialize_code_route_company(vector<Route>& routes_day1, vector<Route>& routes_solution_day2, vector<Route>& routes_day3, map<string, Route>& codice_day1, map<string, Route>& codice_day2, map<string, Route>& codice_day3)
+{
+	for (Route r : routes_day1) {
+		codice_day1.insert(make_pair(r.aircraft_code_company_comparison, r));
+	}
+	for (Route r : routes_solution_day2) {
+		codice_day2.insert(make_pair(r.aircraft_code_company_comparison, r));
+	}
+	for (Route r : routes_day3) {
+		codice_day3.insert(make_pair(r.aircraft_code_company_comparison, r));
+	}
+}
+
+double print_error_20()
+{
+	cerr << "Error Opening File passenger azienda day 1" << endl;
+	system("pause");
+	exit(1);
+}
+
+void find_best_difference_1(vector<int> &int_from, vector<int>& int_to_soluz, int& best_from, int& best_to)
+{
+	double best_differenza = DBL_MAX;
+	best_from = -1;
+	best_to = -1;
+	for (int from : int_from) {
+		for (int to : int_to_soluz) {
+			if (to > from) {
+				double diff = to - from;
+				if (diff < best_differenza) {
+					best_differenza = diff;
+					best_from = from;
+					best_to = to;
+				}
+			}
+		}
+	}
+}
+
+void find_best_difference_2(vector<int> &int_from, vector<int> &int_to, int& best_from, int& best_to)
+{
+	double best_differenza = DBL_MAX;
+	best_from = -1;
+	best_to = -1;
+	for (int from : int_from) {
+		for (int to : int_to) {
+			if (to > from) {
+				double diff = to - from;
+				if (diff < best_differenza) {
+					best_differenza = diff;
+					best_from = from;
+					best_to = to;
+				}
+			}
+		}
+	}
+}
+
+
+void cost_days_iterated(std::map<std::string, double>& from_to_company, double& COSTO_landing, double& COSTO_fuel, double& COSTO_km, vector<Route>& routes_day1, vector<Route>& routes_day2, vector<Route>& routes_day3, vector<double>& cost_route, map<string, Airstrip>& airstrips_map, map<string, Airplane>& airplanes_map)
+{
+	cout << "giorno 1: " << endl;
+	double giorno1 = 0.0;
+	for (int r = 0; r < routes_day1.size(); r++) {
+		double c = 0.0;
+
+		string places = ";";
+		for (int i = 0; i < routes_day1[r].places_company.size(); i++) {
+			auto* route = &routes_day1[r];
+			string aircraft_code = route->aircraft_code_company_comparison;
+			places += route->places_company[i] + ";";
+
+			if (i >= 1) {
+				//ho messo che parto da uno in modo tale da non considerare il leading cost del primo aereoporto
+				c += airstrips_map[route->places_company[i]].landing_cost; //aggiungo il leading cost
+				COSTO_landing += airstrips_map[route->places_company[i]].landing_cost;
+			}
+
+			//aggiungo il costo dei kilometri e del fuel
+			if (i < routes_day1[r].places_company.size() - 1) {
+				
+				c += from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]];
+				COSTO_km += from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]];
+				double time_flight = (from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]]) / airplanes_map[aircraft_code].speed;
+				double cost_fuel = 0;
+				if (time_flight <= 1) {
+					cost_fuel = time_flight * airplanes_map[aircraft_code].fuel_burn_first;
+				}
+				else {
+					cost_fuel = airplanes_map[aircraft_code].fuel_burn_first + (time_flight - 1) * airplanes_map[aircraft_code].fuel_burn_second;
+				}
+
+				c += cost_fuel;
+				COSTO_fuel += cost_fuel;
+			}
+		}
+
+		//ora devo leggere i passeggeri_soluzione******************************************************************************************
+		cost_route.push_back(c);
+		giorno1 += c;
+	}
+	cout << "costo --> " << giorno1 << endl;
+	cout << "giorno 2: " << endl;
+	double giorno2 = 0.0;
+	for (int r = 0; r < routes_day2.size(); r++) {
+		auto* route = &routes_day2[r];
+		string aircraft_code = route->aircraft_code_company_comparison;
+		double c = 0.0;
+		//airplanes_map[routes_company_solution[r].aircraft_code].fixed_cost; //ora il costo fisso più l'eventuale arco aggiuntivo lo aggiungo al costo di routing alla fine
+		//cout << airplanes_map[routes_company_solution[r].aircraft_code].fixed_cost ;
+		string places = ";";
+		for (int i = 0; i < route->places_company.size(); i++) {
+			places += route->places_company[i] + ";";
+
+			if (i >= 1) {
+				//ho messo che parto da uno in modo tale da non considerare il leading cost del primo aereoporto
+				//cout << " + " << airstrips_map[routes_company_solution[r].places[i]].landing_cost;
+				c += airstrips_map[route->places_company[i]].landing_cost; //aggiungo il leading cost
+				COSTO_landing += airstrips_map[route->places_company[i]].landing_cost;
+			}
+
+			//aggiungo il costo dei kilometri e del fuel
+			if (i < route->places_company.size() - 1) {
+				c += from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]];
+				COSTO_km += from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]];
+				double time_flight = (from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]]) / airplanes_map[aircraft_code].speed;
+
+				double cost_fuel = 0;
+				if (time_flight <= 1) {
+					cost_fuel = time_flight * airplanes_map[aircraft_code].fuel_burn_first;
+				}
+				else {
+					cost_fuel = airplanes_map[aircraft_code].fuel_burn_first + (time_flight - 1) * airplanes_map[aircraft_code].fuel_burn_second;
+				}
+
+				c += cost_fuel;
+				COSTO_fuel += cost_fuel;
+			}
+		}
+
+		//ora devo leggere i passeggeri_soluzione******************************************************************************************
+		cost_route.push_back(c);
+		giorno2 += c;
+	}
+	cout << "costo --> " << giorno2 << endl;
+	cout << "giorno 3: " << endl;
+	double giorno3 = 0.0;
+	for (int r = 0; r < routes_day3.size(); r++) {
+		auto* route = &routes_day3[r];
+		string aircraft_code = route->aircraft_code_company_comparison;
+		double c = 0.0;
+		//airplanes_map[routes_company_solution[r].aircraft_code].fixed_cost; //ora il costo fisso più l'eventuale arco aggiuntivo lo aggiungo al costo di routing alla fine
+		string places = ";";
+		for (int i = 0; i < routes_day3[r].places_company.size(); i++) {
+			places += routes_day3[r].places_company[i] + ";";
+
+			if (i >= 1) {
+				//ho messo che parto da uno in modo tale da non considerare il leading cost del primo aereoporto
+				c += airstrips_map[route->places_company[i]].landing_cost; //aggiungo il leading cost
+				COSTO_landing += airstrips_map[route->places_company[i]].landing_cost;
+			}
+
+			//aggiungo il costo dei kilometri e del fuel
+			if (i < route->places_company.size() - 1) {
+				c += from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]];
+				COSTO_km += from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]];
+				double time_flight = (from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]]) / airplanes_map[aircraft_code].speed;
+				double cost_fuel = 0;
+				if (time_flight <= 1) {
+					cost_fuel = time_flight * airplanes_map[aircraft_code].fuel_burn_first;
+				}
+				else {
+					cost_fuel = airplanes_map[aircraft_code].fuel_burn_first + (time_flight - 1) * airplanes_map[aircraft_code].fuel_burn_second;
+				}
+
+				c += cost_fuel;
+				COSTO_fuel += cost_fuel;
+			}
+		}
+
+		//ora devo leggere i passeggeri_soluzione******************************************************************************************
+		cost_route.push_back(c);
+		giorno3 += c;
+	}
+	cout << "costo --> " << giorno3 << endl;
+}
+
+void iterate_routes_by_day(std::map<string, double>& from_to_FuelConsumed, std::map<std::string, double>& from_to_company, double& check_fixed_cost, vector<Route>& routes_day1, vector<Route>& routes_day2, vector<Route>& routes_day3, vector<double>& cost_route, map<string, Airstrip>& airstrips_map, map<string, Airplane>& airplanes_map)
+{
+	for (Route r1 : routes_day1) {
+		double c = airplanes_map[r1.aircraft_code_company_comparison].fixed_cost; //il fixed cost devo aggiungerlo di tutti gli aerei del primo giorno
+		check_fixed_cost += airplanes_map[r1.aircraft_code_company_comparison].fixed_cost;
+
+		for (Route r2 : routes_day2) {
+			if (r1.aircraft_code_company_comparison == r2.aircraft_code_company_comparison) {
+				if (r1.places_company[r1.index - 1] != r2.places_company[0]) {
+					//qua devo aggiungere i km ed il fuel dell'arco che devo aggiungere e il landing cost del primo aeroporto della seconda rotta
+					c += from_to_company[r1.places_company[r1.index - 1] + ";" + r2.places_company[0]];
+					c += from_to_FuelConsumed[r1.aircraft_code_company_comparison + ";" + r1.places_company[r1.index - 1] + ";" + r2.places_company[0]];
+					c += airstrips_map[r2.places_company[0]].landing_cost;
+					c -= airplanes_map[r2.aircraft_code_company_comparison].fixed_cost;
+					check_fixed_cost -= airplanes_map[r2.aircraft_code_company_comparison].fixed_cost;
+				}
+				else {
+					//qua vuol dire che sono uguali i due posti quindi non devo aggiungere il costo dei due archi
+					c -= airplanes_map[r2.aircraft_code_company_comparison].fixed_cost;
+					check_fixed_cost -= airplanes_map[r2.aircraft_code_company_comparison].fixed_cost;
+				}
+			}
+		}
+
+		cost_route.push_back(c);
+	}
+	for (Route r2 : routes_day2) {
+		double c = airplanes_map[r2.aircraft_code_company_comparison].fixed_cost; //il fixed cost devo aggiungerlo di tutti gli aerei del primo giorno
+		check_fixed_cost += airplanes_map[r2.aircraft_code_company_comparison].fixed_cost;
+
+		for (Route r3 : routes_day3) {
+			if (r2.aircraft_code_company_comparison == r3.aircraft_code_company_comparison) {
+				if (r2.places_company[r2.index - 1] != r3.places_company[0]) {
+					//qua devo aggiungere i km ed il fuel dell'arco che devo aggiungere e il landing cost del primo aeroporto della seconda rotta
+					c += from_to_company[r2.places_company[r2.index - 1] + ";" + r3.places_company[0]];
+					c += from_to_FuelConsumed[r2.aircraft_code_company_comparison + ";" + r2.places_company[r2.index - 1] + ";" + r3.places_company[0]];
+					c += airstrips_map[r3.places_company[0]].landing_cost;
+					c -= airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
+					check_fixed_cost -= airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
+				}
+				else {
+					//qua vuol dire che sono uguali i due posti quindi non devo aggiungere il costo dei due archi
+					c -= airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
+					check_fixed_cost -= airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
+				}
+			}
+		}
+
+		cost_route.push_back(c);
+	}
+	for (Route r3 : routes_day3) {
+		double c = airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
+		check_fixed_cost += airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
+	}
+}
+
+double calculationCostCompany_three_days(double peso_TW, std::map<string, double>& from_to_FuelConsumed_company, double peso_trashipment, double peso_intermediate_stop, string route_azienza_day1, string route_azienza_day2, string route_azienza_day3, string passengers_azienda_day1, string passengers_azienda_day2, string passengers_azienda_day3, vector<Airstrip> airstrips, vector<Airplane> airplanes, vector<Passenger> passengers_day1, vector<Passenger> passengers_day2, vector<Passenger> passengers_day3, std::map<std::string, double>& from_to_company) {
+	
 	double check_fixed_cost = 0.0;
 	double COSTO_fisso = 0.0;
 	double COSTO_landing = 0.0;
@@ -165,15 +451,12 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 	map <string, Route> codice_routeAzienda_day1;
 	map <string, Route> codice_routeAzienda_day2;
 	map <string, Route> codice_routeAzienda_day3;
-	for (Route r : routes_company_solution_day1) {
-		codice_routeAzienda_day1.insert(make_pair(r.aircraft_code_company_comparison, r));
-	}
-	for (Route r : routes_company_solution_day2) {
-		codice_routeAzienda_day2.insert(make_pair(r.aircraft_code_company_comparison, r));
-	}
-	for (Route r : routes_company_solution_day3) {
-		codice_routeAzienda_day3.insert(make_pair(r.aircraft_code_company_comparison, r));
-	}
+	initialize_code_route_company(routes_company_solution_day1,
+								  routes_company_solution_day2,
+								  routes_company_solution_day3,
+								  codice_routeAzienda_day1,
+								  codice_routeAzienda_day2,
+								  codice_routeAzienda_day3);
 
 	int costi_time_windows = 0;
 	double costi_intermediate_stop = 0.0;
@@ -189,178 +472,26 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 		airplanes_map.insert(make_pair(airplanes[i].code_company, airplanes[i]));
 	}
 
-	cout << "giorno 1: " << endl;
-	double giorno1 = 0.0;
-	for (int r = 0; r < routes_company_solution_day1.size(); r++) {
-		double c = 0.0;
+	cost_days_iterated(from_to_company,
+					   COSTO_landing,
+					   COSTO_fuel,
+					   COSTO_km,
+					   routes_company_solution_day1,
+					   routes_company_solution_day2,
+					   routes_company_solution_day3,
+					   cost_route,
+					   airstrips_map,
+					   airplanes_map);
 
-		string places = ";";
-		for (int i = 0; i < routes_company_solution_day1[r].places_company.size(); i++) {
-			places += routes_company_solution_day1[r].places_company[i] + ";";
-
-			if (i >= 1) {
-				//ho messo che parto da uno in modo tale da non considerare il leading cost del primo aereoporto
-				c += airstrips_map[routes_company_solution_day1[r].places_company[i]].landing_cost; //aggiungo il leading cost
-				COSTO_landing += airstrips_map[routes_company_solution_day1[r].places_company[i]].landing_cost;
-			}
-
-			//aggiungo il costo dei kilometri e del fuel
-			if (i < routes_company_solution_day1[r].places_company.size() - 1) {
-				c += from_to_company[routes_company_solution_day1[r].places_company[i] + ";" + routes_company_solution_day1[r].places_company[i + 1]];
-				COSTO_km += from_to_company[routes_company_solution_day1[r].places_company[i] + ";" + routes_company_solution_day1[r].places_company[i + 1]];
-				double time_flight = (from_to_company[routes_company_solution_day1[r].places_company[i] + ";" + routes_company_solution_day1[r].places_company[i + 1]]) / airplanes_map[routes_company_solution_day1[r].aircraft_code_company_comparison].speed;
-				double cost_fuel = 0;
-				if (time_flight <= 1) {
-					cost_fuel = time_flight * airplanes_map[routes_company_solution_day1[r].aircraft_code_company_comparison].fuel_burn_first;
-				}
-				else {
-					cost_fuel = airplanes_map[routes_company_solution_day1[r].aircraft_code_company_comparison].fuel_burn_first + (time_flight - 1) * airplanes_map[routes_company_solution_day1[r].aircraft_code_company_comparison].fuel_burn_second;
-				}
-
-				c += cost_fuel;
-				COSTO_fuel += cost_fuel;
-			}
-		}
-
-		//ora devo leggere i passeggeri_soluzione******************************************************************************************
-		cost_route.push_back(c);
-		giorno1 += c;
-	}
-	cout << "costo --> " << giorno1 << endl;
-	cout << "giorno 2: " << endl;
-	double giorno2 = 0.0;
-	for (int r = 0; r < routes_company_solution_day2.size(); r++) {
-		double c = 0.0;
-		//airplanes_map[routes_company_solution[r].aircraft_code].fixed_cost; //ora il costo fisso più l'eventuale arco aggiuntivo lo aggiungo al costo di routing alla fine
-		//cout << airplanes_map[routes_company_solution[r].aircraft_code].fixed_cost ;
-		string places = ";";
-		for (int i = 0; i < routes_company_solution_day2[r].places_company.size(); i++) {
-			places += routes_company_solution_day2[r].places_company[i] + ";";
-
-			if (i >= 1) {
-				//ho messo che parto da uno in modo tale da non considerare il leading cost del primo aereoporto
-				//cout << " + " << airstrips_map[routes_company_solution[r].places[i]].landing_cost;
-				c += airstrips_map[routes_company_solution_day2[r].places_company[i]].landing_cost; //aggiungo il leading cost
-				COSTO_landing += airstrips_map[routes_company_solution_day2[r].places_company[i]].landing_cost;
-			}
-
-			//aggiungo il costo dei kilometri e del fuel
-			if (i < routes_company_solution_day2[r].places_company.size() - 1) {
-				c += from_to_company[routes_company_solution_day2[r].places_company[i] + ";" + routes_company_solution_day2[r].places_company[i + 1]];
-				COSTO_km += from_to_company[routes_company_solution_day2[r].places_company[i] + ";" + routes_company_solution_day2[r].places_company[i + 1]];
-				double time_flight = (from_to_company[routes_company_solution_day2[r].places_company[i] + ";" + routes_company_solution_day2[r].places_company[i + 1]]) / airplanes_map[routes_company_solution_day2[r].aircraft_code_company_comparison].speed;
-
-				double cost_fuel = 0;
-				if (time_flight <= 1) {
-					cost_fuel = time_flight * airplanes_map[routes_company_solution_day2[r].aircraft_code_company_comparison].fuel_burn_first;
-				}
-				else {
-					cost_fuel = airplanes_map[routes_company_solution_day2[r].aircraft_code_company_comparison].fuel_burn_first + (time_flight - 1) * airplanes_map[routes_company_solution_day2[r].aircraft_code_company_comparison].fuel_burn_second;
-				}
-
-				c += cost_fuel;
-				COSTO_fuel += cost_fuel;
-			}
-		}
-
-		//ora devo leggere i passeggeri_soluzione******************************************************************************************
-		cost_route.push_back(c);
-		giorno2 += c;
-	}
-	cout << "costo --> " << giorno2 << endl;
-	cout << "giorno 3: " << endl;
-	double giorno3 = 0.0;
-	for (int r = 0; r < routes_company_solution_day3.size(); r++) {
-		double c = 0.0;
-		//airplanes_map[routes_company_solution[r].aircraft_code].fixed_cost; //ora il costo fisso più l'eventuale arco aggiuntivo lo aggiungo al costo di routing alla fine
-		string places = ";";
-		for (int i = 0; i < routes_company_solution_day3[r].places_company.size(); i++) {
-			places += routes_company_solution_day3[r].places_company[i] + ";";
-
-			if (i >= 1) {
-				//ho messo che parto da uno in modo tale da non considerare il leading cost del primo aereoporto
-				c += airstrips_map[routes_company_solution_day3[r].places_company[i]].landing_cost; //aggiungo il leading cost
-				COSTO_landing += airstrips_map[routes_company_solution_day3[r].places_company[i]].landing_cost;
-			}
-
-			//aggiungo il costo dei kilometri e del fuel
-			if (i < routes_company_solution_day3[r].places_company.size() - 1) {
-				c += from_to_company[routes_company_solution_day3[r].places_company[i] + ";" + routes_company_solution_day3[r].places_company[i + 1]];
-				COSTO_km += from_to_company[routes_company_solution_day3[r].places_company[i] + ";" + routes_company_solution_day3[r].places_company[i + 1]];
-				double time_flight = (from_to_company[routes_company_solution_day3[r].places_company[i] + ";" + routes_company_solution_day3[r].places_company[i + 1]]) / airplanes_map[routes_company_solution_day3[r].aircraft_code_company_comparison].speed;
-				double cost_fuel = 0;
-				if (time_flight <= 1) {
-					cost_fuel = time_flight * airplanes_map[routes_company_solution_day3[r].aircraft_code_company_comparison].fuel_burn_first;
-				}
-				else {
-					cost_fuel = airplanes_map[routes_company_solution_day3[r].aircraft_code_company_comparison].fuel_burn_first + (time_flight - 1) * airplanes_map[routes_company_solution_day3[r].aircraft_code_company_comparison].fuel_burn_second;
-				}
-
-				c += cost_fuel;
-				COSTO_fuel += cost_fuel;
-			}
-		}
-
-		//ora devo leggere i passeggeri_soluzione******************************************************************************************
-		cost_route.push_back(c);
-		giorno3 += c;
-	}
-	cout << "costo --> " << giorno3 << endl;
-
-	for (Route r1 : routes_company_solution_day1) {
-		double c = airplanes_map[r1.aircraft_code_company_comparison].fixed_cost; //il fixed cost devo aggiungerlo di tutti gli aerei del primo giorno
-		check_fixed_cost += airplanes_map[r1.aircraft_code_company_comparison].fixed_cost;
-
-		for (Route r2 : routes_company_solution_day2) {
-			if (r1.aircraft_code_company_comparison == r2.aircraft_code_company_comparison) {
-				if (r1.places_company[r1.index - 1] != r2.places_company[0]) {
-					//qua devo aggiungere i km ed il fuel dell'arco che devo aggiungere e il landing cost del primo aeroporto della seconda rotta
-					c += from_to_company[r1.places_company[r1.index - 1] + ";" + r2.places_company[0]];
-					c += from_to_FuelConsumed_company[r1.aircraft_code_company_comparison + ";" + r1.places_company[r1.index - 1] + ";" + r2.places_company[0]];
-					c += airstrips_map[r2.places_company[0]].landing_cost;
-					c -= airplanes_map[r2.aircraft_code_company_comparison].fixed_cost;
-					check_fixed_cost -= airplanes_map[r2.aircraft_code_company_comparison].fixed_cost;
-				}
-				else {
-					//qua vuol dire che sono uguali i due posti quindi non devo aggiungere il costo dei due archi
-					c -= airplanes_map[r2.aircraft_code_company_comparison].fixed_cost;
-					check_fixed_cost -= airplanes_map[r2.aircraft_code_company_comparison].fixed_cost;
-				}
-			}
-		}
-
-		cost_route.push_back(c);
-	}
-	for (Route r2 : routes_company_solution_day2) {
-		double c = airplanes_map[r2.aircraft_code_company_comparison].fixed_cost; //il fixed cost devo aggiungerlo di tutti gli aerei del primo giorno
-		check_fixed_cost += airplanes_map[r2.aircraft_code_company_comparison].fixed_cost;
-
-		for (Route r3 : routes_company_solution_day3) {
-			if (r2.aircraft_code_company_comparison == r3.aircraft_code_company_comparison) {
-				if (r2.places_company[r2.index - 1] != r3.places_company[0]) {
-					//qua devo aggiungere i km ed il fuel dell'arco che devo aggiungere e il landing cost del primo aeroporto della seconda rotta
-					c += from_to_company[r2.places_company[r2.index - 1] + ";" + r3.places_company[0]];
-					//cout << "------------>" << from_to_company[r2.places_company[r2.index - 1] + ";" + r3.places_company[0]] << endl;
-					c += from_to_FuelConsumed_company[r2.aircraft_code_company_comparison + ";" + r2.places_company[r2.index - 1] + ";" + r3.places_company[0]];
-					//cout << "------------------->" << from_to_FuelConsumed_company[r2.aircraft_code_company_comparison + ";" + r2.places_company[r2.index - 1] + ";" + r3.places_company[0]] << endl;
-					c += airstrips_map[r3.places_company[0]].landing_cost;
-					c -= airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
-					check_fixed_cost -= airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
-				}
-				else {
-					//qua vuol dire che sono uguali i due posti quindi non devo aggiungere il costo dei due archi
-					c -= airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
-					check_fixed_cost -= airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
-				}
-			}
-		}
-
-		cost_route.push_back(c);
-	}
-	for (Route r3 : routes_company_solution_day3) {
-		double c = airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
-		check_fixed_cost += airplanes_map[r3.aircraft_code_company_comparison].fixed_cost;
-	}
+	iterate_routes_by_day(from_to_FuelConsumed_company,
+						  from_to_company,
+						  check_fixed_cost,
+						  routes_company_solution_day1,
+						  routes_company_solution_day2,
+						  routes_company_solution_day3,
+						  cost_route,
+						  airstrips_map,
+						  airplanes_map);
 	//ricordati di aggiungere il costo fisso più quello dell'arco aggiuntivo
 	//se uso un nuovo aereo metto il costo fisso se uso quello vecchio pago il tratto aggiuntivo se manca
 	cout << "il costo fisso di uso degli aerei e' " << check_fixed_cost << endl;
@@ -376,9 +507,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 	ifstream file_day1;
 	file_day1.open(passengers_azienda_day1);
 	if (file_day1.fail()) {
-		cerr << "Error Opening File passenger azienda day 1" << endl;
-		system("pause");
-		exit(1);
+		return print_error_20();
 	}
 	while (!file_day1.eof()) {
 		string row;
@@ -470,21 +599,9 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 			}
 
 			if (!int_from.empty() && !int_to.empty()) {
-				double best_differenza = DBL_MAX;
-				int best_from = -1;
-				int best_to = -1;
-				for (int from : int_from) {
-					for (int to : int_to) {
-						if (to > from) {
-							double diff = to - from;
-							if (diff < best_differenza) {
-								best_differenza = diff;
-								best_from = from;
-								best_to = to;
-							}
-						}
-					}
-				}
+				int best_from;
+				int best_to;
+				find_best_difference_2(int_from, int_to, best_from, best_to);
 				costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1));
 			}
 			else if (int_from.empty() && !int_to.empty()) {
@@ -566,7 +683,6 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 			//scorro tutte le località della route
 			for (int i = 0; i < codice_routeAzienda_day1[pass_trovato[0].code_flight].index; i++) {
 				//salvo tutti i from e tutti i to che trovo
-				//cout << codice_routeAzienda_day1[pass_trovato[0].code_flight].places[i] << " - " << endl;
 				if (codice_routeAzienda_day1[pass_trovato[0].code_flight].places_company[i] == pass_trovato[0].departure_location_company) {
 					int_from1.push_back(i);
 				}
@@ -603,7 +719,6 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 			//scorro tutte le località della route
 			for (int i = 0; i < codice_routeAzienda_day1[pass_trovato[1].code_flight].index; i++) {
 				//salvo tutti i from e tutti i to che trovo
-				//cout << codice_routeAzienda[pass_trovato[1].code_flight].places[i] << " - " << endl;
 				if (codice_routeAzienda_day1[pass_trovato[1].code_flight].places_company[i] == pass_trovato[1].departure_location_company) {
 					int_from2.push_back(i);
 				}
@@ -634,10 +749,7 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 			costi_intermediate_stop += (peso_intermediate_stop * (best_to2 - best_from2 - 1));
 		}
 		else if (controllo > 2) {
-			cout << "c'è un problema con il passeggero: ";
-			passengers_day1[p].print();
-			cout << "in quanto trova più di due corrispondenze nelle soluzioni" << endl;
-			system("pause");
+			print_error_17(passengers_day1, p);
 		}
 
 		costi_time_windows += (c * peso_TW);
@@ -766,32 +878,9 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 			else if (int_from.empty() && !int_to.empty()) {
 				//qua ha fatto un transhipment sul from
 				//devo cercare tutti i from partendo dal from sulla soluzione
-				vector<int> int_from_soluz;
-				for (int i = 0; i < codice_routeAzienda_day2[pass_trovato[0].code_flight].index; i++) {
-					if (codice_routeAzienda_day2[pass_trovato[0].code_flight].places_company[i] == pass_trovato[0].departure_location_company) {
-						int_from_soluz.push_back(i);
-					}
-				}
-				if (int_from_soluz.empty()) {
-					cout << "ATTENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  qua fa il trashipment sul from ma non trova il from della soluzione" << endl;
-					system("pause");
-				}
-
-				double best_differenza = DBL_MAX;
-				int best_from = -1;
-				int best_to = -1;
-				for (int from : int_from_soluz) {
-					for (int to : int_to) {
-						if (to > from) {
-							double diff = to - from;
-							if (diff < best_differenza) {
-								best_differenza = diff;
-								best_from = from;
-								best_to = to;
-							}
-						}
-					}
-				}
+				int best_from;
+				int best_to;
+				manage_transhipment(codice_routeAzienda_day2, pass_trovato, int_to, best_from, best_to);
 
 				costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1)) + peso_trashipment;
 				COSTO_transhipment += peso_trashipment;
@@ -811,21 +900,9 @@ double calculationCostCompany_three_days(double peso_TW, std::map<string, double
 					system("pause");
 				}
 
-				double best_differenza = DBL_MAX;
-				int best_from = -1;
-				int best_to = -1;
-				for (int from : int_from) {
-					for (int to : int_to_soluz) {
-						if (to > from) {
-							double diff = to - from;
-							if (diff < best_differenza) {
-								best_differenza = diff;
-								best_from = from;
-								best_to = to;
-							}
-						}
-					}
-				}
+				int best_from;
+				int best_to;
+				find_best_difference_1(int_from, int_to_soluz, best_from, best_to);
 
 				costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1)) + peso_trashipment;
 				COSTO_transhipment += peso_trashipment;
