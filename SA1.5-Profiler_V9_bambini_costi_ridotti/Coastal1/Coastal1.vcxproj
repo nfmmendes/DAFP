@@ -79,11 +79,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(GUROBI_HOME)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\IBM\ILOG\CPLEX_Studio201\concert\include;C:\Program Files\IBM\ILOG\CPLEX_Studio201\cplex\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;IL_STD;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(GUROBI_HOME)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>gurobi_c++mdd2015.lib;gurobi81.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\IBM\ILOG\CPLEX_Studio201\cplex\lib\x64_windows_msvc14\stat_mda;C:\Program Files\IBM\ILOG\CPLEX_Studio201\concert\lib\x64_windows_msvc14\stat_mda</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cplex2010.lib;concert.lib;ilocplex.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -146,11 +147,21 @@
     <ClCompile Include="Route.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Aggregate.h" />
     <ClInclude Include="Airplane.h" />
     <ClInclude Include="Airstrip.h" />
+    <ClInclude Include="Constructive.h" />
+    <ClInclude Include="Destroy.h" />
+    <ClInclude Include="Evaluate.h" />
+    <ClInclude Include="Feasibility.h" />
+    <ClInclude Include="Fill.h" />
+    <ClInclude Include="Fuel.h" />
     <ClInclude Include="Model_Cplex.h" />
+    <ClInclude Include="Move.h" />
     <ClInclude Include="Passenger.h" />
+    <ClInclude Include="Repair.h" />
     <ClInclude Include="Route.h" />
+    <ClInclude Include="Swap.h" />
     <ClInclude Include="Tests.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
