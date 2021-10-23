@@ -180,21 +180,21 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 			//CONSIDERAZIONE, SI POTREBBE VALUTARE DI TOGLIERE IL PRIMO ARCO DAL DEPOT ALLA PRIMA LOCATION NEL CASO QUESTO SIA VUOTO, MA QUESTO PORTEREBBE ALLA CREAZIONE DI SCENARI DIFFERENTI:
 			//		-posso arrivare a tutte le altre locazioni se tolgo il refuel al depot???????????????????????????????????????????????????????????????????????????
 			// ho aggiunto il fatto che il costo del tratto aggiuntivo deve essere minore o uguale al costo fisso dell'aereo
-			if (r != r1 &&
-				solution_model[r].time_dep[solution_model[r].index - 1] + time_trascorso <= solution_model[r1].time_arr[0] &&
-				solution_model[r].quantity_fuel[solution_model[r].index - 1] - fuel_consumed >= map_airplane[solution_model[r].aircraft_code].min_fuel &&
+			Route* route = &solution_model[r];
+			if (r != r1 && route->time_dep[route->index - 1] + time_trascorso <= route->time_arr[0] &&
+				route->quantity_fuel[route->index - 1] - fuel_consumed >= map_airplane[route->aircraft_code].min_fuel &&
 				map_airplane[solution_model[r].aircraft_code].model == map_airplane[solution_model[r1].aircraft_code].model
 				&& index_not.find(val, 0) > index_not.size() && index_not.find(val1, 0) > index_not.size()
 				&& costo_aggiunta <= map_airplane[solution_model[r1].aircraft_code].fixed_cost
 				) {
 
 				index_not += to_string(r) + ";" + to_string(r1) + ";";
-				Route r_add(solution_model[r].aircraft_code, solution_model[r].passengers_in_route);
+				Route r_add(route->aircraft_code, route->passengers_in_route);
 				r_add.primo_pass = true; //N.B. commentare questa riga se si vuole vedere quelle che aggrega
 				for (int i = 0; i <= solution_model[r].index - 1; i++) {
+					double time_to_go = (((from_to[route->places[i]][solution_model[r1].places[0]]) / map_airplane[route->aircraft_code].speed) * 60);
 					if (i == solution_model[r].index - 1) {
-						r_add.addPlace(solution_model[r].places[i], solution_model[r].refueling[i], solution_model[r].quantity_fuel[i], solution_model[r].weight[i],
-							solution_model[r].capacity[i], solution_model[r].time_arr[i], (solution_model[r1].time_arr[0] - (((from_to[solution_model[r].places[i]][solution_model[r1].places[0]]) / map_airplane[solution_model[r].aircraft_code].speed) * 60)));
+						r_add.addPlace(route->places[i], route->refueling[i], route->quantity_fuel[i], route->weight[i],route->capacity[i], route->time_arr[i], (solution_model[r1].time_arr[0] - time_to_go));
 					}
 					else {
 						r_add.addPlace(solution_model[r].places[i], solution_model[r].refueling[i], solution_model[r].quantity_fuel[i], solution_model[r].weight[i],
