@@ -284,7 +284,7 @@ vector <Route> move(ProcessedInput* input, double peso_TW, double peso_intermedi
 						double cost_route_support = cost_single_route(input, peso_TW, peso_intermediate_stop, r_support);
 						double cost_route_new = cost_single_route(input, peso_TW, peso_intermediate_stop, r_new);
 
-						if (cost_route_support > cost_route_new && route_feasible(r_new, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
+						if (cost_route_support > cost_route_new && route_feasible(input, r_new, end_day)) {
 
 							int node = sequential_same_node(r_new);
 
@@ -302,7 +302,7 @@ vector <Route> move(ProcessedInput* input, double peso_TW, double peso_intermedi
 
 							if (fatto == false) r_support = r_new;
 							else {
-								if (cost_route_support > cost_route_new && route_feasible(r_new, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
+								if (cost_route_support > cost_route_new && route_feasible(input, r_new, end_day)) {
 									r_support = r_new;
 									cost_route_support = cost_route_new;
 									A -= num_aggregazioni;

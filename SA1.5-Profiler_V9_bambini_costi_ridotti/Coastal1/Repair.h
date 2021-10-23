@@ -73,7 +73,7 @@ vector <Route> repair_perturbation(ProcessedInput* input, double peso_TW, double
 									r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
 
 									if ((p.solution_to - p.solution_from <= p.stop)) {
-										if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
+										if (route_feasible(input, r_support, end_day)) {
 											double cost = (cost_single_route(input, peso_TW, peso_intermediate_stop, r_support) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
 
 											//code for casual number [0.8;1.2]*****************************************************
@@ -290,7 +290,7 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, double peso_TW, doub
 									r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
 
 									if ((p.solution_to - p.solution_from <= p.stop)) {
-										if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
+										if (route_feasible(input, r_support, end_day)) {
 											double cost = (cost_single_route(input,peso_TW, peso_intermediate_stop, r_support) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
 											if (best_cost > cost) {
 												
@@ -608,7 +608,7 @@ vector <Route> repair_one(ProcessedInput* input, double peso_TW, double peso_int
 									r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
 
 									if ((p.solution_to - p.solution_from <= p.stop)) {
-										if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
+										if (route_feasible(input, r_support, end_day)) {
 											double cost = (cost_single_route(input, peso_TW, peso_intermediate_stop, r_support) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
 											if (best_cost > cost) {
 												best_route = r;
@@ -831,7 +831,7 @@ vector<Route> two_regret_repair_aggragati(ProcessedInput* input, double peso_TW,
 
 											r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
 											if ((p.solution_to - p.solution_from <= p.stop)) {
-												if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
+												if (route_feasible(input, r_support, end_day)) {
 
 													double cost = (cost_single_route(input, peso_TW, peso_intermediate_stop, r_support) + 
 																  cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + 
@@ -1095,7 +1095,7 @@ vector <Route> repair_forbidden(ProcessedInput* input, double peso_TW, double pe
 										r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
 
 										if ((p.solution_to - p.solution_from <= p.stop)) {
-											if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
+											if (route_feasible(input, r_support, end_day)) {
 												double cost = (cost_single_route(input, peso_TW, peso_intermediate_stop, r_support) + 
 															   cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + 
 													           (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;

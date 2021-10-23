@@ -1,10 +1,17 @@
 #include "Model_Cplex.h"
+
+#include <iostream>
 #include<string>
 #include <sstream>
 #include <vector>
 #include "Route.h"
+#include "Util.h"
+#include <ilconcert/iloenv.h>
+#include <ilconcert/iloexpression.h>
+#include <ilcplex/ilocplex.h>
 
-Model_Cplex::Model_Cplex(vector<vector<vector<int>>> a, vector<vector<double>> c, vector<Airplane>& airplaneNew, map<int, vector<Route>>& airplane_routesNew, vector<Route>& all_Route, const int nrichieste, vector<Passenger>& all_passengers, vector<Route>& solution_model_new, map <int, Airplane>& map_airplane_new) {	//construtor
+
+Model_Cplex::Model_Cplex(int3DVector a, double2DVector c, vector<Airplane>& airplaneNew, map<int, vector<Route>>& airplane_routesNew, vector<Route>& all_Route, const int nrichieste, vector<Passenger>& all_passengers, vector<Route>& solution_model_new, map <int, Airplane>& map_airplane_new) {	//construtor
 	A = a;
 	C = c;
 	airplane = airplaneNew;
@@ -25,7 +32,7 @@ Model_Cplex::~Model_Cplex() { // Destrutor
 
 
 void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution_warm_up, map<string, int>& mappa_aereo_tipo, map<int, int>& codice_aereo_tipo, map<int, int>& tipo_numero, vector<vector<Route>>& solutionAll) {
-	 /*
+	 
     vector<vector<Route>> t_route(mappa_aereo_tipo.size());
 	vector<vector<double>> t_route_costi(mappa_aereo_tipo.size());
 	vector<vector<vector<int>>> A2(mappa_aereo_tipo.size());
@@ -38,44 +45,30 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 		airplane_available_position.insert(make_pair(x.first, (int)airplane_available.at(x.second).size() - 1));
 	}
 
-	//for (auto x : airplane_available_position) cout << " Codice Aereo " << x.first << " poiszione " << x.second << endl;
-	//for (size_t i = 0; i < airplane_available.size(); i++){
-		//cout << " Tipo " << i << endl;
-		//for (int j : airplane_available[i]) cout << " Aereo: " << j << endl;
-	//}
-
-
-
 	for (int j = 0; j < (int)airplane.size(); j++) {
 		int tipo = mappa_aereo_tipo[airplane[j].model + to_string(airplane[j].depot)];
-		//cout << " Sono all areoplaneo " << airplane[j].code << " tipo: " << tipo << endl;
+
 		if (t_route.at(tipo).size() == 0) {
 			map<int, int>::iterator it = solution_warm_up.find(airplane[j].code);
 			if (it != solution_warm_up.end()) {
-				//cout << " Ho torvato nella mia soluzione ho questo aereo " << airplane[j].code << endl;
-				//cout << " La route di questo aereo che va nella soluzione: " << solution_warm_up[airplane[j].code] << endl;
 				first_solution.at(tipo).push_back(solution_warm_up[airplane[j].code]);
-				//cout << " Size del nostro warm up pari a: " << first_solution.at(tipo).size() << endl;
 			}
-			//cout << " Ho size = 0 pe rtipo " << to_string(tipo) << endl;
+
 			t_route.at(tipo) = airplane_routes[airplane[j].code];
 			t_route_costi.at(tipo) = C[j];
-			// Devo mettere anche A2
+
 			A2.at(tipo) = A.at(j);
 
 		}
 		else {
 			map<int, int>::iterator it = solution_warm_up.find(airplane[j].code);
 			if (it != solution_warm_up.end()) {
-				//cout << " Ho torvato nella mia soluzione ho questo aereo " << airplane[j].code << endl;
-				//cout << " La route di questo aereo che va nella soluzione: " << solution_warm_up[airplane[j].code] << " ma queisto tipo ha gia numero di rpute pari a " << t_route.at(tipo).size() << endl;
 				first_solution.at(tipo).push_back((int)t_route.at(tipo).size() + solution_warm_up[airplane[j].code]);
-				//cout << " Size del nostro warm up pari a: " << first_solution.at(tipo).size() << endl;
 			}
-			//cout << " Ho size != 0 pe rtipo " << to_string(tipo) << " size: " << t_route.at(tipo).size() << " pool da aggiungere eha size " << airplane_routes[airplane[j].code].size() << endl;
+
 			t_route.at(tipo).insert(t_route.at(tipo).end(), airplane_routes[airplane[j].code].begin(), airplane_routes[airplane[j].code].end());
 			t_route_costi.at(tipo).insert(t_route_costi.at(tipo).end(), C[j].begin(), C[j].end());
-			//cout << "Adesso pe rtipo " << to_string(tipo) << " ho size: " << t_route.at(tipo).size() << endl;
+
 			A2.at(tipo).insert(A2.at(tipo).end(), A.at(j).begin(), A.at(j).end());
 		}
 
@@ -133,13 +126,11 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 		}
 		string cname3;
 		cname3 = "C3_";
-		//cout << " sto aggiungendo il vincolo: " << cname3 << endl;
+
 		IloRange cons(C3 <= NumberAirplane);
 		cons.setName(cname3.c_str());
 		model.add(cons);
 		C3.end();
-
-
 
 		cout << "Creating objective function ...." << endl;
 		IloExpr objective(env);
@@ -160,14 +151,11 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 		if (solution_warm_up.size() <= NumberAirplane) {
 			cout << " OK! la soluzione del ALNS puo essere usata come MipStart " << endl;
 			for (size_t j = 0; j < t_route.size(); j++) {
-				//cout << " Sto guardando tipo " << j << endl;
+				
 				if (first_solution[j].size() > 0) {
-					//cout << " Ha qualche Route nel WARM-UP" << endl;
 					for (size_t i = 0; i < t_route[j].size(); i++) {
-						//cout << " Sto gurdando la coppia i: " << i << " j: " << j << endl;
 						startVar.add(x[j][i]);
 						if (find(first_solution[j].begin(), first_solution[j].end(), i) != first_solution[j].end()) {
-							//cout << " I = " << i << " allora metti a 1 " << endl;
 							startVal.add(1);
 						}
 						else {
@@ -177,14 +165,11 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 
 				}
 				else {
-					//cout << " Nella mia soluzione NON ho questo tipo " << j << endl;
 					for (size_t i = 0; i < t_route[j].size(); i++) {
 						startVar.add(x[j][i]);
 						startVal.add(0);
 					}
-
 				}
-
 			}
 			cplex.addMIPStart(startVar, startVal);
 			startVal.end();
@@ -226,8 +211,6 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 		vector<Route> Imp_columns;
 		for (size_t j = 0; j < t_route.size(); j++) {
 			for (size_t i = 0; i < t_route[j].size(); i++) {
-				//cout << "Reduced Cost " << "  x[" << j << "," << i << "] = " << new_cplex.getReducedCost(x[j][i]) << endl;
-				//cout << "Variabile " << "  x[" << j << "," << i << "] = " << new_cplex.getValue(x[j][i]) << endl;
 				if (new_cplex.getReducedCost(x[j][i]) <= threshold) Imp_columns.push_back(t_route[j][i]);
 			}
 		}
@@ -251,8 +234,6 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 					if (val > 0.01) {
 						cout << "Variabile " << j + i << "  x[" << j << "," << i << "] = " << val << endl;
 						cout << " Con il costo:  " << t_route_costi[j][i] << endl;
-						//cout << " ----->  Stampo la route <--------- " << endl;
-						//t_route[j][i].print();
 						for (int z = 0; z < NRichieste; z++) {
 							if (A2[j][i][z] == 1) {
 								NPass++;
@@ -268,22 +249,14 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 				//for (int i = to_remove.size() - 1; i >= 0; i--) cout << to_remove[i] << endl;
 				for (int i = to_remove.size() - 1; i >= 0; i--)  airplane_available.at(j).erase(airplane_available.at(j).begin() + to_remove[i]);
 			}
-			/*cout << " Numero passeggieri soddisfatti " << NPass << endl;
-
-			for (size_t i = 0; i < airplane_available.size(); i++) {
-				cout << " Tipo " << i << endl;
-				for (int j : airplane_available[i]) cout << " Aereo: " << j << endl;
-			}
-			system("pause");
-			*/
 
 			//for (Route& r : solution_model) cout << r.aircraft_code << endl;
-			/*
+			
 			for (size_t i = 0; i < solution_model.size(); i++) {
 				for (size_t j = 0; j < solution_model.size(); j++) {
 					if (i != j && solution_model[i].aircraft_code == solution_model[j].aircraft_code) {
 						int tipo = codice_aereo_tipo[solution_model[i].aircraft_code];
-						cout << " HAi un doppione " << solution_model[i].aircraft_code << " del tipo " << tipo << endl;
+
 						solution_model[i].aircraft_code = airplane_available[tipo].back();
 						airplane_available[tipo].pop_back();
 					}
@@ -292,8 +265,6 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 			cout << " ------------------------------- DOPO LA MODIFICA ---------------------------------- " << endl;
 			for (Route& r : solution_model) cout << r.aircraft_code << " || ";
 			cout << endl;
-
-
 		}
 
 	}
@@ -305,11 +276,11 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 	}
 
 	env.end();
-	*/
+	
 }
 
 void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation - Gurobi
-	/*
+	
 	IloEnv env;
 	try {
 		IloModel model(env);
@@ -438,5 +409,4 @@ void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation 
 	}
 
 	env.end();
-	*/
 }

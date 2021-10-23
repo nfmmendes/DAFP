@@ -149,7 +149,7 @@ vector <Route> swap(ProcessedInput* input, double peso_TW, double peso_intermedi
 					double cost_route_support = cost_single_route(input, peso_TW, peso_intermediate_stop, r_support);
 					double cost_route_new = cost_single_route(input, peso_TW, peso_intermediate_stop, r_new);
 					
-					if (cost_route_support > cost_route_new && route_feasible(r_new, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
+					if (cost_route_support > cost_route_new && route_feasible(input, r_new, end_day)) {
 						int node = sequential_same_node(r_new);
 						bool fatto = false;
 						while (node != -1) {
@@ -167,7 +167,7 @@ vector <Route> swap(ProcessedInput* input, double peso_TW, double peso_intermedi
 							B = A + 1;
 						}
 						else {
-							if (cost_route_support > cost_route_new && route_feasible(r_new, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
+							if (cost_route_support > cost_route_new && route_feasible(input, r_new, end_day)) {
 								r_support = r_new;
 								A = 1;
 								B = A + 1;

@@ -3,14 +3,18 @@
 
 #include "Passenger.h"
 #include "Route.h"
+#include "ProcessedInput.h"
 
 
 
+bool route_feasible(ProcessedInput* input, Route& r, double end_day) {
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector from_to = input->get_from_to();
+	double2DVector location_fuel = input->get_location_fuel();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
-bool route_feasible(Route& r, map<int, Airplane>& map_airplane, double end_day, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
 	bool feasible = true;
-
-
+	
 	//check and day
 	if (r.time_arr[r.index - 1] > end_day) {
 		return false;

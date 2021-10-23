@@ -267,8 +267,8 @@ int main(int argc, char* argv[]) {
 			double heuristic_choice = (double)rand() / RAND_MAX;
 			int npass = 0;
 			do {
-				//auto rng1 = default_random_engine{};
-				random_shuffle(begin(passengers), end(passengers));
+				auto rng1 = default_random_engine{};
+				shuffle(begin(passengers), end(passengers), rng1);
 
 				npass = 0;
 				if (heuristic_choice < Accumulated(0, Weigth_heuristic)) {
@@ -506,7 +506,6 @@ int main(int argc, char* argv[]) {
 		double2DVector C;  //cost
 		vector<Route> routes;
 		for (auto& airplane : airplanes_model) {
-			//cout << "Airplane: " << airplane.code << endl;
 			vector<double> c;
 			vector<vector<int>> A2;
 			for (Route& r : airplane_routes[airplane.code]) {
@@ -528,7 +527,6 @@ int main(int argc, char* argv[]) {
 					}
 				}
 				A2.push_back(A1);
-				//cout << "- " << r.cost << endl;
 				c.push_back(r.cost);
 			}
 			A3.push_back(A2);
