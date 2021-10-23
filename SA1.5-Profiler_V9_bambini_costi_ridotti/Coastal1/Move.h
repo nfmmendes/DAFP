@@ -155,7 +155,12 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 	}
 }
 
-Route update_route_after_move(int A, int B, const Route& r, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+Route update_route_after_move(ProcessedInput*input, int A, int B, const Route& r) {
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	Route r_new;
 	r_new.aircraft_code = r.aircraft_code;
 	r_new.primo_pass = r.primo_pass;
@@ -279,7 +284,7 @@ vector <Route> move(ProcessedInput* input, double peso_TW, double peso_intermedi
 			for (int B = 1; B < r_support.index; B++) {
 				if (A != B && B != (A - 1) && B != (A - 2)) {    //Il caso B != (A-1) || B!= (A-2) sono casi che valutiamo gia quando sposriamo avanti
 					if (move_is_allowed(A, B, r_support)) {
-						Route r_new = update_route_after_move(A, B, r_support, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
+						Route r_new = update_route_after_move(input, A, B, r_support);
 
 						double cost_route_support = cost_single_route(input, peso_TW, peso_intermediate_stop, r_support);
 						double cost_route_new = cost_single_route(input, peso_TW, peso_intermediate_stop, r_new);
@@ -393,7 +398,7 @@ vector <Route> inter_move(ProcessedInput* input, double peso_TW, double peso_int
 				int NomeA1 = r_new.places[A + 1];
 
 
-				destroy_ls(n_route, A, passenger_removed, r_new, map_airplane, map_airstrip, from_to);
+				destroy_ls(input, n_route, A, passenger_removed, r_new);
 				if (r_new.index != -1) {
 					if (r_new.index != -1) {
 						solution_rebuilt = repair_one_inter_move(input, peso_TW, peso_intermediate_stop, end_day, routes_destroyed, passenger_removed);

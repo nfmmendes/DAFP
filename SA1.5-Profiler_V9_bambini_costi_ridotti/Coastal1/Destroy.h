@@ -29,8 +29,12 @@ bool relateness_passenger2(int trheshold, vector<vector<double>>& from_to, int i
 }
 
 
-vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution) {
 
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
 	int index = 0;
 	for (Route& r : solution) {
@@ -189,7 +193,7 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 								}
 
 								int nodi_mancanti = (int)r.places.size();
-								r.update_route_destroy(node_destroy, Min_From_Pass, Max_To_Pass, from_to, map_airplane, map_airstrip); //update of the time
+								r.update_route_destroy(input, node_destroy, Min_From_Pass, Max_To_Pass); //update of the time
 
 								int index_before = node_destroy - 1;
 								double diff = 0;
@@ -254,8 +258,13 @@ vector<Route> destroy_thanos(double destroy_coef_route, vector<Passenger>& passe
 	return solution;
 }
 
-vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution) {
 
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	int index = 0;
 	for (Route& r : solution) {
 		double f = (double)rand() / RAND_MAX;
@@ -399,7 +408,7 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 							it = r.passengers_in_route.begin();
 							r.passengers_in_route.erase(it + int_removed[i]);
 						}
-						r.update_route_destroy(node_destroy, Min_From_Pass, Max_To_Pass, from_to, map_airplane, map_airstrip); //update of the time
+						r.update_route_destroy(input, node_destroy, Min_From_Pass, Max_To_Pass); //update of the time
 
 						int index_before = node_destroy - 1;
 						double diff = 0;
@@ -456,8 +465,14 @@ vector<Route> destroy_casual(double destroy_coef_route, vector<Passenger>& passe
 	return solution;
 }
 
-vector<Route> destroy_worst(double peso_TW, double peso_intermediate_stop, double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector<Route> destroy_worst(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution) {
 
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
+	
 	int index = 0;
 	for (Route& r : solution) {
 		double f = (double)rand() / RAND_MAX;
@@ -576,7 +591,7 @@ vector<Route> destroy_worst(double peso_TW, double peso_intermediate_stop, doubl
 							it = r.passengers_in_route.begin();
 							r.passengers_in_route.erase(it + int_removed[i]);
 						}
-						r.update_route_destroy(node_destroy, Min_From_Pass, Max_To_Pass, from_to, map_airplane, map_airstrip); //update of the time
+						r.update_route_destroy(input, node_destroy, Min_From_Pass, Max_To_Pass); //update of the time
 
 
 						int index_before = node_destroy - 1;
@@ -638,7 +653,12 @@ vector<Route> destroy_worst(double peso_TW, double peso_intermediate_stop, doubl
 	return solution;
 }
 
-vector<Route> destroy_cluster_aggr2(double peso_TW, int num_passenger, vector<Passenger>& passenger_removed, vector<Route>& solution, map<int, Airplane>& map_airplane, double2DVector& from_to, vector<Passenger> all_passenegr, map<int, Passenger>& map_id_passenger, double& peso_itermediate_stop) {
+vector<Route> destroy_cluster_aggr2(ProcessedInput* input, double peso_TW, int num_passenger, vector<Passenger>& passenger_removed, vector<Route>& solution,  vector<Passenger> all_passenegr, map<int, Passenger>& map_id_passenger, double& peso_itermediate_stop) {
+
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector from_to = input->get_from_to();
+
+
 	int soglia_relateness = 300; // Prima era 100
 	vector<int> int_removed;
 	vector<Route> route_destroyed;
@@ -837,8 +857,13 @@ vector<Route> destroy_cluster_aggr2(double peso_TW, int num_passenger, vector<Pa
 
 }
 
-void destroy_ls(int index, int node_destroy, vector<Passenger>& passenger_removed, Route& r, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to) {
+void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passenger>& passenger_removed, Route& r) {
 
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	if (r.index > 1) {
 		bool check = true;
 		double fuel_consumed_check = 0.0;
@@ -886,7 +911,7 @@ void destroy_ls(int index, int node_destroy, vector<Passenger>& passenger_remove
 					r.passengers_in_route.erase(it + int_removed[i]);
 				}
 
-				r.update_route_destroy(node_destroy, Min_From_Pass, Max_To_Pass, from_to, map_airplane, map_airstrip); //update of the time
+				r.update_route_destroy(input, node_destroy, Min_From_Pass, Max_To_Pass); //update of the time
 				int index_before = node_destroy - 1;
 				double diff = 0;
 

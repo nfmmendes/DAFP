@@ -67,10 +67,10 @@ vector <Route> repair_perturbation(ProcessedInput* input, double peso_TW, double
 								int node_add_from = n;
 								int node_add_to = n1;
 
-								r_support.update_route_rebuilt_one_first_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
+								r_support.update_route_rebuilt_one_first_fase(input, caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, p, non_to, non_to_final, num_equals);
 
 								if (r_support.time_arr[r_support.index - 1] <= end_day) {
-									r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
+									r_support.update_route_rebuilt_one_second_fase(input, caso, node_add_from, node_add_to, p.arrival_location, p, non_to, non_to_final, num_equals);
 
 									if ((p.solution_to - p.solution_from <= p.stop)) {
 										if (route_feasible(input, r_support, end_day)) {
@@ -200,14 +200,14 @@ vector <Route> repair_perturbation(ProcessedInput* input, double peso_TW, double
 				if (case_first_passenger == false) {
 					//c'? solo il depot
 					routes_destroyed[best_route].primo_pass = true;
-					routes_destroyed[best_route].add_update_only_one_node_first_passanger(p, from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
+					routes_destroyed[best_route].add_update_only_one_node_first_passanger(input, p);
 				}
 			}
 			else {
 
 				if (move_c) {
 					//i have to do the move C
-					routes_destroyed[best_route].move_c(p, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
+					routes_destroyed[best_route].move_c(input, p, p.departure_location, p.arrival_location);
 				}
 				else {
 
@@ -282,12 +282,12 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, double peso_TW, doub
 								int node_add_from = n;
 								int node_add_to = n1;
 
-								r_support.update_route_rebuilt_one_first_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
+								r_support.update_route_rebuilt_one_first_fase(input, caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, p, non_to, non_to_final, num_equals);
 
 
 								if (r_support.time_arr[r_support.index - 1] <= end_day) {
 
-									r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
+									r_support.update_route_rebuilt_one_second_fase(input, caso, node_add_from, node_add_to, p.arrival_location, p, non_to, non_to_final, num_equals);
 
 									if ((p.solution_to - p.solution_from <= p.stop)) {
 										if (route_feasible(input, r_support, end_day)) {
@@ -403,13 +403,13 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, double peso_TW, doub
 				if (case_first_passenger == false) {
 					//c'? solo il depot
 					routes_destroyed[best_route].primo_pass = true;
-					routes_destroyed[best_route].add_update_only_one_node_first_passanger(p, from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
+					routes_destroyed[best_route].add_update_only_one_node_first_passanger(input, p);
 				}
 			}
 			else {
 				if (move_c) {
 					//i have to do the move C
-					routes_destroyed[best_route].move_c(p, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
+					routes_destroyed[best_route].move_c(input, p, p.departure_location, p.arrival_location);
 
 				}
 				else {
@@ -601,11 +601,11 @@ vector <Route> repair_one(ProcessedInput* input, double peso_TW, double peso_int
 								int node_add_from = n;
 								int node_add_to = n1;
 
-								r_support.update_route_rebuilt_one_first_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
+								r_support.update_route_rebuilt_one_first_fase(input, caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, p, non_to, non_to_final, num_equals);
 
 								if (r_support.time_arr[r_support.index - 1] <= end_day) {
 
-									r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
+									r_support.update_route_rebuilt_one_second_fase(input, caso, node_add_from, node_add_to, p.arrival_location, p, non_to, non_to_final, num_equals);
 
 									if ((p.solution_to - p.solution_from <= p.stop)) {
 										if (route_feasible(input, r_support, end_day)) {
@@ -721,14 +721,14 @@ vector <Route> repair_one(ProcessedInput* input, double peso_TW, double peso_int
 				if (case_first_passenger == false) {
 					//c'? solo il depot
 					routes_destroyed[best_route].primo_pass = true;
-					routes_destroyed[best_route].add_update_only_one_node_first_passanger(p, from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
+					routes_destroyed[best_route].add_update_only_one_node_first_passanger(input, p);
 				}
 			}
 			else {
 
 				if (move_c) {
 					//i have to do the move C
-					routes_destroyed[best_route].move_c(p, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
+					routes_destroyed[best_route].move_c(input, p, p.departure_location, p.arrival_location);
 
 				}
 				else {
@@ -824,12 +824,12 @@ vector<Route> two_regret_repair_aggragati(ProcessedInput* input, double peso_TW,
 										int node_add_from = n;
 										int node_add_to = n1;
 
-										r_support.update_route_rebuilt_one_first_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
+										r_support.update_route_rebuilt_one_first_fase(input, caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, p, non_to, non_to_final, num_equals);
 
 										if (r_support.time_arr[r_support.index - 1] <= end_day) {
 
 
-											r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
+											r_support.update_route_rebuilt_one_second_fase(input, caso, node_add_from, node_add_to, p.arrival_location, p, non_to, non_to_final, num_equals);
 											if ((p.solution_to - p.solution_from <= p.stop)) {
 												if (route_feasible(input, r_support, end_day)) {
 
@@ -1003,17 +1003,17 @@ vector<Route> two_regret_repair_aggragati(ProcessedInput* input, double peso_TW,
 			//c'? solo il depot
 			//cout << "devo mettere il passeggero dentro" << endl;
 			routes_destroyed[regret_best_route[index]].primo_pass = true;
-			routes_destroyed[regret_best_route[index]].add_update_only_one_node_first_passanger(passengers_removed[regret_index_pass[index]], from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
+			routes_destroyed[regret_best_route[index]].add_update_only_one_node_first_passanger(input, passengers_removed[regret_index_pass[index]]);
 
 		}
 		else {
 
 			if (regret_move_c[index] == 1) {
 				//i have to do the move C
-				routes_destroyed[regret_best_route[index]].move_c(passengers_removed[regret_index_pass[index]], passengers_removed[regret_index_pass[index]].departure_location, passengers_removed[regret_index_pass[index]].arrival_location, from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
+				routes_destroyed[regret_best_route[index]].move_c(input, passengers_removed[regret_index_pass[index]], passengers_removed[regret_index_pass[index]].departure_location, passengers_removed[regret_index_pass[index]].arrival_location);
 			}
 			else {
-				routes_destroyed[regret_best_route[index]].update_route_rebuilt_one(regret_arc_from[index], regret_arc_to[index], passengers_removed[regret_index_pass[index]].departure_location, passengers_removed[regret_index_pass[index]].arrival_location, from_to, map_airplane, map_airstrip, passengers_removed[regret_index_pass[index]], from_to_FuelConsumed);
+				routes_destroyed[regret_best_route[index]].update_route_rebuilt_one(input, regret_arc_from[index], regret_arc_to[index], passengers_removed[regret_index_pass[index]].departure_location,  passengers_removed[regret_index_pass[index]].arrival_location, passengers_removed[regret_index_pass[index]]);
 			}
 		}
 
@@ -1088,11 +1088,11 @@ vector <Route> repair_forbidden(ProcessedInput* input, double peso_TW, double pe
 									int node_add_from = n;
 									int node_add_to = n1;
 
-									r_support.update_route_rebuilt_one_first_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
+									r_support.update_route_rebuilt_one_first_fase(input, caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, p, non_to, non_to_final, num_equals);
 
 									if (r_support.time_arr[r_support.index - 1] <= end_day) {
 
-										r_support.update_route_rebuilt_one_second_fase(caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, p, from_to_FuelConsumed, non_to, non_to_final, num_equals);
+										r_support.update_route_rebuilt_one_second_fase(input, caso, node_add_from, node_add_to, p.arrival_location, p, non_to, non_to_final, num_equals);
 
 										if ((p.solution_to - p.solution_from <= p.stop)) {
 											if (route_feasible(input, r_support, end_day)) {
@@ -1205,14 +1205,14 @@ vector <Route> repair_forbidden(ProcessedInput* input, double peso_TW, double pe
 				if (case_first_passenger == false) {
 					//c'? solo il depot
 					routes_destroyed[best_route].primo_pass = true;
-					routes_destroyed[best_route].add_update_only_one_node_first_passanger(p, from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
+					routes_destroyed[best_route].add_update_only_one_node_first_passanger(input, p);
 				}
 			}
 			else {
 
 				if (move_c) {
 					//i have to do the move C
-					routes_destroyed[best_route].move_c(p, p.departure_location, p.arrival_location, from_to, map_airplane, map_airstrip, from_to_FuelConsumed);
+					routes_destroyed[best_route].move_c(input, p, p.departure_location, p.arrival_location);
 					//cout << "dopo la mossa C" << endl;
 				}
 				else {

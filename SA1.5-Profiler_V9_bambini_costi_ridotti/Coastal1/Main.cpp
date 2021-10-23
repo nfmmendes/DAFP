@@ -321,22 +321,22 @@ int main(int argc, char* argv[]) {
 			if (destroy_choice < Accumulated(0, Weigth_destroy)) {
 				//cout << "*************** I am using the Cluster Destroy ************" << endl;
 				int num_passenger_cluster = (int)((passengers.size() * 0.14) + (random * ((passengers.size() * 0.24) - (passengers.size() * 0.14)))); //era 0.24 prima
-				route_destroy = destroy_cluster_aggr2(peso_TW, num_passenger_cluster, passenger_removed, Input_destroy, map_airplane, from_to, passengers, map_id_passenger, peso_itermediate_stop);
+				route_destroy = destroy_cluster_aggr2(&input, peso_TW, num_passenger_cluster, passenger_removed, Input_destroy, passengers, map_id_passenger, peso_itermediate_stop);
 				choosen_destroy = 0;
 			}
 			else if (destroy_choice < Accumulated(1, Weigth_destroy)) {
 				//cout << "*************** I am using the Worst Destroy ************" << endl;
-				route_destroy = destroy_worst(peso_TW, peso_itermediate_stop, percentage_route_destroy, passenger_removed, Input_destroy, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
+				route_destroy = destroy_worst(&input, peso_TW, peso_itermediate_stop, percentage_route_destroy, passenger_removed, Input_destroy);
 				choosen_destroy = 1;
 			}
 			else if (destroy_choice < Accumulated(2, Weigth_destroy)) {
 				//cout << "*************** I am using the Casual Destroy ************" << endl;
-				route_destroy = destroy_casual(percentage_route_destroy, passenger_removed, Input_destroy, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
+				route_destroy = destroy_casual(&input, percentage_route_destroy, passenger_removed, Input_destroy);
 				choosen_destroy = 2;
 			}
 			else {
 				//cout << "*************** I am using the Thanos Destroy ************" << endl;
-				route_destroy = destroy_thanos(percentage_route_destroy, passenger_removed, Input_destroy, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
+				route_destroy = destroy_thanos(&input, percentage_route_destroy, passenger_removed, Input_destroy);
 				choosen_destroy = 3;
 			}
 			auto stop = chrono::high_resolution_clock::now();
