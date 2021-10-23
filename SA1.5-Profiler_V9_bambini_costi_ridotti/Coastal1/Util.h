@@ -10,6 +10,10 @@ using std::vector;
 using std::string; 
 
 
+using double3DVector = vector<vector<vector<double>>>;
+using double2DVector = vector<vector<double>>;
+using int3DVector = vector<vector<vector<int>>>;
+
 template<typename type>
 struct MyCOMP {
 	bool operator() (const type& first, const type& second) const {

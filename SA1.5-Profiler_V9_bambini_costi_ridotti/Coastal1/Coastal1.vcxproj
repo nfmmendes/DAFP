@@ -163,6 +163,7 @@
     <ClInclude Include="Route.h" />
     <ClInclude Include="Swap.h" />
     <ClInclude Include="Tests.h" />
+    <ClInclude Include="Union.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
