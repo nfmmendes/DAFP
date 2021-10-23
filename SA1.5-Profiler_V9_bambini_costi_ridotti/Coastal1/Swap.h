@@ -71,10 +71,7 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 			r_new.time_arr[i] = r_new.time_dep[i - 1] + (((from_to[r_new.places[i - 1]][r_new.places[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
 			r_new.time_dep[i] = r_new.time_arr[i] + map_airstrip[r_new.places[i]].ground_time;
 
-			//double time_fly = (((from_to[r_new.places[i - 1] + ";" + r_new.places[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
 			double fuel_consumed = from_to_FuelConsumed[r_new.aircraft_code][r_new.places[i - 1]][r_new.places[i]];
-
-			//cout << "fuel consumed: " << fuel_consumed << endl;
 
 			if (r_new.refueling[i]) {
 				r_new.quantity_fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
@@ -107,14 +104,11 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 
 	//aggiorno fuel se il peso ? negatico
 	for (int i = 0; i < r_new.index; i++) {
-		//cout << " Sono all inizio del For valutabdo il nodo " << i << endl;
 		if (r_new.weight[i] < 0) {
-			//	cout << " Trovato nodo con peso negativo in --> " << i << endl;
 			int index_refueling = i;
 			for (int t = i; t >= 0; t--) {
 				if (r_new.refueling[t]) {
 					index_refueling = t;
-					//	cout << " Index dove si fa refuel prima o coincidente a valore di peso negativo " << index_refueling<<  endl;
 					break;
 				}
 			}
@@ -129,37 +123,26 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 					r_new.weight[j] -= Update_value;
 				}
 			}
-
-			//r_new.weight[i] = 0;
-
 		}
 	}
-
-
 
 	return r_new;
 }
 
-vector <Route> swap(double peso_TW, double peso_intermediate_stop, vector<Route>& routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double end_day, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector <Route> swap(double peso_TW, double peso_intermediate_stop, vector<Route>& routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double end_day, double2DVector& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
 	vector<Route> routes_after_swap;
 
 	for (const Route& r : routes) {
-		//cout << " sto provando a fare lo swap in questa route: " << endl;
-		//r.print();
 		Route r_support = r;
 		for (int A = 1; A < r_support.index - 1; A++) {
 			for (int B = A + 1; B < r_support.index; B++) {
 
 				if (swap_is_allowed(A, B, r_support)) {
-					//cout << "******************************************************Sto provando a fare lo swap fra " << A << " e " << B << endl;
 					Route r_new = update_route_after_swap(A, B, r_support, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
-					//cout << "ho finito l'update" << endl;
-					//r_new.print();
 					double cost_route_support = cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
 					double cost_route_new = cost_single_route(peso_TW, peso_intermediate_stop, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-					//cout << cost_route_support << " c_supp > c_new " << cost_route_new << " &&  route feasible: " << route_feasible(r_new, map_airplane, end_day, from_to) << endl;
+					
 					if (cost_route_support > cost_route_new && route_feasible(r_new, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
-						//cout << " OK ! dopo move Migliora ------- Ma prima devo controllare che non sia con nodi doppi " << endl;
 						int node = sequential_same_node(r_new);
 						bool fatto = false;
 						while (node != -1) {

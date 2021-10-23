@@ -226,7 +226,7 @@ void modify_fuel_when_non_max(map<int, Airplane>& map_airplane, Route &r_support
 {
 	for (int k = 0; k < r_support.index; k++) {
 		if (r_support.refueling[k] && r_support.quantity_fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
-			//cout << " Sto valutando il caso del nodo " << k << endl;
+
 			int Node_min = k;
 			double min_weight = r_support.weight[k];
 			int index_updating_from = k;
@@ -367,12 +367,10 @@ vector <Route> inter_move(double peso_TW, double peso_intermediate_stop, vector<
 		vector<Route> routes_destroyed;
 
 		for (const Route& s : routes) {
-			//cout << "if: " << to_string(s.aircraft_code) << "  ----  " << to_string(routes[r].aircraft_code) << endl;
 			if (s.aircraft_code != routes[r].aircraft_code) routes_destroyed.push_back(s);
 		}
 		Route r_support = routes[r];
 		for (int A = 1; A < (r_support.index - 1); A++) {
-			//cout << " Sto guardando Nodo A: " << A << " di " << r_support.aircraft_code << " size: " << r_support.index <<  endl;
 			// Solution Rebuilt ? come se fosse il nostro best improvement
 			vector<Route> solution_rebuilt;
 			vector<Passenger> passenger_removed;
