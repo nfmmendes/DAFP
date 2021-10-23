@@ -458,7 +458,7 @@ vector<Route> repairSP(ProcessedInput* input, double peso_TW, double peso_interm
 		vector<Route> solution;
 		vector<Route> Route_to_fix = route_destroy;
 		
-		heuristic_costructive_first_fase_secIter(peso_TW, peso_intermediate_stop, Route_to_fix, airplanes, map_airplane, map_airstrip, end_day, passenger_removed, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
+		heuristic_costructive_first_fase_secIter(input, peso_TW, peso_intermediate_stop, Route_to_fix, airplanes, end_day, passenger_removed, number_of_aircraft);
 		double cost_fix_single = calculate_ObjectiveFunction(input, peso_TW, peso_intermediate_stop, Route_to_fix);
 
 		//cout << "***********************SOLUTION SECOND FASE***********************" << endl;

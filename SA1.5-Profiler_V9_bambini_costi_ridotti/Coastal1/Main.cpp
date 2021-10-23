@@ -273,12 +273,12 @@ int main(int argc, char* argv[]) {
 				npass = 0;
 				if (heuristic_choice < Accumulated(0, Weigth_heuristic)) {
 					//cout << "*************** I am using the Parallel Heuristic ************" << endl;
-					start_solution_route = heuristic_costructive_first_fase(peso_TW, peso_itermediate_stop, airplanes, map_airplane, map_airstrip, end_day, passengers, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
+					start_solution_route = heuristic_costructive_first_fase(&input, peso_TW, peso_itermediate_stop, airplanes, end_day, passengers, number_of_aircraft);
 					choosen_heuristic = 0;
 				}
 				else {
 					//cout << "*************** I am using the Sequential Heuristic ************" << endl;
-					start_solution_route = heuristic_costructive_first_fase_sequential(peso_TW, peso_itermediate_stop, airplanes, map_airplane, map_airstrip, end_day, passengers, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
+					start_solution_route = heuristic_costructive_first_fase_sequential(&input, peso_TW, peso_itermediate_stop, airplanes, end_day, passengers, number_of_aircraft);
 					choosen_heuristic = 1;
 				}
 				for (Route& r : start_solution_route) 

@@ -18,7 +18,6 @@ int sequential_same_node(const Route& r) {
 	return node;
 }
 
-
 int move_from(int node, const Route& r) {
 
 	int swap_from = 0;
