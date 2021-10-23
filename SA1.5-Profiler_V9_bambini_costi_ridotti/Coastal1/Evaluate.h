@@ -5,6 +5,7 @@
 #include "Passenger.h"
 #include "Route.h"
 #include "Util.h"
+#include "ProcessedInput.h"
 
 double calculationCostCompany(double peso_TW, double peso_trashipment, double peso_intermediate_stop, string route_azienza, string passengers_azienda, vector<Airstrip> airstrips, vector<Airplane> airplanes, vector<Passenger> passengers, map<string, double>& from_to_company) {
 	vector<Route> routes_company_solution = fillRoute(route_azienza);
@@ -374,9 +375,14 @@ double calculationCostCompany(double peso_TW, double peso_trashipment, double pe
 
 }
 
-void calculate_ObjectiveFunction_final(double costo_company, double peso_TW, double peso_intermediate_stop, vector<Route>& solution, map<int, Airstrip>& map_airstrip, map<int, Airplane>& map_airplane, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
-	double cost = 0.0;
+void calculate_ObjectiveFunction_final(ProcessedInput*input, double costo_company, double peso_TW, double peso_intermediate_stop, vector<Route>& solution) {
 
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
+	double cost = 0.0;
 	double costo_fisso = 0.0;
 	double costo_km = 0.0;
 	double costo_fuel = 0.0;
@@ -460,7 +466,12 @@ void calculate_ObjectiveFunction_final(double costo_company, double peso_TW, dou
 
 }
 
-void calculate_ObjectiveFunction_final_arc_iori(double costo_company, double peso_TW, double peso_intermediate_stop, vector<Route>& solution, map<int, Airstrip>& map_airstrip, map<int, Airplane>& map_airplane, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double costo_company, double peso_TW, double peso_intermediate_stop, vector<Route>& solution) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	double cost = 0.0;
 
 	double costo_fisso = 0.0;
@@ -560,8 +571,12 @@ void calculate_ObjectiveFunction_final_arc_iori(double costo_company, double pes
 
 }
 
-double cost_single_route(double peso_TW, double peso_intermediate_stop, Route& r, map<int, Airstrip>& map_airstrip, map<int, Airplane>& map_airplane, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
-
+double cost_single_route(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, Route& r) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	//double cost = 0.0;
 	double cost = map_airplane[r.aircraft_code].fixed_cost;
 
@@ -584,12 +599,9 @@ double cost_single_route(double peso_TW, double peso_intermediate_stop, Route& r
 				fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
 			}
 		}
-
 	}
 
-
 	cost += mileage;
-
 	cost += fuel_consumed;
 
 	for (const auto& p : r.passengers_in_route) {
@@ -610,7 +622,12 @@ double cost_single_route(double peso_TW, double peso_intermediate_stop, Route& r
 	return cost;
 }
 
-double calculate_ObjectiveFunction(double peso_TW, double peso_intermediate_stop, vector<Route>& solution, map<int, Airstrip>& map_airstrip, map<int, Airplane>& map_airplane, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+double calculate_ObjectiveFunction(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Route>& solution) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	double cost = 0.0;
 
 	for (auto& r : solution) {
@@ -743,7 +760,12 @@ double cost_time_windows_for_route_passenger(Route& r, Passenger& p, double peso
 }
 
 
-double costo_senza_time_windows(vector<Route>& solution, map<int, Airstrip>& map_airstrip, map<int, Airplane>& map_airplane, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+double costo_senza_time_windows(ProcessedInput* input, vector<Route>& solution) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	double cost = 0.0;
 
 	for (auto& r : solution) {
@@ -783,8 +805,6 @@ double costo_senza_time_windows(vector<Route>& solution, map<int, Airstrip>& map
 	}
 
 	return cost;
-
-
 };
 
 double costo_time_windows_and_intermediate_stop(double peso_TW, double peso_intermediate_stop, vector<Route>& solution) {

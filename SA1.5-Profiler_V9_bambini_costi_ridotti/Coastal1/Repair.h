@@ -10,8 +10,14 @@
 #include "Route.h"
 
 
-vector <Route> repair_perturbation(double peso_TW, double peso_intermediate_stop, double end_day, vector<Route>& routes_destroyed, map <int, Airplane>& map_airplane, vector <Passenger>& passengers_removed, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector <Route> repair_perturbation(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, double end_day, vector<Route>& routes_destroyed, vector <Passenger>& passengers_removed) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
+	
 	bool case_first_passenger = false; //if false there are no passengers and only one node in the rotue, otherwise more nodes and no passengers
 	bool move_c = false;
 	bool routes_infeasible = false;
@@ -47,7 +53,7 @@ vector <Route> repair_perturbation(double peso_TW, double peso_intermediate_stop
 			}
 			else {
 
-				double cost_route_before = cost_single_route(peso_TW, peso_intermediate_stop, routes_destroyed[r], map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+				double cost_route_before = cost_single_route(input, peso_TW, peso_intermediate_stop, routes_destroyed[r]);
 				for (int n = 0; n < routes_destroyed[r].index - 1; n++) {
 					if (p.departure_location != routes_destroyed[r].places[n] || n == 0) {
 						for (int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
@@ -68,7 +74,7 @@ vector <Route> repair_perturbation(double peso_TW, double peso_intermediate_stop
 
 									if ((p.solution_to - p.solution_from <= p.stop)) {
 										if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
-											double cost = (cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
+											double cost = (cost_single_route(input, peso_TW, peso_intermediate_stop, r_support) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
 
 											//code for casual number [0.8;1.2]*****************************************************
 											double f = (double)rand() / RAND_MAX;
@@ -118,7 +124,6 @@ vector <Route> repair_perturbation(double peso_TW, double peso_intermediate_stop
 					f = 0.8 + (f * 0.4);
 					cost = cost * f;
 					//**************************************************************************************
-
 
 					if (best_cost > cost) {
 						if (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time <= end_day) {
@@ -226,8 +231,14 @@ vector <Route> repair_perturbation(double peso_TW, double peso_intermediate_stop
 	}
 }
 
-vector <Route> repair_one_inter_move(double peso_TW, double peso_intermediate_stop, double end_day, vector<Route> routes_destroyed, map <int, Airplane>& map_airplane, vector <Passenger> passengers_removed, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector <Route> repair_one_inter_move(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, double end_day, vector<Route> routes_destroyed, vector<Passenger> passengers_removed) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
+	
 	bool case_first_passenger = false; //if false there are no passengers and only one node in the rotue, otherwise more nodes and no passengers
 	bool move_c = false;
 	bool routes_infeasible = false;
@@ -257,7 +268,7 @@ vector <Route> repair_one_inter_move(double peso_TW, double peso_intermediate_st
 				}
 			}
 			else {
-				double cost_route_before = cost_single_route(peso_TW, peso_intermediate_stop, routes_destroyed[r], map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+				double cost_route_before = cost_single_route(input, peso_TW, peso_intermediate_stop, routes_destroyed[r]);
 				for (int n = 0; n < routes_destroyed[r].index - 1; n++) {
 					if (p.departure_location != routes_destroyed[r].places[n] || n == 0) {
 						for (int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
@@ -280,7 +291,7 @@ vector <Route> repair_one_inter_move(double peso_TW, double peso_intermediate_st
 
 									if ((p.solution_to - p.solution_from <= p.stop)) {
 										if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
-											double cost = (cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
+											double cost = (cost_single_route(input,peso_TW, peso_intermediate_stop, r_support) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
 											if (best_cost > cost) {
 												
 												best_route = r;
@@ -421,7 +432,13 @@ vector <Route> repair_one_inter_move(double peso_TW, double peso_intermediate_st
 	}
 }
 
-vector<Route> repairSP(double peso_TW, double peso_intermediate_stop, vector<Route>& route_destroy, vector<Passenger>& passenger_removed, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<Airplane>& airplanes, double end_day, vector<Passenger>& passengers, int number_of_aircraft, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector<Route> repairSP(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Route>& route_destroy, vector<Passenger>& passenger_removed, vector<Airplane>& airplanes, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	vector<vector<Route>> solutionAllSub;
 	int NAirplane = 20;
 
@@ -442,11 +459,11 @@ vector<Route> repairSP(double peso_TW, double peso_intermediate_stop, vector<Rou
 		vector<Route> Route_to_fix = route_destroy;
 		
 		heuristic_costructive_first_fase_secIter(peso_TW, peso_intermediate_stop, Route_to_fix, airplanes, map_airplane, map_airstrip, end_day, passenger_removed, number_of_aircraft, from_to, location_fuel, from_to_FuelConsumed);
-		double cost_fix_single = calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, Route_to_fix, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+		double cost_fix_single = calculate_ObjectiveFunction(input, peso_TW, peso_intermediate_stop, Route_to_fix);
 
 		//cout << "***********************SOLUTION SECOND FASE***********************" << endl;
 		solution = heuristic_costructive_second_fase_SP(Route_to_fix, end_day, peso_TW);
-		cost_fix_single = calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, solution, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+		cost_fix_single = calculate_ObjectiveFunction(input, peso_TW, peso_intermediate_stop, solution);
 		if (cost_fix_single < Best_cost) {
 			Best_cost = cost_fix_single;
 			Best_iteration = iteration_subset;
@@ -531,8 +548,13 @@ vector<Route> repairSP(double peso_TW, double peso_intermediate_stop, vector<Rou
 	delete model;
 }
 
-vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double end_day, vector<Route>& routes_destroyed, map <int, Airplane>& map_airplane, vector <Passenger>& passengers_removed, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
-
+vector <Route> repair_one(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, double end_day, vector<Route>& routes_destroyed, vector <Passenger>& passengers_removed) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	bool case_first_passenger = false; //if false there are no passengers and only one node in the rotue, otherwise more nodes and no passengers
 	bool move_c = false;
 	bool routes_infeasible = false;
@@ -564,7 +586,7 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 			}
 			else {
 
-				double cost_route_before = cost_single_route(peso_TW, peso_intermediate_stop, routes_destroyed[r], map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+				double cost_route_before = cost_single_route(input, peso_TW, peso_intermediate_stop, routes_destroyed[r]);
 				for (int n = 0; n < routes_destroyed[r].index - 1; n++) {
 					if (p.departure_location != routes_destroyed[r].places[n] || n == 0) {
 						for (int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
@@ -587,7 +609,7 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 
 									if ((p.solution_to - p.solution_from <= p.stop)) {
 										if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
-											double cost = (cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
+											double cost = (cost_single_route(input, peso_TW, peso_intermediate_stop, r_support) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
 											if (best_cost > cost) {
 												best_route = r;
 												best_cost = cost;
@@ -730,7 +752,12 @@ vector <Route> repair_one(double peso_TW, double peso_intermediate_stop, double 
 	}
 }
 
-vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermediate_stop, double end_day, vector<Route>& routes_destroyed, map <int, Airplane>& map_airplane, vector <Passenger>& passengers_removed, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector<Route> two_regret_repair_aggragati(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, double end_day, vector<Route>& routes_destroyed, vector <Passenger>& passengers_removed) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
 	//bool routes_infeasible = false;
 	vector<double> regret_diff;
@@ -763,7 +790,6 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 				regret_arc_to.push_back(regret_arc_to[map_pass_aggragati[chiave]]);
 				regret_index_pass.push_back(regret_index_pass[map_pass_aggragati[chiave]]);
 
-
 			}
 			else {
 				//Route r_support; //attento qua, ? quello di prova
@@ -783,9 +809,8 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 						}
 					}
 					else {
-						//int arc_from1 = -1;
-						//int arc_to1 = -1;
-						double cost_route_before = cost_single_route(peso_TW, peso_intermediate_stop, routes_destroyed[r], map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+						
+						double cost_route_before = cost_single_route(input, peso_TW, peso_intermediate_stop, routes_destroyed[r]);
 						for (int n = 0; n < routes_destroyed[r].index - 1; n++) {
 							if (p.departure_location != routes_destroyed[r].places[n] || n == 0) {
 								for (int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
@@ -808,7 +833,9 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 											if ((p.solution_to - p.solution_from <= p.stop)) {
 												if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
 
-													double cost = (cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
+													double cost = (cost_single_route(input, peso_TW, peso_intermediate_stop, r_support) + 
+																  cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + 
+																	(peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
 
 													if (costs.size() == 0) {
 														costs.push_back(cost);
@@ -1009,8 +1036,13 @@ vector<Route> two_regret_repair_aggragati(double peso_TW, double peso_intermedia
 	return routes_destroyed;
 }
 
-vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, double end_day, vector<Route>& routes_destroyed, map <int, Airplane>& map_airplane, vector <Passenger>& passengers_removed, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
-
+vector <Route> repair_forbidden(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, double end_day, vector<Route>& routes_destroyed, vector <Passenger>& passengers_removed) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	
 	bool case_first_passenger = false; //if false there are no passengers and only one node in the rotue, otherwise more nodes and no passengers
 	bool move_c = false;
 	bool routes_infeasible = false;
@@ -1043,7 +1075,7 @@ vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, d
 				else {
 					//int arc_from = -1;
 					//int arc_to = -1;
-					double cost_route_before = cost_single_route(peso_TW, peso_intermediate_stop, routes_destroyed[r], map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+					double cost_route_before = cost_single_route(input, peso_TW, peso_intermediate_stop, routes_destroyed[r]);
 					for (int n = 0; n < routes_destroyed[r].index - 1; n++) {
 						if (p.departure_location != routes_destroyed[r].places[n] || n == 0) {
 							for (int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
@@ -1064,7 +1096,9 @@ vector <Route> repair_forbidden(double peso_TW, double peso_intermediate_stop, d
 
 										if ((p.solution_to - p.solution_from <= p.stop)) {
 											if (route_feasible(r_support, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
-												double cost = (cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) + cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
+												double cost = (cost_single_route(input, peso_TW, peso_intermediate_stop, r_support) + 
+															   cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + 
+													           (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
 												if (best_cost > cost) {
 													best_route = r;
 													best_cost = cost;

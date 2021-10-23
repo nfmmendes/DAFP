@@ -22,8 +22,8 @@
 #include "Fill.h"
 #include "Model_Cplex.h"
 #include "Move.h"
+#include "ProcessedInput.h"
 #include "Repair.h"
-#include "Util.h"
 #include "Swap.h"
 #include "Union.h"
 
@@ -168,11 +168,13 @@ int main(int argc, char* argv[]) {
 
 	double3DVector from_to_FuelConsumed;
 	fill_from_to_fuel_consumed(from_to_FuelConsumed, from_to, airplanes);
+
+	ProcessedInput input(map_airplane, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
 	
 	vector <Passenger> passengers_per_casostrano = passengers;
 	vector<Passenger> passengers_solution = passengers;
 	double Company_Solution = calculationCostCompany(peso_TW, peso_transhipment, peso_itermediate_stop, argv[2], argv[3], airstrips, airplanes, passengers_for_company_solution, from_to_company);
-	//double Company_Solution = calculationCostCompany(peso_TW, peso_transhipment, peso_itermediate_stop, "17_11_18_AEREI.txt", "Passenger_17_11_18.txt", airstrips, airplanes, passengers_for_company_solution, from_to_company);
+	
 	cout << " Costo della soluzione della compagnia = " << Company_Solution << endl;
 	cout << " Costo della soluzione della compagnia = " << Company_Solution << endl;
 	cout << "now passengers has this number of passengers: " << passengers.size() << endl;
@@ -288,7 +290,7 @@ int main(int argc, char* argv[]) {
 			} while ((int)passengers.size() > npass);
 		}
 
-		start_solution = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+		start_solution = calculate_ObjectiveFunction(&input, peso_TW, peso_itermediate_stop, start_solution_route);
 		solutionAll.push_back(start_solution_route);
 		
 		//*************************************************************per scrittura su .txt per grafico**************************************************************************************************************************************************
@@ -347,24 +349,24 @@ int main(int argc, char* argv[]) {
 			auto start_r = chrono::high_resolution_clock::now();
 
 			if (repair_choice < Accumulated(0, Weigth_repair)) {
-				solution_rebuilt = repair_one(peso_TW, peso_itermediate_stop, end_day, route_destroy, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = repair_one(&input, peso_TW, peso_itermediate_stop, end_day, route_destroy, passenger_removed);
 				choosen_repair = 0;
 			}
 			else if (repair_choice < Accumulated(1, Weigth_repair)) {
-				solution_rebuilt = repairSP(peso_TW, peso_itermediate_stop, route_destroy, passenger_removed, map_airplane, map_airstrip, from_to, airplanes, end_day, passengers, number_of_aircraft, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = repairSP(&input, peso_TW, peso_itermediate_stop, route_destroy, passenger_removed, airplanes, end_day, passengers, number_of_aircraft);
 				choosen_repair = 1;
 			}
 			else if (repair_choice < Accumulated(2, Weigth_repair)) {
-				solution_rebuilt = two_regret_repair_aggragati(peso_TW, peso_itermediate_stop, end_day, route_destroy, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = two_regret_repair_aggragati(&input, peso_TW, peso_itermediate_stop, end_day, route_destroy, passenger_removed);
 				choosen_repair = 2;
 			}
 			else if (repair_choice < Accumulated(3, Weigth_repair)) {
-				solution_rebuilt = repair_forbidden(peso_TW, peso_itermediate_stop, end_day, route_destroy, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = repair_forbidden(&input, peso_TW, peso_itermediate_stop, end_day, route_destroy, passenger_removed);
 				choosen_repair = 3;
 			}
 			else {
 				//cout << "*************** I am using the Repair Perturbation ************" << endl;
-				solution_rebuilt = repair_perturbation(peso_TW, peso_itermediate_stop, end_day, route_destroy, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+				solution_rebuilt = repair_perturbation(&input, peso_TW, peso_itermediate_stop, end_day, route_destroy, passenger_removed);
 				choosen_repair = 4;
 			}
 			auto stop_r = chrono::high_resolution_clock::now();
@@ -372,16 +374,16 @@ int main(int argc, char* argv[]) {
 			double time_spent_r = Time_Spend((double)duration_r.count());		
 
 			if (solution_rebuilt.size() > 0) {
-				double initial_cost = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-				solution_rebuilt = move(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airplane, map_airstrip, end_day, from_to, location_fuel, from_to_FuelConsumed);
-				solution_rebuilt = swap(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airplane, map_airstrip, end_day, from_to, location_fuel, from_to_FuelConsumed);
+				double initial_cost = calculate_ObjectiveFunction(&input, peso_TW, peso_itermediate_stop, solution_rebuilt);
+				solution_rebuilt = move(&input, peso_TW, peso_itermediate_stop, solution_rebuilt, end_day);
+				solution_rebuilt = swap(&input, peso_TW, peso_itermediate_stop, solution_rebuilt, end_day);
 				
-				if (initial_cost == calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed)) {
-					solution_rebuilt = inter_move(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airplane, map_airstrip, end_day, from_to, location_fuel, from_to_FuelConsumed);
+				if (initial_cost == calculate_ObjectiveFunction(&input, peso_TW, peso_itermediate_stop, solution_rebuilt)) {
+					solution_rebuilt = inter_move(&input, peso_TW, peso_itermediate_stop, solution_rebuilt, end_day);
 				}
 
 				solution_rebuilt = heuristic_costructive_second_fase(solution_rebuilt, end_day, peso_TW);
-				double cost_objectiveFunction_second_fase_after_rebuilt = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+				double cost_objectiveFunction_second_fase_after_rebuilt = calculate_ObjectiveFunction(&input, peso_TW, peso_itermediate_stop, solution_rebuilt);
 				//*************************************************************per scrittura su .txt per grafico**************************************************************************************************************************************************
 				if (NumeroSA%1000 == 0 && NumeroSA >= 1000 && NumeroSA <= 60000){
 					//ofstream outfile1;
@@ -492,7 +494,7 @@ int main(int argc, char* argv[]) {
 				Prova.push_back(a.second[solution_warm_up[a.first]]);
 			}
 		}
-		cout << " il costo della soluzione che mi sono salvato nella mappa: " << calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, Prova, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
+
 		int n = 0;
 		for (Route& path : Prova) {
 			//path.print();
@@ -552,7 +554,7 @@ int main(int argc, char* argv[]) {
 		else {
 			for (Route& s : best_solution_route) start_solution_route.push_back(s);
 		}
-		start_solution = calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+		start_solution = calculate_ObjectiveFunction(&input, peso_TW, peso_itermediate_stop, start_solution_route);
 		cout << " Costo del Modello che sara nuovo costo di partenza = " << start_solution << endl;
 
 		cout << " Best: " << best_solution << " start: " << start_solution << endl;
@@ -580,27 +582,27 @@ int main(int argc, char* argv[]) {
 	} while ((Iter_FirstDo <= iterMAX_FirstDo));
 
 	cout << "Best solution herurisic: " << start_solution << endl;
-	cout << "costo routing: " << costo_senza_time_windows(start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
+	cout << "costo routing: " << costo_senza_time_windows(&input, start_solution_route) << endl;
 	cout << "costo time windows: " << costo_time_windows_and_intermediate_stop(peso_TW, peso_itermediate_stop, start_solution_route) << endl;
 	cout << " Alla iterazione numero: " << best_iteration << endl;
 	for (Route s : start_solution_route) cout << s.cost << " -- " << endl;
 	//*********************************************************************************AGGREGAZIONE SEMPLICE***************************************************************
 	cout << "ora faccio l'aggregazione semplice" << endl;
 	start_solution_route = aggrezione_simple_after_model(start_solution_route, map_airplane, from_to);
-	cout << calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
-	cout << " Routing cost : " << costo_senza_time_windows(start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
+	cout << calculate_ObjectiveFunction(&input, peso_TW, peso_itermediate_stop, start_solution_route) << endl;
+	cout << " Routing cost : " << costo_senza_time_windows(&input, start_solution_route) << endl;
 	cout << " Time windows cost: " << costo_time_windows_and_intermediate_stop(peso_TW, peso_itermediate_stop, start_solution_route) << endl;
 	//*********************************************************************************AGGREGAZIONE COMPLESSA***************************************************************
 	cout << "ora faccio l'aggregazione complessa" << endl;
 	start_solution_route = aggrezione_complex_after_model(start_solution_route, map_airplane, from_to, from_to_FuelConsumed);
-	cout << calculate_ObjectiveFunction(peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
+	cout << calculate_ObjectiveFunction(&input, peso_TW, peso_itermediate_stop, start_solution_route) << endl;
 	cout << "************************************************************************************************************************************" << endl;
 	cout << "LE SOLUZIONI" << endl;
 
 	cout << "costo fisso; costo landing; costo fuel; costo km; costo intermediate; costo tw; Total; Numero Aerei; Fuel; KM; IS; min TW;";
 	cout << "costo fisso; costo landing; costo fuel; costo km; costo intermediate; costo tw; minuti TW; N_intermediate; gap_perc; time_ALNS; time_model; time_incumbent; numeroSA" << endl;
-	Company_Solution = calculationCostCompany(peso_TW, peso_transhipment, peso_itermediate_stop, argv[2], argv[3], airstrips, airplanes, passengers_for_company_solution, from_to_company);
-	calculate_ObjectiveFunction_final(Company_Solution, peso_TW, peso_itermediate_stop, start_solution_route, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+	Company_Solution = calculationCostCompany( peso_TW, peso_transhipment, peso_itermediate_stop, argv[2], argv[3], airstrips, airplanes, passengers_for_company_solution, from_to_company);
+	calculate_ObjectiveFunction_final(&input, Company_Solution, peso_TW, peso_itermediate_stop, start_solution_route);
 	
 	tempo_finale = difftime(time(NULL), time_now);
 	int tempo_Alns, h, m, s;
@@ -626,6 +628,10 @@ int main(int argc, char* argv[]) {
 	cout << "Iterazioni Fallite= " << iterazioni_fallite << endl;
 	cout << "number of iteration in the heuristic: " << number_iteration_in_heuristic << endl;
 
+	//SCOMMENTARE QUESTE PER AVERE IL COSTO CON L'ULTIMO ARCO
+	cout << "//////////////////////////////////////////// ora vengono stampate le route con l'aggiunta dell'ultimo arco, e il relativo costo////////////////////////////////////////" << endl;
+	calculate_ObjectiveFunction_final_arc_iori(&input, Company_Solution, peso_TW, peso_itermediate_stop, start_solution_route);
+	
 	outfile.close(); // per il grafico++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	//system("pause");
 	return 0;

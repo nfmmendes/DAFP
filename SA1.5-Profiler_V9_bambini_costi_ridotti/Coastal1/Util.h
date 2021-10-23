@@ -32,13 +32,13 @@ struct MyCOMP1 {
 };
 
 
-double Sum(std::vector<double> Weight) {
+inline double Sum(std::vector<double> Weight) {
 	double sum = 0;
 	for (double i : Weight) sum += i;
 	return sum;
 }
 
-double Accumulated(int j, vector<double> Weight) {
+inline double Accumulated(int j, vector<double> Weight) {
 	double accum = 0.0;
 	double sum = 0.0;
 	for (double i : Weight) sum += i;
@@ -49,7 +49,7 @@ double Accumulated(int j, vector<double> Weight) {
 
 
 
-std::vector<string> split(std::string stringa, char separatore) {
+inline  std::vector<string> split(std::string stringa, char separatore) {
 	vector<std::string> words;
 	std::stringstream ss(stringa);
 	std::string individual_string;

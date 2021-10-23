@@ -262,7 +262,13 @@ void modify_fuel_when_non_max(map<int, Airplane>& map_airplane, Route &r_support
 	}
 }
 
-vector <Route> move(double peso_TW, double peso_intermediate_stop, vector<Route>& routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double end_day, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector <Route> move(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Route>& routes, double end_day) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
 	vector<Route> routes_after_move;
 
 	for (const Route& r : routes) {
@@ -275,8 +281,8 @@ vector <Route> move(double peso_TW, double peso_intermediate_stop, vector<Route>
 					if (move_is_allowed(A, B, r_support)) {
 						Route r_new = update_route_after_move(A, B, r_support, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
 
-						double cost_route_support = cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-						double cost_route_new = cost_single_route(peso_TW, peso_intermediate_stop, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+						double cost_route_support = cost_single_route(input, peso_TW, peso_intermediate_stop, r_support);
+						double cost_route_new = cost_single_route(input, peso_TW, peso_intermediate_stop, r_new);
 
 						if (cost_route_support > cost_route_new && route_feasible(r_new, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
 
@@ -289,7 +295,7 @@ vector <Route> move(double peso_TW, double peso_intermediate_stop, vector<Route>
 								aggregate_same_nodes(r_new, node);
 								if (A > node) num_aggregazioni++;
 
-								cost_route_new = cost_single_route(peso_TW, peso_intermediate_stop, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+								cost_route_new = cost_single_route(input, peso_TW, peso_intermediate_stop, r_new);
 								node = sequential_same_node(r_new);
 								fatto = true;
 							}
@@ -358,7 +364,13 @@ void update_fuel_when_no_max_2(map<int, Airplane>& map_airplane, Route r_support
 	}
 }
 
-vector <Route> inter_move(double peso_TW, double peso_intermediate_stop, vector<Route> routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double end_day, vector<vector<double>>& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector <Route> inter_move(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Route> routes, double end_day) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
+
 	vector<Route> routes_after_move;
 	int n_route = -1;
 
@@ -384,12 +396,12 @@ vector <Route> inter_move(double peso_TW, double peso_intermediate_stop, vector<
 				destroy_ls(n_route, A, passenger_removed, r_new, map_airplane, map_airstrip, from_to);
 				if (r_new.index != -1) {
 					if (r_new.index != -1) {
-						solution_rebuilt = repair_one_inter_move(peso_TW, peso_intermediate_stop, end_day, routes_destroyed, map_airplane, passenger_removed, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
+						solution_rebuilt = repair_one_inter_move(input, peso_TW, peso_intermediate_stop, end_day, routes_destroyed, passenger_removed);
 
 						if (solution_rebuilt.size() != 0) {
 							solution_rebuilt.push_back(r_new);
-							double before = calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, routes, map_airstrip, map_airplane, from_to, from_to_FuelConsumed); // Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
-							double after = calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+							double before = calculate_ObjectiveFunction(input, peso_TW, peso_intermediate_stop, routes); // Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
+							double after = calculate_ObjectiveFunction(input, peso_TW, peso_intermediate_stop, solution_rebuilt);
 							if (before > after) {
 								// Qui sto usando tutto solution_rebuilt.back() ma in realta potrei usare r_new e poi un volta che la ho istemanta switcharla con solution_rebuilt.back()
 								int node = sequential_same_node(solution_rebuilt.back());
@@ -400,7 +412,7 @@ vector <Route> inter_move(double peso_TW, double peso_intermediate_stop, vector<
 									if (A > node) 
 										num_aggregazioni++;
 
-									after = calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, solution_rebuilt, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+									after = calculate_ObjectiveFunction(input, peso_TW, peso_intermediate_stop, solution_rebuilt);
 									
 									node = sequential_same_node(solution_rebuilt.back());
 									fatto = true;
@@ -446,9 +458,11 @@ vector <Route> inter_move(double peso_TW, double peso_intermediate_stop, vector<
 	if (routes_after_move.empty()) 
 		return routes;
 	else {
-		if (calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, routes, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) != calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, routes_after_move, map_airstrip, map_airplane, from_to, from_to_FuelConsumed)) {
-			cout << " Costo Routes: " << calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, routes, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
-			cout << " Costo routes_after_move: " << calculate_ObjectiveFunction(peso_TW, peso_intermediate_stop, routes_after_move, map_airstrip, map_airplane, from_to, from_to_FuelConsumed) << endl;
+		double before = calculate_ObjectiveFunction(input, peso_TW, peso_intermediate_stop, routes);
+		double after = calculate_ObjectiveFunction(input,peso_TW, peso_intermediate_stop, routes_after_move); 
+		if (before != after) {
+			cout << " Costo Routes: " << before << endl;
+			cout << " Costo routes_after_move: " << after << endl;
 		}
 		return routes_after_move;
 	}

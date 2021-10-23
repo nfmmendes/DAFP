@@ -129,7 +129,14 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 	return r_new;
 }
 
-vector <Route> swap(double peso_TW, double peso_intermediate_stop, vector<Route>& routes, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double end_day, double2DVector& from_to, vector<vector<double>>& location_fuel, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+vector <Route> swap(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Route>& routes, double end_day) {
+	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<int, Airplane> map_airplane = input->get_map_airplane();
+	double2DVector location_fuel = input->get_location_fuel();
+	double2DVector from_to = input->get_from_to();
+	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
+
 	vector<Route> routes_after_swap;
 
 	for (const Route& r : routes) {
@@ -139,8 +146,8 @@ vector <Route> swap(double peso_TW, double peso_intermediate_stop, vector<Route>
 
 				if (swap_is_allowed(A, B, r_support)) {
 					Route r_new = update_route_after_swap(A, B, r_support, map_airplane, map_airstrip, from_to, from_to_FuelConsumed);
-					double cost_route_support = cost_single_route(peso_TW, peso_intermediate_stop, r_support, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
-					double cost_route_new = cost_single_route(peso_TW, peso_intermediate_stop, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+					double cost_route_support = cost_single_route(input, peso_TW, peso_intermediate_stop, r_support);
+					double cost_route_new = cost_single_route(input, peso_TW, peso_intermediate_stop, r_new);
 					
 					if (cost_route_support > cost_route_new && route_feasible(r_new, map_airplane, end_day, location_fuel, from_to_FuelConsumed)) {
 						int node = sequential_same_node(r_new);
@@ -148,12 +155,12 @@ vector <Route> swap(double peso_TW, double peso_intermediate_stop, vector<Route>
 						while (node != -1) {
 
 							aggregate_same_nodes(r_new, node);
-							cost_route_new = cost_single_route(peso_TW, peso_intermediate_stop, r_new, map_airstrip, map_airplane, from_to, from_to_FuelConsumed);
+							cost_route_new = cost_single_route(input, peso_TW, peso_intermediate_stop, r_new);
 
 							fatto = true;
 							node = sequential_same_node(r_new);
 						}
-						//cout << " Ok non aveva nodi doppi ! " << endl;
+
 						if (fatto == false) {
 							r_support = r_new;
 							A = 1;
