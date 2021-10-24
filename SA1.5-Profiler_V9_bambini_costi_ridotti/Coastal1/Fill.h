@@ -21,12 +21,9 @@ using std::vector;
 //per il tratto finale
 void fillLocation_fuel(double2DVector& risultato, vector<Airstrip> airstrips, vector<Airplane> airplanes, double2DVector& from_to, map<int, Airstrip>& map_airstrip) {
 
-
 	risultato.resize((size_t)numero_airplane_const);
 	for (int i = 0; i < numero_airplane_const; i++)
 		risultato[i].resize((size_t)numero_airstrip_const);
-
-
 
 	for (Airplane f : airplanes) {
 		for (Airstrip a : airstrips) {
@@ -46,7 +43,6 @@ void fillLocation_fuel(double2DVector& risultato, vector<Airstrip> airstrips, ve
 				}
 
 				risultato[f.code][a.code] = fuel_needed;
-				//risultato.insert(make_pair(f.code + "/" + a.code, fuel_needed));
 			}
 		}
 	}
@@ -229,13 +225,10 @@ map <int, Passenger> fillMapPassenger(vector<Passenger> passengers) {
 		map_pass.insert(make_pair(p.pnr, p));
 	}
 
-
-
 	return  map_pass;
 }
 
 void fillMatrix(vector<vector<double>>& from_to, string file_input, const vector<Airstrip>& airstrips) {
-
 
 	from_to.resize((size_t)numero_airstrip_const);
 	for (int i = 0; i < numero_airstrip_const; i++)
@@ -263,8 +256,6 @@ void fillMatrix(vector<vector<double>>& from_to, string file_input, const vector
 		index_row++;
 	}
 	file.close();
-
-
 }
 
 std::map<std::string, double> fillMatrixCompany(string file_input, vector<Airstrip> airstrips) {
@@ -316,10 +307,7 @@ map<string, double> fillLocation_fuel_string(vector<Airstrip> airstrips, vector<
 			}
 		}
 	}
-
-
 	return risultato;
-
 }
 
 #endif

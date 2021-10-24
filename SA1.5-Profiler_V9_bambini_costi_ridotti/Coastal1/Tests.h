@@ -16,9 +16,7 @@ void stampo_caso_strano_single_tempi(Route r, vector<vector<double>>& from_to, m
 			r.print();
 			system("pause");
 		}
-
 	}
-
 }
 
 
@@ -38,8 +36,6 @@ void stampo_caso_strano_single_all(Route r, vector<vector<double>>& from_to, map
 			system("pause");
 		}
 	}
-
-
 
 	for (int i = 1; i < r.index; i++) {
 
@@ -67,9 +63,7 @@ void stampo_caso_strano_single_all(Route r, vector<vector<double>>& from_to, map
 				system("pause");
 			}
 		}
-
 	}
-
 
 	for (int i = 0; i < r.index - 1; i++) {
 		if ((r.quantity_fuel[i] < r.quantity_fuel[i + 1] && !r.refueling[i + 1]) || (r.weight[i] < -1)) {

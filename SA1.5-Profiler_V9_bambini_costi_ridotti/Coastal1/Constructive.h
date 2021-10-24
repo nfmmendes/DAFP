@@ -19,7 +19,7 @@ vector<Route> heuristic_costructive_second_fase(vector<Route>& solution, double 
 		Route r_support = best_route;
 		double best_cost = cost_time_windows_for_route(best_route, peso_TW);
 		if (cost_time_windows_for_route(r, peso_TW) != 0) { //chiaramente cerco di migliorare la dove le timewindows non sono zero
-			for (int i = 0; i < r.index - 1; i++) {  //ATTENTO, SECONDO ME QUA CI VUOLE UN MENO 1 oppure no!!!! se ci sono dei problemi BUTTA L'OCCCHIO QUA
+			for (int i = 0; i < r.index - 1; i++) { 
 				double wait_time = 0;
 				if (i == 0) {
 					do {
@@ -507,13 +507,12 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, double pes
 									//? la time windows, se calcolo la time windows qua vuol dire che sfrutto il tempo in cui mi trovo in queste posizioni
 
 									double TW_departure = 0.0;
-									if (r.time_arr[from] < p.early_departure) 
-										TW_departure = p.early_departure - r.time_arr[from];
-									else if (r.time_arr[from] > p.late_departure) 
-										TW_departure = r.time_arr[from] - p.late_departure;
+									if (r.time_dep[from] < p.early_departure) 
+										TW_departure = p.early_departure - r.time_dep[from];
+									else if (r.time_dep[from] > p.late_departure) 
+										TW_departure = r.time_dep[from] - p.late_departure;
 
 									double TW_arrival = 0.0;
-									//double t_arr_arrival = r.time_arr[to];
 									if (r.time_arr[to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[to];
 									else if (r.time_arr[to] > p.late_arrival) TW_arrival = r.time_arr[to] - p.late_arrival;
 
@@ -552,8 +551,8 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, double pes
 
 								double TW_departure = 0.0;
 								//double t_arr_departure = r.time_arr[from];
-								if (r.time_arr[from] < p.early_departure) TW_departure = p.early_departure - r.time_arr[from];
-								else if (r.time_arr[from] > p.late_departure) TW_departure = r.time_arr[from] - p.late_departure;
+								if (r.time_dep[from] < p.early_departure) TW_departure = p.early_departure - r.time_dep[from];
+								else if (r.time_dep[from] > p.late_departure) TW_departure = r.time_dep[from] - p.late_departure;
 
 								double cost = (TW_departure * peso_TW);
 								// ora ci metto chilometri e fuel dell'ultimo pezzo;
@@ -986,7 +985,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 								best_cost = cost;
 								best_passenger = p;
 								situation = 1;
-								//cout << "situation A, cost: " << cost << "passenger: " << p << endl;
 							}
 						}
 					}
@@ -994,7 +992,6 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 						//qui c'? solo lui nell'aereo ma deve fare un pezzo vuoto all'inizio dal deposito alla partenza per il cliente, devo aggiungere pi? kilometri e un landing stop
 						//non considero le time windows, faccio una partenza mirata per loro visto che sono i primi
 						double cost = map_airplane[r.aircraft_code].fixed_cost + from_to[passengers[p].departure_location][passengers[p].arrival_location] + from_to[r.places[r.index - 1]][passengers[p].departure_location];
-						//double travel_time = (from_to[passengers[p].departure_location + ";" + passengers[p].arrival_location] + from_to[r.places[r.index - 1] + ";" + passengers[p].departure_location]) / map_airplane[r.aircraft_code].speed;
 						double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][passengers[p].departure_location][passengers[p].arrival_location] + from_to_FuelConsumed[r.aircraft_code][r.places[r.index - 1]][passengers[p].departure_location];
 
 						cost += fuel_consumed;

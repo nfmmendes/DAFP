@@ -530,22 +530,21 @@ vector<Route> repairSP(ProcessedInput* input, double peso_TW, double peso_interm
 
 	if ((int)(model->solution_model.size()) > 0 && (n == (int)passengers.size())) {
 		for (Route& s : model->solution_model) solution_model.push_back(s);
+		delete model;
 		return solution_model;
 	}
-	else {
+	n = 0;
+	for (Route& r : solutionAllSub[Best_iteration]) n += (int)r.passengers_in_route.size();
 
-		n = 0;
-		for (Route& r : solutionAllSub[Best_iteration]) n += (int)r.passengers_in_route.size();
-
-		if (n == (int)passengers.size())
-			return solutionAllSub[Best_iteration];
-		else {
-			vector<Route> vuoto(0);
-			return vuoto;
-		}
+	if (n == (int)passengers.size()) {
+		delete model;
+		return solutionAllSub[Best_iteration];
 	}
-
-	delete model;
+	else {
+		vector<Route> vuoto(0);
+		delete model;
+		return vuoto;
+	}
 }
 
 vector <Route> repair_one(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, double end_day, vector<Route>& routes_destroyed, vector <Passenger>& passengers_removed) {

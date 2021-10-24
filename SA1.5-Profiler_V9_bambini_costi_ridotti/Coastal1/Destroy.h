@@ -597,9 +597,8 @@ vector<Route> destroy_worst(ProcessedInput* input, double peso_TW, double peso_i
 						int index_before = node_destroy - 1;
 						double diff = 0;
 						for (int i = node_destroy + 1; i < r.index; i++) {
-							//cout << " sono al i = " << i << endl;
 							if (r.refueling[i]) break;
-							//cout << "weight before: " << r.weight[i] << endl;
+							
 							if (index_before == (node_destroy - 1)) {
 								diff = r.quantity_fuel[i];
 

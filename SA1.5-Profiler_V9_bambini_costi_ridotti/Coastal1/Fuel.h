@@ -29,7 +29,6 @@ string location_closest_with_fuel_string(string location, map<string, double> fr
 		}
 	}
 
-
 	return result;
 
 }

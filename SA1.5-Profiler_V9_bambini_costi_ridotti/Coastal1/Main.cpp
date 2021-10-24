@@ -1,6 +1,5 @@
 ﻿#include <iostream>
 #include <string>
-#include <sstream>
 #include <fstream>
 #include <vector>
 #include <cstdlib>
@@ -509,7 +508,6 @@ int main(int argc, char* argv[]) {
 			vector<double> c;
 			vector<vector<int>> A2;
 			for (Route& r : airplane_routes[airplane.code]) {
-				//r.print();
 				routes.push_back(r);
 				vector<int> A1;
 				for (Passenger& p : passengers) {
@@ -576,7 +574,8 @@ int main(int argc, char* argv[]) {
 		auto stop_model = chrono::high_resolution_clock::now();
 		auto duration_model = chrono::duration_cast<chrono::seconds>(stop_model - start_model);
 		time_spent_model += (double)duration_model.count();
-		//cin.get();
+
+		delete model; 
 	} while ((Iter_FirstDo <= iterMAX_FirstDo));
 
 	cout << "Best solution herurisic: " << start_solution << endl;

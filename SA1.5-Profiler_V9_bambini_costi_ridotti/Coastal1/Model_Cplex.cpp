@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include<string>
-#include <sstream>
 #include <vector>
 #include "Route.h"
 #include "Util.h"
@@ -86,9 +85,7 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 		NumVarMatrix x(env, (int)airplane.size());
 		cout << "----------- Sto Creando la prima Variabile X---------------" << endl;
 		for (size_t j = 0; j < t_route.size(); j++) {
-			//IloBoolVarArray x(env, airplane.size());
 			x[j] = IloBoolVarArray(env, t_route[j].size());
-			//x.add(IloNumVar(env, 0, 1, ILOBOOL));
 		}
 		cout << " variables created!!" << endl;
 		cout << "Creating constraint 1..." << endl;
@@ -104,7 +101,6 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 
 			string cname1;
 			cname1 = "C1_" + to_string(i);
-			//cout << " sto aggiungendo il vincolo: " << cname1 << endl;
 			IloRange cons(C1 == 1);
 			cons.setName(cname1.c_str());
 			model.add(cons);
@@ -113,7 +109,6 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 
 		cout << "Creating constraint 2..." << endl;
 		for (size_t j = 0; j < t_route.size(); j++) {
-			//cout << " sto per il tipo : " << to_string(j) << " Meno aerei di " << tipo_numero[j]<<  endl;
 			model.add(IloSum(x[j]) <= tipo_numero[j]);
 		}
 
@@ -162,7 +157,6 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 							startVal.add(0);
 						}
 					}
-
 				}
 				else {
 					for (size_t i = 0; i < t_route[j].size(); i++) {
@@ -198,7 +192,6 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 		cplex.setParam(IloCplex::Param::MIP::Cuts::PathCut, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::RLT, -1);
 		cplex.setParam(IloCplex::Param::MIP::Cuts::ZeroHalfCut, 1);
-		//cplex.setParam(IloCplex::Param::MIP::Strategy::VariableSelect, 3);
 		// End of Paramenters setting
 		cplex.exportModel("model.sav");
 		IloEnv new_env;
@@ -240,17 +233,13 @@ void Model_Cplex::create_Model_cplex(int NumberAirplane, map<int, int>& solution
 							}
 						}
 						solution_model.push_back(t_route[j][i]);
-						//cout << " Devo eliminare aereo " << t_route[j][i].aircraft_code << endl;
 						vector<int>::iterator it;
 						it = find(to_remove.begin(), to_remove.end(), airplane_available_position[t_route[j][i].aircraft_code]);
 						if (it == to_remove.end()) to_remove.push_back(airplane_available_position[t_route[j][i].aircraft_code]);
 					}
 				}
-				//for (int i = to_remove.size() - 1; i >= 0; i--) cout << to_remove[i] << endl;
 				for (int i = to_remove.size() - 1; i >= 0; i--)  airplane_available.at(j).erase(airplane_available.at(j).begin() + to_remove[i]);
 			}
-
-			//for (Route& r : solution_model) cout << r.aircraft_code << endl;
 			
 			for (size_t i = 0; i < solution_model.size(); i++) {
 				for (size_t j = 0; j < solution_model.size(); j++) {
@@ -287,18 +276,13 @@ void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation 
 		typedef IloArray<IloBoolVarArray> NumVarMatrix;
 		IloRangeArray con(env);
 		//populatebyrow(model, var, con);
-
-		//cout << " Nuemro di Aereri " << (int)airplane.size() << endl;
-
 		NumVarMatrix x(env, (int)airplane.size());
-		//cout << "----------- Sto Creando la prima Variabile X---------------" << endl;
+		
 		for (int j = 0; j < (int)airplane.size(); j++) {
-			//IloBoolVarArray x(env, airplane.size());
 			x[j] = IloBoolVarArray(env, airplane_routes[airplane[j].code].size());
-			//x.add(IloNumVar(env, 0, 1, ILOBOOL));
+		
 		}
-		//cout << " variables created!!" << endl;
-		//cout << "Creating constraint 1..." << endl;
+		
 		// Devo capite come fare il For su tutti i Passeggieri........... Non so quanti siano
 		for (int i = 0; i < NRichieste; i++) {
 			IloExpr C1(env);
@@ -311,7 +295,6 @@ void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation 
 
 			string cname1;
 			cname1 = "C1_" + to_string(i);
-			//cout << " sto aggiungendo il vincolo: " << cname1 << endl;
 			IloRange cons(C1 == 1);
 			cons.setName(cname1.c_str());
 
@@ -320,12 +303,10 @@ void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation 
 			C1.end();
 		}
 
-		//cout << "Creating constraint 2..." << endl;
 		for (int j = 0; j < (int)airplane.size(); j++) {
 			model.add(IloSum(x[j]) <= 1);
 		}
 
-		//cout << "Creating constraint 3..." << endl;
 		IloExpr C3(env);
 		for (int i = 0; i < airplane.size(); i++) {
 			for (int j = 0; j < (int)airplane_routes[airplane[i].code].size(); j++) {
@@ -334,15 +315,11 @@ void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation 
 		}
 		string cname3;
 		cname3 = "C3_";
-		//cout << " sto aggiungendo il vincolo: " << cname1 << endl;
 		IloRange cons(C3 <= NumberAirplane);
 		cons.setName(cname3.c_str());
 		model.add(cons);
 		C3.end();
 
-
-
-		//cout << "Creating objective function ...." << endl;
 		IloExpr objective(env);
 		for (int j = 0; j < (int)airplane.size(); j++) {
 			for (int i = 0; i < (int)airplane_routes[airplane[j].code].size(); i++) {
@@ -353,10 +330,7 @@ void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation 
 		objective.end();
 		IloCplex cplex(model);
 
-
-
 		// Set Parametres
-		//cplex.setParam(IloCplex::IntParam::Threads, 1);			// Number of used threads
 		cplex.setParam(IloCplex::NumParam::TiLim, 10);			// Time Limit
 		cplex.setParam(IloCplex::IntParam::RootAlg, 0);			// Methodology 1= Primal simplex 2	= Dual simplex 3 = Network simplex, 4	= 	Barrier, 5	= 	Sifting, 6	= 	Concurrent(Dual, Barrier, and Primal in opportunistic parallel mode; Dual and Barrier in deterministic parallel mode)
 		cplex.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 0.0);			// MIP GAP
@@ -368,7 +342,6 @@ void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation 
 		if (cplex.getStatus() == IloAlgorithm::Optimal || cplex.getStatus() == IloAlgorithm::Feasible) {
 			double val;
 			for (int j = 0; j < (int)airplane.size(); j++) {
-				//cout << "==================== Stampo le route SCELTE dell'aereo: " << airplane[j].code << "  ===================== \n" << endl;
 				for (int i = 0; i < (int)airplane_routes[airplane[j].code].size(); i++) {
 					val = cplex.getValue(x[j][i]);
 					if (val > 0.01) {
@@ -384,22 +357,15 @@ void Model_Cplex::create_Model_for_SP_cplex(int NumberAirplane) {	//Formulation 
 				for (int i = 0; i < (int)airplane_routes[airplane[j].code].size(); i++) {
 					val = cplex.getValue(x[j][i]);
 					if (val > 0.01) {
-						//airplane_routes[airplane[j].code][i].print();
 						solution_model.push_back(airplane_routes[airplane[j].code][i]);
 					}
-
 				}
-
 			}
-
 		}
 		else {
 			cout << " Non ha Funzionato si vede che non ha chiuso all'ottimo " << endl;
 			cout << " Status " << cplex.getStatus() << endl;
-			//ystem("pause");
 		}
-
-
 	}
 	catch (IloException& e) {
 		cerr << "Concert exception caught: " << e << endl;

@@ -40,9 +40,7 @@ int move_to(int node, const Route& r) {
 		if (p.solution_from == node) {
 			if (p.solution_to < swap_to) swap_to = p.solution_to;
 		}
-
 	}
-
 
 	return swap_to;
 }
@@ -58,8 +56,7 @@ bool move_flightleg_is_allowed(int A, Route& r) {
 	bool move = true;
 	
 	for (Passenger& p : r.passengers_in_route) {
-		//cout << " sto facendo il passeggiero: ";
-		//p.print();
+
 		if ((p.solution_from == A) && (p.solution_to != (A + 1))) {
 			move = false;
 			break;
@@ -72,7 +69,6 @@ bool move_flightleg_is_allowed(int A, Route& r) {
 			move = false;
 			break;
 		}
-		//cout << " Move = " << move << endl;
 	}
 	return move;
 }
@@ -138,9 +134,7 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 				r_new.addPlace(r.places[i], r.refueling[i], r.quantity_fuel[i], 0.0, 0, r.time_arr[i], r.time_dep[i]);
 			}
 			else if (i == (B + 1)) {
-
 				//in questo posto ci devo mettere A
-
 				r_new.addPlace(r.places[A], r.refueling[A], r.quantity_fuel[A], 0.0, 0, r.time_arr[A], r.time_dep[A]);
 			}
 			else if (i >= A + 1) {
@@ -374,7 +368,6 @@ vector <Route> inter_move(ProcessedInput* input, double peso_TW, double peso_int
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
-
 	vector<Route> routes_after_move;
 	int n_route = -1;
 
@@ -395,7 +388,6 @@ vector <Route> inter_move(ProcessedInput* input, double peso_TW, double peso_int
 			if (move_flightleg_is_allowed(A, r_support)) {
 				Route r_new = r_support;
 				int NomeA1 = r_new.places[A + 1];
-
 
 				destroy_ls(input, n_route, A, passenger_removed, r_new);
 				if (r_new.index != -1) {
