@@ -465,13 +465,14 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 	return solution;
 }
 
-vector<Route> destroy_worst(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution) {
-
+vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty_weights, double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution) {
+	double peso_TW = penalty_weights.time_window;
+	double peso_intermediate_stop = penalty_weights.intermediate_stop;
+	
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
-
 	
 	int index = 0;
 	for (Route& r : solution) {
@@ -652,13 +653,14 @@ vector<Route> destroy_worst(ProcessedInput* input, double peso_TW, double peso_i
 	return solution;
 }
 
-vector<Route> destroy_cluster_aggr2(ProcessedInput* input, double peso_TW, int num_passenger, vector<Passenger>& passenger_removed, vector<Route>& solution,  vector<Passenger> all_passenegr, map<int, Passenger>& map_id_passenger, double& peso_itermediate_stop) {
-
+vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights& penalty_weights, int num_passenger, vector<Passenger>& passenger_removed, vector<Route>& solution,  vector<Passenger> all_passenegr, map<int, Passenger>& map_id_passenger) {
+	double peso_TW = penalty_weights.time_window;
+	double peso_itermediate_stop = penalty_weights.intermediate_stop;
+	
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector from_to = input->get_from_to();
 
-
-	int soglia_relateness = 300; // Prima era 100
+	const int soglia_relateness = 300; // Prima era 100
 	vector<int> int_removed;
 	vector<Route> route_destroyed;
 	vector<Passenger> passengers;

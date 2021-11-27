@@ -260,7 +260,8 @@ void modify_fuel_when_non_max(map<int, Airplane>& map_airplane, Route &r_support
 	}
 }
 
-vector <Route> move(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Route>& routes, double end_day) {
+vector <Route> move(ProcessedInput* input, const PenaltyWeights& penalty_weights, vector<Route>& routes, double end_day){
+	
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector location_fuel = input->get_location_fuel();
@@ -279,8 +280,8 @@ vector <Route> move(ProcessedInput* input, double peso_TW, double peso_intermedi
 					if (move_is_allowed(A, B, r_support)) {
 						Route r_new = update_route_after_move(input, A, B, r_support);
 
-						double cost_route_support = cost_single_route(input, peso_TW, peso_intermediate_stop, r_support);
-						double cost_route_new = cost_single_route(input, peso_TW, peso_intermediate_stop, r_new);
+						double cost_route_support = cost_single_route(input, penalty_weights, r_support);
+						double cost_route_new = cost_single_route(input, penalty_weights, r_new);
 
 						if (cost_route_support > cost_route_new && route_feasible(input, r_new, end_day)) {
 
@@ -293,7 +294,7 @@ vector <Route> move(ProcessedInput* input, double peso_TW, double peso_intermedi
 								aggregate_same_nodes(r_new, node);
 								if (A > node) num_aggregazioni++;
 
-								cost_route_new = cost_single_route(input, peso_TW, peso_intermediate_stop, r_new);
+								cost_route_new = cost_single_route(input, penalty_weights, r_new);
 								node = sequential_same_node(r_new);
 								fatto = true;
 							}
@@ -362,7 +363,7 @@ void update_fuel_when_no_max_2(map<int, Airplane>& map_airplane, Route r_support
 	}
 }
 
-vector <Route> inter_move(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Route> routes, double end_day) {
+vector <Route> inter_move(ProcessedInput* input, const PenaltyWeights& penalty_weights, vector<Route> routes, double end_day) {
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector from_to = input->get_from_to();
@@ -392,12 +393,12 @@ vector <Route> inter_move(ProcessedInput* input, double peso_TW, double peso_int
 				destroy_ls(input, n_route, A, passenger_removed, r_new);
 				if (r_new.index != -1) {
 					if (r_new.index != -1) {
-						solution_rebuilt = repair_one_inter_move(input, peso_TW, peso_intermediate_stop, end_day, routes_destroyed, passenger_removed);
+						solution_rebuilt = repair_one_inter_move(input, penalty_weights, end_day, routes_destroyed, passenger_removed);
 
 						if (solution_rebuilt.size() != 0) {
 							solution_rebuilt.push_back(r_new);
-							double before = calculate_ObjectiveFunction(input, peso_TW, peso_intermediate_stop, routes); // Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
-							double after = calculate_ObjectiveFunction(input, peso_TW, peso_intermediate_stop, solution_rebuilt);
+							double before = calculate_ObjectiveFunction(input, penalty_weights, routes); // Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
+							double after = calculate_ObjectiveFunction(input, penalty_weights, solution_rebuilt);
 							if (before > after) {
 								// Qui sto usando tutto solution_rebuilt.back() ma in realta potrei usare r_new e poi un volta che la ho istemanta switcharla con solution_rebuilt.back()
 								int node = sequential_same_node(solution_rebuilt.back());
@@ -408,7 +409,7 @@ vector <Route> inter_move(ProcessedInput* input, double peso_TW, double peso_int
 									if (A > node) 
 										num_aggregazioni++;
 
-									after = calculate_ObjectiveFunction(input, peso_TW, peso_intermediate_stop, solution_rebuilt);
+									after = calculate_ObjectiveFunction(input, penalty_weights, solution_rebuilt);
 									
 									node = sequential_same_node(solution_rebuilt.back());
 									fatto = true;
@@ -454,8 +455,8 @@ vector <Route> inter_move(ProcessedInput* input, double peso_TW, double peso_int
 	if (routes_after_move.empty()) 
 		return routes;
 	else {
-		double before = calculate_ObjectiveFunction(input, peso_TW, peso_intermediate_stop, routes);
-		double after = calculate_ObjectiveFunction(input,peso_TW, peso_intermediate_stop, routes_after_move); 
+		double before = calculate_ObjectiveFunction(input, penalty_weights, routes);
+		double after = calculate_ObjectiveFunction(input,penalty_weights, routes_after_move); 
 		if (before != after) {
 			cout << " Costo Routes: " << before << endl;
 			cout << " Costo routes_after_move: " << after << endl;

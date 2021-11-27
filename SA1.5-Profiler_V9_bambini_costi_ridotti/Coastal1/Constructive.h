@@ -378,8 +378,10 @@ namespace heuristic_costructive_first_fase_namespace {
 
 }
 
-vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Airplane>& airplanes, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
-
+vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const PenaltyWeights& penalty_weights, vector<Airplane>& airplanes, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
+	double peso_intermediate_stop = penalty_weights.intermediate_stop;
+	double peso_TW = penalty_weights.time_window;
+	
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector location_fuel = input->get_location_fuel();
@@ -938,8 +940,10 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 	r.passengers_in_route.push_back(passengers[best_passenger]);
 }
 
-vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input, double peso_TW, double peso_intermediate_stop, vector<Airplane>& airplanes, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
-
+vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input, const PenaltyWeights& penalty_weights, vector<Airplane>& airplanes, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
+	double peso_TW{ penalty_weights.time_window };
+	double peso_intermediate_stop {penalty_weights.intermediate_stop };
+	
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector location_fuel = input->get_location_fuel();
