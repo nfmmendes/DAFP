@@ -49,41 +49,41 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 	r_new.primo_pass = r.primo_pass;
 
 	//cout << "sto inserendo i vari posti nella nuova route" << endl;
-	r_new.addPlace(r.places[0], r.refueling[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.time_arr[0], r.time_dep[0]);
+	r_new.addPlace(r.places[0], r.refueling[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.arrival[0], r.departure[0]);
 	for (int i = 1; i < r.index; i++) {
 		if (i == A) {
 			//in questo posto ci devo mettere B
-			r_new.addPlace(r.places[B], r.refueling[B], r.quantity_fuel[B], 0.0, 0, r.time_arr[B], r.time_dep[B]);
+			r_new.addPlace(r.places[B], r.refueling[B], r.fuel[B], 0.0, 0, r.arrival[B], r.departure[B]);
 		}
 		else if (i == B) {
 			//in questo posto ci devo mettere A
-			r_new.addPlace(r.places[A], r.refueling[A], r.quantity_fuel[A], 0.0, 0, r.time_arr[A], r.time_dep[A]);
+			r_new.addPlace(r.places[A], r.refueling[A], r.fuel[A], 0.0, 0, r.arrival[A], r.departure[A]);
 		}
 		else {
 			//in questo posto ci devo mettere normalmente i
-			r_new.addPlace(r.places[i], r.refueling[i], r.quantity_fuel[i], 0.0, 0, r.time_arr[i], r.time_dep[i]);
+			r_new.addPlace(r.places[i], r.refueling[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
 		}
 	}
 
 	//aggiorno i tempi e fuel senza aver considerato il probabile peso negativo, il paso qua ? come se lo inizializzassi
 	for (int i = 0; i < r_new.index; i++) {
 		if (i > 0) {
-			r_new.time_arr[i] = r_new.time_dep[i - 1] + (((from_to[r_new.places[i - 1]][r_new.places[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
-			r_new.time_dep[i] = r_new.time_arr[i] + map_airstrip[r_new.places[i]].ground_time;
+			r_new.arrival[i] = r_new.departure[i - 1] + (((from_to[r_new.places[i - 1]][r_new.places[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
+			r_new.departure[i] = r_new.arrival[i] + map_airstrip[r_new.places[i]].ground_time;
 
 			double fuel_consumed = from_to_FuelConsumed[r_new.aircraft_code][r_new.places[i - 1]][r_new.places[i]];
 
 			if (r_new.refueling[i]) {
-				r_new.quantity_fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
+				r_new.fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
 			}
 			else {
-				r_new.quantity_fuel[i] = r_new.quantity_fuel[i - 1] - fuel_consumed;
+				r_new.fuel[i] = r_new.fuel[i - 1] - fuel_consumed;
 			}
-			r_new.weight[i] = map_airplane[r_new.aircraft_code].weight_fuel_people - r_new.quantity_fuel[i];
+			r_new.weights[i] = map_airplane[r_new.aircraft_code].load_weight - r_new.fuel[i];
 		}
 		else {
-			r_new.quantity_fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
-			r_new.weight[i] = map_airplane[r_new.aircraft_code].weight_fuel_people - r_new.quantity_fuel[i];
+			r_new.fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
+			r_new.weights[i] = map_airplane[r_new.aircraft_code].load_weight - r_new.fuel[i];
 		}
 	}
 
@@ -97,14 +97,14 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 		r_new.passengers_in_route.push_back(p);
 
 		for (int t = p.solution_from; t < p.solution_to; t++) {
-			r_new.capacity[t] += p.capacity;
-			r_new.weight[t] -= p.weight;
+			r_new.capacities[t] += p.capacity;
+			r_new.weights[t] -= p.weight;
 		}
 	}
 
 	//aggiorno fuel se il peso ? negatico
 	for (int i = 0; i < r_new.index; i++) {
-		if (r_new.weight[i] < 0) {
+		if (r_new.weights[i] < 0) {
 			int index_refueling = i;
 			for (int t = i; t >= 0; t--) {
 				if (r_new.refueling[t]) {
@@ -112,15 +112,15 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 					break;
 				}
 			}
-			double Update_value = r_new.weight[i];
-			r_new.quantity_fuel[index_refueling] += r_new.weight[i];
-			r_new.weight[index_refueling] -= r_new.weight[i];
+			double Update_value = r_new.weights[i];
+			r_new.fuel[index_refueling] += r_new.weights[i];
+			r_new.weights[index_refueling] -= r_new.weights[i];
 
 			for (int j = index_refueling + 1; j < r_new.index; j++) {
 				if (r_new.refueling[j]) break;
 				else {
-					r_new.quantity_fuel[j] += Update_value;
-					r_new.weight[j] -= Update_value;
+					r_new.fuel[j] += Update_value;
+					r_new.weights[j] -= Update_value;
 				}
 			}
 		}
@@ -182,17 +182,17 @@ vector <Route> swap(ProcessedInput* input, const PenaltyWeights& penalty_weights
 		}
 		//Modifico Fuel quando non massimo
 		for (int k = 0; k < r_support.index; k++) {
-			if (r_support.refueling[k] && r_support.quantity_fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
+			if (r_support.refueling[k] && r_support.fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
 			//cout << " Sto valutando il caso del nodo " << k << endl;
 				int Node_min = k;
-				double min_weight = r_support.weight[k];
+				double min_weight = r_support.weights[k];
 				int index_updating_from = k;
 				int index_updating_to = r_support.index;  //qua prima c'era -1
 				for (int i = k + 1; i < r_support.index; i++) {
 
 					if (r_support.refueling[i]) break;
-					if (r_support.weight[i] < min_weight) {
-						min_weight = r_support.weight[i];
+					if (r_support.weights[i] < min_weight) {
+						min_weight = r_support.weights[i];
 						Node_min = i;
 					}
 					//}
@@ -207,13 +207,13 @@ vector <Route> swap(ProcessedInput* input, const PenaltyWeights& penalty_weights
 						}
 					}
 
-					double Fuel_before = r_support.quantity_fuel[index_updating_from];
-					r_support.quantity_fuel[index_updating_from] = min(map_airplane[r_support.aircraft_code].max_fuel, r_support.quantity_fuel[index_updating_from] + min_weight);
-					r_support.weight[index_updating_from] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
+					double Fuel_before = r_support.fuel[index_updating_from];
+					r_support.fuel[index_updating_from] = min(map_airplane[r_support.aircraft_code].max_fuel, r_support.fuel[index_updating_from] + min_weight);
+					r_support.weights[index_updating_from] -= (r_support.fuel[index_updating_from] - Fuel_before);
 
 					for (int i = index_updating_from + 1; i < index_updating_to; i++) {
-						r_support.quantity_fuel[i] += (r_support.quantity_fuel[index_updating_from] - Fuel_before);
-						r_support.weight[i] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
+						r_support.fuel[i] += (r_support.fuel[index_updating_from] - Fuel_before);
+						r_support.weights[i] -= (r_support.fuel[index_updating_from] - Fuel_before);
 					}
 				}
 			}

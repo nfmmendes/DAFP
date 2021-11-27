@@ -10,9 +10,9 @@ void stampo_caso_strano_single_tempi(Route r, vector<vector<double>>& from_to, m
 
 	for (int i = 1; i < r.index; i++) {
 
-		if (r.time_arr[i] <= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1] - 1) || r.time_arr[i] >= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1] + 1)) {
+		if (r.arrival[i] <= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] - 1) || r.arrival[i] >= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] + 1)) {
 			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' UN PROBLEMA CON i TEMPIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII nell arco " << (i - 1) << endl;
-			cout << "dovrebbe essere: " << (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1]) << " mentre invece ? " << r.time_arr[i] << endl;
+			cout << "dovrebbe essere: " << (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1]) << " mentre invece ? " << r.arrival[i] << endl;
 			r.print();
 			system("pause");
 		}
@@ -39,9 +39,9 @@ void stampo_caso_strano_single_all(Route r, vector<vector<double>>& from_to, map
 
 	for (int i = 1; i < r.index; i++) {
 
-		if (r.time_arr[i] <= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1] - 1) || r.time_arr[i] >= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1] + 1)) {
+		if (r.arrival[i] <= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] - 1) || r.arrival[i] >= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] + 1)) {
 			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' UN PROBLEMA CON i TEMPIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII nell arco " << (i - 1) << endl;
-			cout << "dovrebbe essere: " << (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.time_dep[i - 1]) << " mentre invece ? " << r.time_arr[i] << endl;
+			cout << "dovrebbe essere: " << (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1]) << " mentre invece ? " << r.arrival[i] << endl;
 			r.print();
 			system("pause");
 		}
@@ -56,9 +56,9 @@ void stampo_caso_strano_single_all(Route r, vector<vector<double>>& from_to, map
 		}
 
 		if (!r.refueling[i]) {
-			if ((r.quantity_fuel[i - 1] - r.quantity_fuel[i]) <= (fuel_consumed - 1) || (r.quantity_fuel[i - 1] - r.quantity_fuel[i]) >= (fuel_consumed + 1)) {
+			if ((r.fuel[i - 1] - r.fuel[i]) <= (fuel_consumed - 1) || (r.fuel[i - 1] - r.fuel[i]) >= (fuel_consumed + 1)) {
 				cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' UN PROBLEMA CON IL FUEL nell arco DA " << (i - 1) << " A " << i << endl;
-				cout << "dovrebbe essere: " << fuel_consumed << " mentre invece ? " << (r.quantity_fuel[i - 1] - r.quantity_fuel[i]) << endl;
+				cout << "dovrebbe essere: " << fuel_consumed << " mentre invece ? " << (r.fuel[i - 1] - r.fuel[i]) << endl;
 				r.print();
 				system("pause");
 			}
@@ -66,7 +66,7 @@ void stampo_caso_strano_single_all(Route r, vector<vector<double>>& from_to, map
 	}
 
 	for (int i = 0; i < r.index - 1; i++) {
-		if ((r.quantity_fuel[i] < r.quantity_fuel[i + 1] && !r.refueling[i + 1]) || (r.weight[i] < -1)) {
+		if ((r.fuel[i] < r.fuel[i + 1] && !r.refueling[i + 1]) || (r.weights[i] < -1)) {
 			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' IL PROBLEMA O DEL FUEL CHE NON CALA O DEL PESO NEGATIVO" << endl;
 			r.print();
 			system("pause");
@@ -84,11 +84,11 @@ void stampo_caso_strano_single_all(Route r, vector<vector<double>>& from_to, map
 
 
 	for (int i = 0; i < r.index - 1; i++) {
-		double minimo_peso = r.weight[i];
-		if (r.quantity_fuel[i] < map_airplane[r.aircraft_code].max_fuel && r.refueling[i]) {
+		double minimo_peso = r.weights[i];
+		if (r.fuel[i] < map_airplane[r.aircraft_code].max_fuel && r.refueling[i]) {
 			for (int j = i + 1; j < r.index; j++) {
 				if (r.refueling[j]) break;
-				if (r.weight[j] < minimo_peso) minimo_peso = r.weight[j];
+				if (r.weights[j] < minimo_peso) minimo_peso = r.weights[j];
 			}
 			if (minimo_peso >= 1) {
 				cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' IL PROBLEMA DEL FUEL NON MASSIMO *************************" << endl;

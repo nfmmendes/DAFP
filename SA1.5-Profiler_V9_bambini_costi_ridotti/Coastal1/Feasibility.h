@@ -16,12 +16,12 @@ bool route_feasible(ProcessedInput* input, Route& r, double end_day) {
 	bool feasible = true;
 	
 	//check and day
-	if (r.time_arr[r.index - 1] > end_day) {
+	if (r.arrival[r.index - 1] > end_day) {
 		return false;
 		feasible = false;
 	}
 	//for the last-trip
-	if (r.quantity_fuel[r.index - 1] < (location_fuel[r.aircraft_code][r.places[r.index - 1]] + map_airplane[r.aircraft_code].min_fuel)) {
+	if (r.fuel[r.index - 1] < (location_fuel[r.aircraft_code][r.places[r.index - 1]] + map_airplane[r.aircraft_code].min_fuel)) {
 		return false;
 		feasible = false;
 	}
@@ -29,21 +29,21 @@ bool route_feasible(ProcessedInput* input, Route& r, double end_day) {
 	if (feasible) {
 		for (int i = 0; i < r.index; i++) {
 			if (i >= 1) {
-				//if (r.quantity_fuel[i] < map_airplane[r.aircraft_code].min_fuel && !r.refueling[i]) feasible = false;
-				if (r.quantity_fuel[i] < map_airplane[r.aircraft_code].min_fuel) {
+				//if (r.fuel[i] < map_airplane[r.aircraft_code].min_fuel && !r.refueling[i]) feasible = false;
+				if (r.fuel[i] < map_airplane[r.aircraft_code].min_fuel) {
 					return false;
 					feasible = false;
 				}
 				if (r.refueling[i] && !r.refueling[i - 1]) {
 					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.places[i - 1]][r.places[i]];
-					if (r.quantity_fuel[i - 1] - fuel_consumed < map_airplane[r.aircraft_code].min_fuel) {
+					if (r.fuel[i - 1] - fuel_consumed < map_airplane[r.aircraft_code].min_fuel) {
 						return false;
 						feasible = false;
 					}
 				}
 			}
 			if (i < r.index - 1) {
-				if (r.capacity[i] > map_airplane[r.aircraft_code].capacity) {
+				if (r.capacities[i] > map_airplane[r.aircraft_code].capacity) {
 					return false;
 					feasible = false;
 				}

@@ -98,18 +98,13 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 
 			//aggiungo il costo dei kilometri e del fuel
 			if (i < (int)route->places_company.size() - 1) {
-				c += from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]];
-				final_cost_km += from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]];
+				string key = route->places_company[i] + ";" + route->places_company[i + 1];
+				c += from_to_company[key];
+				final_cost_km += from_to_company[key];
 
-				double time_flight = (from_to_company[route->places_company[i] + ";" + route->places_company[i + 1]]) / airplanes_map[route->aircraft_code_company_comparison].speed;
-				double cost_fuel = 0;
-				if (time_flight <= 1) {
-					cost_fuel = time_flight * airplane->fuel_burn_first;
-				}
-				else {
-					cost_fuel = airplane->fuel_burn_first + (time_flight - 1) * airplane->fuel_burn_second;
-				}
-
+				double time_flight = (from_to_company[key]) / airplanes_map[route->aircraft_code_company_comparison].speed;
+				double cost_fuel = airplane->fuel_burn_first + max(0.0 , (time_flight - 1) * airplane->fuel_burn_second);
+				
 				c += cost_fuel;
 				final_cost_fuel += cost_fuel;
 			}
@@ -118,7 +113,6 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 		//ora devo leggere i passeggeri_soluzione******************************************************************************************
 		cost_route.push_back(c);
 	}
-
 
 	double costo_routing = 0.0;
 	for (double c : cost_route) costo_routing += c;
@@ -135,9 +129,9 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 		size_t trovato_pass_cognome;
 		int controllo = 0;
 		vector<Passenger> pass_trovato;
+		//TODO: remove this transform
 		transform(passengers[p].name.begin(), passengers[p].name.end(), passengers[p].name.begin(), ::tolower);
 		transform(passengers[p].surname.begin(), passengers[p].surname.end(), passengers[p].surname.begin(), ::tolower);
-
 
 		for (int j = 0; j < (int)passengers_solution.size(); j++) {
 			trovato_pass_name = passengers_solution[j].name.find(passengers[p].name);
@@ -282,13 +276,16 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 			vector<int> int_from1; //vettore con tutti i from
 			vector<int> int_to1; // vettore con tutti i to
 			//scorro tutte le localit? della route
-			for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
+			Route* route_pass_trovato_zero = &codice_routeAzienda[pass_trovato[0].code_flight];
+			Route* route_pass_trovato_one = &codice_routeAzienda[pass_trovato[1].code_flight];
+			
+			for (int i = 0; i < route_pass_trovato_zero->index; i++) {
 				//salvo tutti i from e tutti i to che trovo
-				//cout << codice_routeAzienda[pass_trovato[0].code_flight].places[i] << " - " << endl;
-				if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == pass_trovato[0].departure_location_company) {
+				
+				if (route_pass_trovato_zero->places_company[i] == pass_trovato[0].departure_location_company) {
 					int_from1.push_back(i);
 				}
-				if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == pass_trovato[0].arrival_location_company) {
+				if (route_pass_trovato_zero->places_company[i] == pass_trovato[0].arrival_location_company) {
 					int_to1.push_back(i);
 				}
 			}
@@ -316,12 +313,12 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 			vector<int> int_from2; //vettore con tutti i from
 			vector<int> int_to2; // vettore con tutti i to
 			//scorro tutte le localit? della route
-			for (int i = 0; i < codice_routeAzienda[pass_trovato[1].code_flight].index; i++) {
+			for (int i = 0; i < route_pass_trovato_one->index; i++) {
 				//salvo tutti i from e tutti i to che trovo
-				if (codice_routeAzienda[pass_trovato[1].code_flight].places_company[i] == pass_trovato[1].departure_location_company) {
+				if (route_pass_trovato_one->places_company[i] == pass_trovato[1].departure_location_company) {
 					int_from2.push_back(i);
 				}
-				if (codice_routeAzienda[pass_trovato[1].code_flight].places_company[i] == pass_trovato[1].arrival_location_company) {
+				if (route_pass_trovato_one->places_company[i] == pass_trovato[1].arrival_location_company) {
 					int_to2.push_back(i);
 				}
 			}
@@ -416,7 +413,7 @@ void calculate_ObjectiveFunction_final(ProcessedInput*input, double costo_compan
 				costo_landing += map_airstrip[r.places[i]].landing_cost;
 			}
 			if (i < r.index - 1) {
-				if (i == 0 && r.capacity[i] == 0) {
+				if (i == 0 && r.capacities[i] == 0) {
 					mileage = 0.0;
 				}
 				else {
@@ -438,20 +435,20 @@ void calculate_ObjectiveFunction_final(ProcessedInput*input, double costo_compan
 
 		//now i have to calculate the penalitis regarding the time windows for each passeger
 		for (const auto& p : r.passengers_in_route) {
-			//double time_departure = r.time_arr[p.solution_from];
-			//double time_arrival = r.time_arr[p.solution_to];
+			//double time_departure = r.arrival[p.solution_from];
+			//double time_arrival = r.arrival[p.solution_to];
 			cost += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			cost_route += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			costo_Intermediate += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;
 
 
 			double TW_departure = 0.0;
-			if (r.time_dep[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_dep[p.solution_from];
-			else if (r.time_dep[p.solution_from] > p.late_departure) TW_departure = r.time_dep[p.solution_from] - p.late_departure;
+			if (r.departure[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.departure[p.solution_from];
+			else if (r.departure[p.solution_from] > p.late_departure) TW_departure = r.departure[p.solution_from] - p.late_departure;
 
 			double TW_arrival = 0.0;
-			if (r.time_arr[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[p.solution_to];
-			else if (r.time_arr[p.solution_to] > p.late_arrival) TW_arrival = r.time_arr[p.solution_to] - p.late_arrival;
+			if (r.arrival[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.arrival[p.solution_to];
+			else if (r.arrival[p.solution_to] > p.late_arrival) TW_arrival = r.arrival[p.solution_to] - p.late_arrival;
 
 			cost += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
 			cost_route += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
@@ -486,21 +483,18 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 	double costo_Time_Window = 0.0;
 	double costo_Intermediate = 0.0;
 
-	int depot, maxFuel, groundTime, maxWeight;
-	double speed, arrivalTime;
-
 	for (Route& r : solution) {
-		if (r.places[r.index - 1] != 1 || r.places[r.index - 1] != 4) {
-			//int place, bool refueling, double quantity_fuel, double weight, int capacity, double minute_arr, double minute_dep
+		auto origin = r.places[r.index - 1];
+		if (origin != 1 || origin != 4) {
+			Airplane* airplane = &map_airplane[r.aircraft_code];
+			
+			int depot = airplane->depot;
+			int maxFuel = airplane->max_fuel;
+			int groundTime = map_airstrip[depot].ground_time;
+			
+			double arrivalTime = r.departure[r.index - 1] + (from_to[origin][depot] / airplane->speed);
 
-			depot = map_airplane[r.aircraft_code].depot;
-			maxFuel = map_airplane[r.aircraft_code].max_fuel;
-			maxWeight = map_airplane[r.aircraft_code].max_weight;
-			speed = map_airplane[r.aircraft_code].speed;
-			groundTime = map_airstrip[depot].ground_time;
-			arrivalTime = r.time_dep[r.index - 1] + (from_to[r.places[r.index - 1]][depot] / speed);
-
-			r.addPlace(depot, 1, maxFuel, maxWeight - maxFuel, 0, arrivalTime, arrivalTime + groundTime);
+			r.addPlace(depot, 1, maxFuel, airplane->max_weight - maxFuel, 0, arrivalTime, arrivalTime + groundTime);
 		}
 
 		r.print();
@@ -510,9 +504,10 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 		double cost_route = 0.0;
 		//first of all calculate the fixed cost of use the aircraft and the landing cost;
 		if (r.primo_pass) {
-			cost += map_airplane[r.aircraft_code].fixed_cost;
-			cost_route += map_airplane[r.aircraft_code].fixed_cost;
-			costo_fisso += map_airplane[r.aircraft_code].fixed_cost;
+			Airplane* airplane = &map_airplane[r.aircraft_code];
+			cost += airplane->fixed_cost;
+			cost_route += airplane->fixed_cost;
+			costo_fisso += airplane->fixed_cost;
 		}
 
 		double mileage = 0.0;
@@ -526,7 +521,7 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 				costo_landing += map_airstrip[r.places[i]].landing_cost;
 			}
 			if (i < r.index - 1) {
-				if (i == 0 && r.capacity[i] == 0) {
+				if (i == 0 && r.capacities[i] == 0) {
 					mileage = 0.0;
 				}
 				else {
@@ -550,14 +545,10 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 			cost_route += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			costo_Intermediate += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;
 
-
-			double TW_departure = 0.0;
-			if (r.time_dep[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_dep[p.solution_from];
-			else if (r.time_dep[p.solution_from] > p.late_departure) TW_departure = r.time_dep[p.solution_from] - p.late_departure;
-
-			double TW_arrival = 0.0;
-			if (r.time_arr[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[p.solution_to];
-			else if (r.time_arr[p.solution_to] > p.late_arrival) TW_arrival = r.time_arr[p.solution_to] - p.late_arrival;
+			double departure = r.departure[p.solution_from];
+			double arrival = r.arrival[p.solution_to];
+			double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
+			double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
 
 			cost += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
 			cost_route += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
@@ -569,13 +560,11 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 
 	double minuti_TW = (costo_Time_Window / peso_TW);
 	double n_intermediate = (costo_Intermediate / peso_intermediate_stop);
-	double gap_perc = ((cost - costo_company) / costo_company) * 100;
+	double gap_perc = (cost/costo_company - 1) * 100;
 	cout << costo_fisso << ";" << costo_landing << ";" << costo_fuel << ";" << costo_km << ";" << costo_Intermediate << ";" << costo_Time_Window << ";" << minuti_TW << ";" << n_intermediate << ";" << gap_perc << ";";
 }
 
 double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_weights, Route& r) {
-	double peso_TW = penalty_weights.time_window;
-	double peso_intermediate_stop = penalty_weights.intermediate_stop;
 	
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
@@ -595,12 +584,11 @@ double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_we
 		}
 
 		if (i < r.index - 1) {
-			if (i == 0 && r.capacity[i] == 0) {
+			if (i == 0 && r.capacities[i] == 0) {
 				mileage = 0.0;
 			}
 			else {
 				mileage += from_to[r.places[i]][r.places[i + 1]];
-				//time_travel = from_to[r.places[i] + ";" + r.places[i + 1]] / map_airplane[r.aircraft_code].speed;
 				fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
 			}
 		}
@@ -610,18 +598,14 @@ double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_we
 	cost += fuel_consumed;
 
 	for (const auto& p : r.passengers_in_route) {
+		cost += ((p.solution_to - p.solution_from - 1) * penalty_weights.intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 
-		//double time_departure = r.time_arr[p.solution_from];
-		//double time_arrival = r.time_arr[p.solution_to];
-		cost += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
-
-		double TW_departure = 0.0;
-		if (r.time_dep[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_dep[p.solution_from];
-		else if (r.time_dep[p.solution_from] > p.late_departure) TW_departure = r.time_dep[p.solution_from] - p.late_departure;
-		double TW_arrival = 0.0;
-		if (r.time_arr[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[p.solution_to];
-		else if (r.time_arr[p.solution_to] > p.late_arrival) TW_arrival = r.time_arr[p.solution_to] - p.late_arrival;
-		cost += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
+		double departure = r.departure[p.solution_from];
+		double arrival = r.arrival[p.solution_to];
+		double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
+		double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
+		
+		cost += ((TW_departure + TW_arrival) * penalty_weights.time_window) * p.capacity;
 	}
 
 	return cost;
@@ -649,7 +633,6 @@ double calculate_ObjectiveFunction(ProcessedInput* input, const  PenaltyWeights&
 		double mileage = 0.0;
 		double fuel_consumed = 0.0;
 
-
 		for (int i = 0; i < r.index; i++) {
 
 			if (i >= 1) {
@@ -657,7 +640,7 @@ double calculate_ObjectiveFunction(ProcessedInput* input, const  PenaltyWeights&
 				cost_route += map_airstrip[r.places[i]].landing_cost;
 			}
 			if (i < r.index - 1) {
-				if (i == 0 && r.capacity[i] == 0) {
+				if (i == 0 && r.capacities[i] == 0) {
 					mileage = 0.0;
 				}
 				else {
@@ -678,13 +661,10 @@ double calculate_ObjectiveFunction(ProcessedInput* input, const  PenaltyWeights&
 			cost += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			cost_route += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 
-			double TW_departure = 0.0;
-			if (r.time_dep[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_dep[p.solution_from];
-			else if (r.time_dep[p.solution_from] > p.late_departure) TW_departure = r.time_dep[p.solution_from] - p.late_departure;
-
-			double TW_arrival = 0.0;
-			if (r.time_arr[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[p.solution_to];
-			else if (r.time_arr[p.solution_to] > p.late_arrival) TW_arrival = r.time_arr[p.solution_to] - p.late_arrival;
+			double departure = r.departure[p.solution_from];
+			double arrival = r.arrival[p.solution_to];
+			double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
+			double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
 
 			cost += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
 			cost_route += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
@@ -700,14 +680,11 @@ double cost_time_windows_for_route(Route& r, double peso_TW) {
 	double cost = 0.0;
 
 	for (const Passenger& p : r.passengers_in_route) {
-		
-		double TW_departure = 0.0;
-		if (r.time_dep[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_dep[p.solution_from];
-		else if (r.time_dep[p.solution_from] > p.late_departure) TW_departure = r.time_dep[p.solution_from] - p.late_departure;
 
-		double TW_arrival = 0.0;
-		if (r.time_arr[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[p.solution_to];
-		else if (r.time_arr[p.solution_to] > p.late_arrival) TW_arrival = r.time_arr[p.solution_to] - p.late_arrival;
+		double departure = r.departure[p.solution_from];
+		double arrival = r.arrival[p.solution_to];
+		double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
+		double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
 
 		cost += (TW_departure + TW_arrival) * p.capacity;
 	}
@@ -717,33 +694,24 @@ double cost_time_windows_for_route(Route& r, double peso_TW) {
 	return cost;
 }
 
-double cost__for_route_passenger_destroyCluster(Route& r, Passenger& p, int fattore_inter_stop, double peso_TW) {
-	double cost = 0.0;
+double cost_for_route_passenger_destroyCluster(Route& r, Passenger& p, int inter_stop_factor, double peso_TW) {
 
-	double TW_departure = 0.0;
-	if (r.time_dep[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_dep[p.solution_from];
-	if (r.time_dep[p.solution_from] > p.late_departure) TW_departure = r.time_dep[p.solution_from] - p.late_departure;
+	double departure = r.departure[p.solution_from];
+	double arrival = r.arrival[p.solution_to]; 
+	double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
+	double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
 
-	double TW_arrival = 0.0;
-	if (r.time_arr[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[p.solution_to];
-	if (r.time_arr[p.solution_to] > p.late_arrival) TW_arrival = r.time_arr[p.solution_to] - p.late_arrival;
-
-	cost += ((TW_departure + TW_arrival) * peso_TW + fattore_inter_stop * (p.solution_to - p.solution_from - 1)) * p.capacity;
-
-	return cost;
+	return ((TW_departure + TW_arrival) * peso_TW + inter_stop_factor * (p.solution_to - p.solution_from - 1)) * p.capacity;
 }
 
 double cost_time_windows_for_node(Route& r, vector<Passenger>& pass, double peso_TW) {
 	double cost = 0.0;
 	for (const Passenger& p : pass) {
-
-		double TW_departure = 0.0;
-		if (r.time_dep[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_dep[p.solution_from];
-		else if (r.time_dep[p.solution_from] > p.late_departure) TW_departure = r.time_dep[p.solution_from] - p.late_departure;
-
-		double TW_arrival = 0.0;
-		if (r.time_arr[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[p.solution_to];
-		else if (r.time_arr[p.solution_to] > p.late_arrival) TW_arrival = r.time_arr[p.solution_to] - p.late_arrival;
+		double departure = r.departure[p.solution_from];
+		double arrival = r.arrival[p.solution_to];
+		
+		double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
+		double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
 
 		cost += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
 	}
@@ -755,12 +723,16 @@ double cost_time_windows_for_route_passenger(Route& r, Passenger& p, double peso
 	double cost = 0.0;
 
 	double TW_departure = 0.0;
-	if (r.time_dep[p.solution_from] < p.early_departure) TW_departure = p.early_departure - r.time_dep[p.solution_from];
-	else if (r.time_dep[p.solution_from] > p.late_departure) TW_departure = r.time_dep[p.solution_from] - p.late_departure;
+	if (r.departure[p.solution_from] < p.early_departure) 
+		TW_departure = p.early_departure - r.departure[p.solution_from];
+	else if (r.departure[p.solution_from] > p.late_departure) 
+		TW_departure = r.departure[p.solution_from] - p.late_departure;
 
 	double TW_arrival = 0.0;
-	if (r.time_arr[p.solution_to] < p.early_arrival) TW_arrival = p.early_arrival - r.time_arr[p.solution_to];
-	else if (r.time_arr[p.solution_to] > p.late_arrival) TW_arrival = r.time_arr[p.solution_to] - p.late_arrival;
+	if (r.arrival[p.solution_to] < p.early_arrival) 
+		TW_arrival = p.early_arrival - r.arrival[p.solution_to];
+	else if (r.arrival[p.solution_to] > p.late_arrival) 
+		TW_arrival = r.arrival[p.solution_to] - p.late_arrival;
 
 	cost += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
 
@@ -794,7 +766,7 @@ double costo_senza_time_windows(ProcessedInput* input, vector<Route>& solution) 
 		double fuel_consumed = 0.0;
 		for (int i = 0; i < r.index - 1; i++) {
 			//double time_travel = 0.0;
-			if (i == 0 && r.capacity[i] == 0) {
+			if (i == 0 && r.capacities[i] == 0) {
 				mileage = 0.0;
 			}
 			else {
@@ -823,8 +795,8 @@ double costo_time_windows_and_intermediate_stop(const PenaltyWeights& penalty_we
 	for (auto& r : solution) {
 
 		for (const auto& p : r.passengers_in_route) {
-			double time_departure = r.time_arr[p.solution_from];
-			double time_arrival = r.time_arr[p.solution_to];
+			double time_departure = r.arrival[p.solution_from];
+			double time_arrival = r.arrival[p.solution_to];
 
 			double TW_departure = 0.0;
 			if (time_departure < p.early_departure) TW_departure = p.early_departure - time_departure;

@@ -69,7 +69,7 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 
 								r_support.update_route_rebuilt_one_first_fase(input, caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, p, non_to, non_to_final, num_equals);
 
-								if (r_support.time_arr[r_support.index - 1] <= end_day) {
+								if (r_support.arrival[r_support.index - 1] <= end_day) {
 									r_support.update_route_rebuilt_one_second_fase(input, caso, node_add_from, node_add_to, p.arrival_location, p, non_to, non_to_final, num_equals);
 
 									if ((p.solution_to - p.solution_from <= p.stop)) {
@@ -109,8 +109,8 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 					double fuel_consumed = from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.departure_location][p.arrival_location];
 
 					double time_window_cost = 0.0;
-					double t_arr_departure = routes_destroyed[r].time_arr[routes_destroyed[r].index - 1];
-					double t_arr_arrival = routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time;
+					double t_arr_departure = routes_destroyed[r].arrival[routes_destroyed[r].index - 1];
+					double t_arr_arrival = routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time;
 					if (t_arr_departure < p.early_departure) time_window_cost += p.early_departure - t_arr_departure;
 					else if (t_arr_departure > p.late_departure) time_window_cost += t_arr_departure - p.late_departure;
 
@@ -126,8 +126,8 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 					//**************************************************************************************
 
 					if (best_cost > cost) {
-						if (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time <= end_day) {
-							if (routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
+						if (routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time <= end_day) {
+							if (routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
 								best_cost = cost;
 								best_route = r;
 								move_c = true;
@@ -139,7 +139,7 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 					// the departure is not equals to the last place of the route
 					double cost = from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location] + from_to[p.departure_location][p.arrival_location];
 					double TW_departure = 0.0;
-					double t_arr_departure = routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + (((from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location]) / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60);
+					double t_arr_departure = routes_destroyed[r].departure[routes_destroyed[r].index - 1] + (((from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location]) / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60);
 					if (t_arr_departure < p.early_departure) TW_departure = p.early_departure - t_arr_departure;
 					else if (t_arr_departure > p.late_departure) TW_departure = t_arr_departure - p.late_departure;
 
@@ -157,13 +157,13 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 					
 					//ora fisso le vairabili che mi servono, questo lo faccio perch? nella departure per il passeggero potrebbe esserci il caso in cui l'aero possa fare 
 					//refuel
-					double f_after_primo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto;
+					double f_after_primo_tratto = routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto;
 					double f_after_secondo_tratto = 0.0;
 					if (map_airstrip[p.departure_location].fuel) {
 						f_after_secondo_tratto = map_airplane[routes_destroyed[r].aircraft_code].max_fuel - fuel_consumed_secondo_tratto;
 					}
 					else {
-						f_after_secondo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
+						f_after_secondo_tratto = routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
 					}
 
 					//code for casual number [0.8;1.2]*****************************************************
@@ -286,7 +286,7 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights
 								r_support.update_route_rebuilt_one_first_fase(input, caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, p, non_to, non_to_final, num_equals);
 
 
-								if (r_support.time_arr[r_support.index - 1] <= end_day) {
+								if (r_support.arrival[r_support.index - 1] <= end_day) {
 
 									r_support.update_route_rebuilt_one_second_fase(input, caso, node_add_from, node_add_to, p.arrival_location, p, non_to, non_to_final, num_equals);
 
@@ -323,8 +323,8 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights
 					
 
 					double time_window_cost = 0.0;
-					double t_arr_departure = routes_destroyed[r].time_arr[routes_destroyed[r].index - 1];
-					double t_arr_arrival = routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time;
+					double t_arr_departure = routes_destroyed[r].arrival[routes_destroyed[r].index - 1];
+					double t_arr_arrival = routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time;
 					if (t_arr_departure < p.early_departure) time_window_cost += p.early_departure - t_arr_departure;
 					else if (t_arr_departure > p.late_departure) time_window_cost += t_arr_departure - p.late_departure;
 
@@ -333,8 +333,8 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights
 
 					double cost = dist + ((time_window_cost * penalty_weights.time_window) * p.capacity) + fuel_consumed;
 					if (best_cost > cost) {
-						if (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time <= end_day) {
-							if (routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
+						if (routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time <= end_day) {
+							if (routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
 								best_cost = cost;
 								best_route = r;
 								move_c = true;
@@ -346,7 +346,7 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights
 					// the departure is not equals to the last place of the route
 					double cost = from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location] + from_to[p.departure_location][p.arrival_location];
 					double TW_departure = 0.0;
-					double t_arr_departure = routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + (((from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location]) / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60);
+					double t_arr_departure = routes_destroyed[r].departure[routes_destroyed[r].index - 1] + (((from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location]) / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60);
 					if (t_arr_departure < p.early_departure) TW_departure = p.early_departure - t_arr_departure;
 					else if (t_arr_departure > p.late_departure) TW_departure = t_arr_departure - p.late_departure;
 
@@ -368,13 +368,13 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights
 
 					//ora fisso le vairabili che mi servono, questo lo faccio perch? nella departure per il passeggero potrebbe esserci il caso in cui l'aero possa fare 
 					//refuel
-					double f_after_primo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto;
+					double f_after_primo_tratto = routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto;
 					double f_after_secondo_tratto = 0.0;
 					if (map_airstrip[p.departure_location].fuel) {
 						f_after_secondo_tratto = map_airplane[routes_destroyed[r].aircraft_code].max_fuel - fuel_consumed_secondo_tratto;
 					}
 					else {
-						f_after_secondo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
+						f_after_secondo_tratto = routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
 					}
 
 					if (best_cost > cost) {
@@ -609,7 +609,7 @@ vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_w
 
 								r_support.update_route_rebuilt_one_first_fase(input, caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, p, non_to, non_to_final, num_equals);
 
-								if (r_support.time_arr[r_support.index - 1] <= end_day) {
+								if (r_support.arrival[r_support.index - 1] <= end_day) {
 
 									r_support.update_route_rebuilt_one_second_fase(input, caso, node_add_from, node_add_to, p.arrival_location, p, non_to, non_to_final, num_equals);
 
@@ -644,8 +644,8 @@ vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_w
 					double fuel_consumed = from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.departure_location][p.arrival_location];
 
 					double time_window_cost = 0.0;
-					double t_arr_departure = routes_destroyed[r].time_arr[routes_destroyed[r].index - 1];
-					double t_arr_arrival = routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time;
+					double t_arr_departure = routes_destroyed[r].arrival[routes_destroyed[r].index - 1];
+					double t_arr_arrival = routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time;
 					if (t_arr_departure < p.early_departure) time_window_cost += p.early_departure - t_arr_departure;
 					else if (t_arr_departure > p.late_departure) time_window_cost += t_arr_departure - p.late_departure;
 
@@ -654,8 +654,8 @@ vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_w
 
 					double cost = dist + ((time_window_cost * peso_TW) * p.capacity) + fuel_consumed;
 					if (best_cost > cost) {
-						if (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time <= end_day) {
-							if (routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
+						if (routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time <= end_day) {
+							if (routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
 								best_cost = cost;
 								best_route = r;
 								move_c = true;
@@ -667,7 +667,7 @@ vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_w
 					// the departure is not equals to the last place of the route
 					double cost = from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location] + from_to[p.departure_location][p.arrival_location];
 					double TW_departure = 0.0;
-					double t_arr_departure = routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + (((from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location]) / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60);
+					double t_arr_departure = routes_destroyed[r].departure[routes_destroyed[r].index - 1] + (((from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location]) / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60);
 					if (t_arr_departure < p.early_departure) TW_departure = p.early_departure - t_arr_departure;
 					else if (t_arr_departure > p.late_departure) TW_departure = t_arr_departure - p.late_departure;
 
@@ -689,13 +689,13 @@ vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_w
 
 					//ora fisso le vairabili che mi servono, questo lo faccio perch? nella departure per il passeggero potrebbe esserci il caso in cui l'aero possa fare 
 					//refuel
-					double f_after_primo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto;
+					double f_after_primo_tratto = routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto;
 					double f_after_secondo_tratto = 0.0;
 					if (map_airstrip[p.departure_location].fuel) {
 						f_after_secondo_tratto = map_airplane[routes_destroyed[r].aircraft_code].max_fuel - fuel_consumed_secondo_tratto;
 					}
 					else {
-						f_after_secondo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
+						f_after_secondo_tratto = routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
 					}
 
 					if (best_cost > cost) {
@@ -834,7 +834,7 @@ vector<Route> two_regret_repair_aggragati(ProcessedInput* input, const PenaltyWe
 
 										r_support.update_route_rebuilt_one_first_fase(input, caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, p, non_to, non_to_final, num_equals);
 
-										if (r_support.time_arr[r_support.index - 1] <= end_day) {
+										if (r_support.arrival[r_support.index - 1] <= end_day) {
 
 
 											r_support.update_route_rebuilt_one_second_fase(input, caso, node_add_from, node_add_to, p.arrival_location, p, non_to, non_to_final, num_equals);
@@ -880,15 +880,15 @@ vector<Route> two_regret_repair_aggragati(ProcessedInput* input, const PenaltyWe
 							double fuel_consumed = from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.departure_location][p.arrival_location];
 
 							double time_window_cost = 0.0;
-							if (routes_destroyed[r].time_arr[routes_destroyed[r].index - 1] < p.early_departure) time_window_cost += p.early_departure - routes_destroyed[r].time_arr[routes_destroyed[r].index - 1];
-							else if (routes_destroyed[r].time_arr[routes_destroyed[r].index - 1] > p.late_departure) time_window_cost += routes_destroyed[r].time_arr[routes_destroyed[r].index - 1] - p.late_departure;
+							if (routes_destroyed[r].arrival[routes_destroyed[r].index - 1] < p.early_departure) time_window_cost += p.early_departure - routes_destroyed[r].arrival[routes_destroyed[r].index - 1];
+							else if (routes_destroyed[r].arrival[routes_destroyed[r].index - 1] > p.late_departure) time_window_cost += routes_destroyed[r].arrival[routes_destroyed[r].index - 1] - p.late_departure;
 
-							if ((routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time) < p.early_arrival) time_window_cost += p.early_arrival - (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time);
-							else if ((routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time) > p.late_arrival) time_window_cost += (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time) - p.late_arrival;
+							if ((routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time) < p.early_arrival) time_window_cost += p.early_arrival - (routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time);
+							else if ((routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time) > p.late_arrival) time_window_cost += (routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time) - p.late_arrival;
 
 							double cost = dist + ((time_window_cost * peso_TW) * p.capacity) + fuel_consumed;
-							if (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time <= end_day) {
-								if (routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
+							if (routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time <= end_day) {
+								if (routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
 									costs.push_back(cost);
 									route.push_back(r);
 									move_c.push_back(1);
@@ -902,7 +902,7 @@ vector<Route> two_regret_repair_aggragati(ProcessedInput* input, const PenaltyWe
 							double cost = from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location] + from_to[p.departure_location][p.arrival_location];
 							double TW_departure = 0.0;
 							double time_to_go = (((from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location]) / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60);
-							double t_arr_departure = routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time_to_go;
+							double t_arr_departure = routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time_to_go;
 							if (t_arr_departure < p.early_departure) TW_departure = p.early_departure - t_arr_departure;
 							else if (t_arr_departure > p.late_departure) TW_departure = t_arr_departure - p.late_departure;
 
@@ -920,13 +920,13 @@ vector<Route> two_regret_repair_aggragati(ProcessedInput* input, const PenaltyWe
 							cost += fuel_consumed_primo_tratto + fuel_consumed_secondo_tratto;
 							//ora fisso le vairabili che mi servono, questo lo faccio perch? nella departure per il passeggero potrebbe esserci il caso in cui l'aero possa fare 
 							//refuel
-							double f_after_primo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto;
+							double f_after_primo_tratto = routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto;
 							double f_after_secondo_tratto = 0.0;
 							if (map_airstrip[p.departure_location].fuel) {
 								f_after_secondo_tratto = map_airplane[routes_destroyed[r].aircraft_code].max_fuel - fuel_consumed_secondo_tratto;
 							}
 							else {
-								f_after_secondo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
+								f_after_secondo_tratto = routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
 							}
 
 							if (t_arr_arrival <= end_day) {
@@ -1101,7 +1101,7 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 
 									r_support.update_route_rebuilt_one_first_fase(input, caso, node_add_from, node_add_to, p.departure_location, p.arrival_location, p, non_to, non_to_final, num_equals);
 
-									if (r_support.time_arr[r_support.index - 1] <= end_day) {
+									if (r_support.arrival[r_support.index - 1] <= end_day) {
 
 										r_support.update_route_rebuilt_one_second_fase(input, caso, node_add_from, node_add_to, p.arrival_location, p, non_to, non_to_final, num_equals);
 
@@ -1138,8 +1138,8 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 						double fuel_consumed = from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.departure_location][p.arrival_location];
 
 						double time_window_cost = 0.0;
-						double t_arr_departure = routes_destroyed[r].time_arr[routes_destroyed[r].index - 1];
-						double t_arr_arrival = routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time;
+						double t_arr_departure = routes_destroyed[r].arrival[routes_destroyed[r].index - 1];
+						double t_arr_arrival = routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time;
 						if (t_arr_departure < p.early_departure) time_window_cost += p.early_departure - t_arr_departure;
 						else if (t_arr_departure > p.late_departure) time_window_cost += t_arr_departure - p.late_departure;
 
@@ -1148,8 +1148,8 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 
 						double cost = dist + ((time_window_cost * peso_TW) * p.capacity) + fuel_consumed;
 						if (best_cost > cost) {
-							if (routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + time <= end_day) {
-								if (routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
+							if (routes_destroyed[r].departure[routes_destroyed[r].index - 1] + time <= end_day) {
+								if (routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed >= (map_airplane[routes_destroyed[r].aircraft_code].min_fuel + location_fuel[routes_destroyed[r].aircraft_code][p.arrival_location])) {
 									best_cost = cost;
 									best_route = r;
 									move_c = true;
@@ -1161,7 +1161,7 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 						// the departure is not equals to the last place of the route
 						double cost = from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location] + from_to[p.departure_location][p.arrival_location];
 						double TW_departure = 0.0;
-						double t_arr_departure = routes_destroyed[r].time_dep[routes_destroyed[r].index - 1] + (((from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location]) / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60);
+						double t_arr_departure = routes_destroyed[r].departure[routes_destroyed[r].index - 1] + (((from_to[routes_destroyed[r].places[routes_destroyed[r].index - 1]][p.departure_location]) / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60);
 						if (t_arr_departure < p.early_departure) TW_departure = p.early_departure - t_arr_departure;
 						else if (t_arr_departure > p.late_departure) TW_departure = t_arr_departure - p.late_departure;
 
@@ -1179,13 +1179,13 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 
 						//ora fisso le vairabili che mi servono, questo lo faccio perch? nella departure per il passeggero potrebbe esserci il caso in cui l'aero possa fare 
 						//refuel
-						double f_after_primo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto;
+						double f_after_primo_tratto = routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto;
 						double f_after_secondo_tratto = 0.0;
 						if (map_airstrip[p.departure_location].fuel) {
 							f_after_secondo_tratto = map_airplane[routes_destroyed[r].aircraft_code].max_fuel - fuel_consumed_secondo_tratto;
 						}
 						else {
-							f_after_secondo_tratto = routes_destroyed[r].quantity_fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
+							f_after_secondo_tratto = routes_destroyed[r].fuel[routes_destroyed[r].index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
 						}
 
 						if (best_cost > cost) {

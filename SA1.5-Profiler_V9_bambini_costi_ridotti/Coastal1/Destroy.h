@@ -56,18 +56,18 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 				for (int i = (int)(r.places.size()) - 1; i >= 1; i--) {
 					r.places.erase(r.places.begin() + i);
 					r.refueling.erase(r.refueling.begin() + i);
-					r.quantity_fuel.erase(r.quantity_fuel.begin() + i);
-					r.time_arr.erase(r.time_arr.begin() + i);
-					r.time_dep.erase(r.time_dep.begin() + i);
-					r.capacity.erase(r.capacity.begin() + i);
-					r.weight.erase(r.weight.begin() + i);
+					r.fuel.erase(r.fuel.begin() + i);
+					r.arrival.erase(r.arrival.begin() + i);
+					r.departure.erase(r.departure.begin() + i);
+					r.capacities.erase(r.capacities.begin() + i);
+					r.weights.erase(r.weights.begin() + i);
 					r.index--;
 				}
 				//qua ci dovrebbe essere solo il deposito
 				//fisso il peso, capacita e fuel ai valori di default e la variabile passeggeri dentro a false
-				r.quantity_fuel[0] = map_airplane[r.aircraft_code].max_fuel;
-				r.weight[0] = map_airplane[r.aircraft_code].weight_fuel_people - r.quantity_fuel[0];
-				r.capacity[0] = 0;
+				r.fuel[0] = map_airplane[r.aircraft_code].max_fuel;
+				r.weights[0] = map_airplane[r.aircraft_code].load_weight - r.fuel[0];
+				r.capacities[0] = 0;
 				r.primo_pass = false;
 
 				//ora devo togliere tutti i passeggeri
@@ -100,8 +100,8 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 									if (r.passengers_in_route[p].solution_from < Min_From_Pass) Min_From_Pass = r.passengers_in_route[p].solution_from;
 									int_removed.push_back(p);
 									for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-										r.capacity[t] -= r.passengers_in_route[p].capacity;
-										r.weight[t] += r.passengers_in_route[p].weight;
+										r.capacities[t] -= r.passengers_in_route[p].capacity;
+										r.weights[t] += r.passengers_in_route[p].weight;
 									}
 								}
 							}
@@ -122,15 +122,15 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 							}
 
 							for (int k = index_min_from; k < Max_To_Pass; k++) {
-								if (r.refueling[k] && r.quantity_fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
+								if (r.refueling[k] && r.fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
 									int Node_min = k;
-									double min_weight = r.weight[k];
+									double min_weight = r.weights[k];
 									int index_updating_from = k;
 									int index_updating_to = r.index;  //qua prima c'era -1
 									for (int i = k + 1; i <= Max_To_Pass; i++) {
 										if (r.refueling[i]) break;
-										if (r.weight[i] < min_weight && i != node_destroy) {
-											min_weight = r.weight[i];
+										if (r.weights[i] < min_weight && i != node_destroy) {
+											min_weight = r.weights[i];
 											Node_min = i;
 										}
 										//}
@@ -143,13 +143,13 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 											}
 										}
 
-										double Fuel_before = r.quantity_fuel[index_updating_from];
-										r.quantity_fuel[index_updating_from] = min(map_airplane[r.aircraft_code].max_fuel, r.quantity_fuel[index_updating_from] + min_weight);
-										r.weight[index_updating_from] -= (r.quantity_fuel[index_updating_from] - Fuel_before);
+										double Fuel_before = r.fuel[index_updating_from];
+										r.fuel[index_updating_from] = min(map_airplane[r.aircraft_code].max_fuel, r.fuel[index_updating_from] + min_weight);
+										r.weights[index_updating_from] -= (r.fuel[index_updating_from] - Fuel_before);
 										for (int i = index_updating_from + 1; i < index_updating_to; i++) {
 											if (i != node_destroy) {
-												r.quantity_fuel[i] += (r.quantity_fuel[index_updating_from] - Fuel_before);
-												r.weight[i] -= (r.quantity_fuel[index_updating_from] - Fuel_before);
+												r.fuel[i] += (r.fuel[index_updating_from] - Fuel_before);
+												r.weights[i] -= (r.fuel[index_updating_from] - Fuel_before);
 											}
 										}
 									}
@@ -166,7 +166,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 
 							double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.places[node_destroy - 1]][r.places[node_destroy + 1]];
 
-							if (fuel_consumed <= r.quantity_fuel[node_destroy - 1] && r.places[node_destroy - 1] != r.places[node_destroy + 1]) {
+							if (fuel_consumed <= r.fuel[node_destroy - 1] && r.places[node_destroy - 1] != r.places[node_destroy + 1]) {
 								check = false;
 								vector<int> int_removed;
 								int Min_From_Pass = node_destroy;
@@ -177,8 +177,8 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 										if (r.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = r.passengers_in_route[p].solution_to;
 										int_removed.push_back(p);
 										for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-											r.capacity[t] -= r.passengers_in_route[p].capacity;
-											r.weight[t] += r.passengers_in_route[p].weight;
+											r.capacities[t] -= r.passengers_in_route[p].capacity;
+											r.weights[t] += r.passengers_in_route[p].weight;
 										}
 
 									}
@@ -203,19 +203,19 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 									if (r.refueling[i]) break;
 									if (index_before == (node_destroy - 1)) {
 
-										diff = r.quantity_fuel[i];
-										r.quantity_fuel[i] = r.quantity_fuel[index_before] - fuel_consumed;
-										diff = diff - r.quantity_fuel[i];
+										diff = r.fuel[i];
+										r.fuel[i] = r.fuel[index_before] - fuel_consumed;
+										diff = diff - r.fuel[i];
 									}
 									else {
-										r.quantity_fuel[i] = r.quantity_fuel[i] - diff;
+										r.fuel[i] = r.fuel[i] - diff;
 									}
 
 									if (r.refueling[node_destroy]) {
-										r.weight[i] = r.weight[i] + diff;
+										r.weights[i] = r.weights[i] + diff;
 									}
 									else {
-										r.weight[i] = r.weight[i] + diff;
+										r.weights[i] = r.weights[i] + diff;
 									}
 
 									index_before = i + 1;
@@ -228,8 +228,8 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 								double add_fuel = 0;
 								int index_weight_neg = -1;
 								for (int j = 0; j < r.index; j++) {
-									if (r.weight[j] < 0) {
-										add_fuel = r.weight[j];
+									if (r.weights[j] < 0) {
+										add_fuel = r.weights[j];
 										index_weight_neg = j;
 										int index_refueling = index_weight_neg;
 										for (int i = index_weight_neg; i >= 0; i--) {
@@ -241,8 +241,8 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 
 										for (int t = index_refueling; t < r.index; t++) {
 											if (r.refueling[t] && t != index_refueling) break;
-											r.quantity_fuel[t] += add_fuel;
-											r.weight[t] -= add_fuel;
+											r.fuel[t] += add_fuel;
+											r.weights[t] -= add_fuel;
 										}
 									}
 								}
@@ -288,8 +288,8 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 							int_removed.push_back(p);
 
 							for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-								r.capacity[t] -= r.passengers_in_route[p].capacity;
-								r.weight[t] += r.passengers_in_route[p].weight;
+								r.capacities[t] -= r.passengers_in_route[p].capacity;
+								r.weights[t] += r.passengers_in_route[p].weight;
 							}
 						}
 					}
@@ -313,18 +313,18 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 					
 					// Codice che serve per cercare il minimo nel range
 					for (int k = index_min_from; k < Max_To_Pass; k++) {
-						if (r.refueling[k] && r.quantity_fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
+						if (r.refueling[k] && r.fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
 						//cout << " Sto valutando il caso del nodo " << k << endl;
 							int Node_min = k;
-							double min_weight = r.weight[k];
+							double min_weight = r.weights[k];
 							int index_updating_from = k;
 							int index_updating_to = r.index;  //qua prima c'era -1
 							for (int i = k + 1; i <= Max_To_Pass; i++) {
 								//cout << " Sto guardando il nodo " << i << endl;
 								if (r.refueling[i]) break;
 
-								if (r.weight[i] < min_weight && i != node_destroy) {
-									min_weight = r.weight[i];
+								if (r.weights[i] < min_weight && i != node_destroy) {
+									min_weight = r.weights[i];
 									Node_min = i;
 								}
 							}
@@ -336,14 +336,14 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 										break;
 									}
 								}
-								double Fuel_before = r.quantity_fuel[index_updating_from];
-								r.quantity_fuel[index_updating_from] = min(map_airplane[r.aircraft_code].max_fuel, r.quantity_fuel[index_updating_from] + min_weight);
-								r.weight[index_updating_from] -= (r.quantity_fuel[index_updating_from] - Fuel_before);
+								double Fuel_before = r.fuel[index_updating_from];
+								r.fuel[index_updating_from] = min(map_airplane[r.aircraft_code].max_fuel, r.fuel[index_updating_from] + min_weight);
+								r.weights[index_updating_from] -= (r.fuel[index_updating_from] - Fuel_before);
 
 								for (int i = index_updating_from + 1; i < index_updating_to; i++) {
 									if (i != node_destroy) {
-										r.quantity_fuel[i] += (r.quantity_fuel[index_updating_from] - Fuel_before);
-										r.weight[i] -= (r.quantity_fuel[index_updating_from] - Fuel_before);
+										r.fuel[i] += (r.fuel[index_updating_from] - Fuel_before);
+										r.weights[i] -= (r.fuel[index_updating_from] - Fuel_before);
 									}
 								}
 							}
@@ -355,9 +355,9 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 					double add_fuel = 0;
 					int index_weight_neg = -1;
 					for (int j = 0; j < r.index; j++) {
-						if (r.weight[j] < 0) {
+						if (r.weights[j] < 0) {
 
-							add_fuel = r.weight[j];
+							add_fuel = r.weights[j];
 							index_weight_neg = j;
 							int index_refueling = index_weight_neg;
 							for (int i = index_weight_neg; i >= 0; i--) {
@@ -370,8 +370,8 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 							for (int t = index_refueling; t < r.index; t++) {
 
 								if (r.refueling[t] && t != index_refueling) break;
-								r.quantity_fuel[t] += add_fuel;
-								r.weight[t] -= add_fuel;
+								r.fuel[t] += add_fuel;
+								r.weights[t] -= add_fuel;
 
 							}
 						}
@@ -381,7 +381,7 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 
 					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.places[node_destroy - 1]][r.places[node_destroy + 1]];
 					
-					if ((fuel_consumed + map_airplane[r.aircraft_code].min_fuel) <= r.quantity_fuel[node_destroy - 1] && r.places[node_destroy - 1] != r.places[node_destroy + 1]) {
+					if ((fuel_consumed + map_airplane[r.aircraft_code].min_fuel) <= r.fuel[node_destroy - 1] && r.places[node_destroy - 1] != r.places[node_destroy + 1]) {
 						check = false;
 						vector<int> int_removed;
 						int Min_From_Pass = node_destroy;
@@ -392,8 +392,8 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 								if (r.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = r.passengers_in_route[p].solution_to;
 								int_removed.push_back(p);
 								for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-									r.capacity[t] -= r.passengers_in_route[p].capacity;
-									r.weight[t] += r.passengers_in_route[p].weight;
+									r.capacities[t] -= r.passengers_in_route[p].capacity;
+									r.weights[t] += r.passengers_in_route[p].weight;
 								}
 
 							}
@@ -417,16 +417,16 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 							if (r.refueling[i])
 								break;
 							if (index_before == (node_destroy - 1)) {
-								diff = r.quantity_fuel[i];
-								r.quantity_fuel[i] = r.quantity_fuel[index_before] - fuel_consumed;
-								diff = diff - r.quantity_fuel[i];
+								diff = r.fuel[i];
+								r.fuel[i] = r.fuel[index_before] - fuel_consumed;
+								diff = diff - r.fuel[i];
 
 							}
 							else {
-								r.quantity_fuel[i] = r.quantity_fuel[i] - diff;
+								r.fuel[i] = r.fuel[i] - diff;
 							}
 
-							r.weight[i] = r.weight[i] + diff;
+							r.weights[i] = r.weights[i] + diff;
 							index_before = i + 1;
 
 						}
@@ -435,9 +435,9 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 						double add_fuel = 0;
 						int index_weight_neg = -1;
 						for (int j = 0; j < r.index; j++) {
-							if (r.weight[j] < 0) {
+							if (r.weights[j] < 0) {
 
-								add_fuel = r.weight[j];
+								add_fuel = r.weights[j];
 								index_weight_neg = j;
 								int index_refueling = index_weight_neg;
 								for (int i = index_weight_neg; i >= 0; i--) {
@@ -449,8 +449,8 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 
 								for (int t = index_refueling; t < r.index; t++) {
 									if (r.refueling[t] && t != index_refueling) break;
-									r.quantity_fuel[t] += add_fuel;
-									r.weight[t] -= add_fuel;
+									r.fuel[t] += add_fuel;
+									r.weights[t] -= add_fuel;
 								}
 							}
 						}
@@ -501,8 +501,8 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 							int_removed.push_back(p);
 
 							for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-								r.capacity[t] -= r.passengers_in_route[p].capacity;
-								r.weight[t] += r.passengers_in_route[p].weight;
+								r.capacities[t] -= r.passengers_in_route[p].capacity;
+								r.weights[t] += r.passengers_in_route[p].weight;
 							}
 						}
 					}
@@ -524,16 +524,16 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 					}
 
 					for (int k = index_min_from; k < Max_To_Pass; k++) {
-						if (r.refueling[k] && r.quantity_fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
+						if (r.refueling[k] && r.fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
 							int Node_min = k;
-							double min_weight = r.weight[k];
+							double min_weight = r.weights[k];
 							int index_updating_from = k;
 							int index_updating_to = r.index;  //qua prima c'era -1
 							for (int i = k + 1; i <= Max_To_Pass; i++) {
 								if (r.refueling[i])
 									break;
-								if (r.weight[i] < min_weight && i != node_destroy) {
-									min_weight = r.weight[i];
+								if (r.weights[i] < min_weight && i != node_destroy) {
+									min_weight = r.weights[i];
 									Node_min = i;
 								}
 							}
@@ -545,14 +545,14 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 										break;
 									}
 								}
-								double Fuel_before = r.quantity_fuel[index_updating_from];
-								r.quantity_fuel[index_updating_from] = min(map_airplane[r.aircraft_code].max_fuel, r.quantity_fuel[index_updating_from] + min_weight);
-								r.weight[index_updating_from] -= (r.quantity_fuel[index_updating_from] - Fuel_before);
+								double Fuel_before = r.fuel[index_updating_from];
+								r.fuel[index_updating_from] = min(map_airplane[r.aircraft_code].max_fuel, r.fuel[index_updating_from] + min_weight);
+								r.weights[index_updating_from] -= (r.fuel[index_updating_from] - Fuel_before);
 
 								for (int i = index_updating_from + 1; i < index_updating_to; i++) {
 									if (i != node_destroy) {
-										r.quantity_fuel[i] += (r.quantity_fuel[index_updating_from] - Fuel_before);
-										r.weight[i] -= (r.quantity_fuel[index_updating_from] - Fuel_before);
+										r.fuel[i] += (r.fuel[index_updating_from] - Fuel_before);
+										r.weights[i] -= (r.fuel[index_updating_from] - Fuel_before);
 									}
 								}
 							}
@@ -565,7 +565,7 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 
 					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.places[node_destroy - 1]][r.places[node_destroy + 1]];
 
-					if ((fuel_consumed + map_airplane[r.aircraft_code].min_fuel) <= r.quantity_fuel[node_destroy - 1] && r.places[node_destroy - 1] != r.places[node_destroy + 1]) {
+					if ((fuel_consumed + map_airplane[r.aircraft_code].min_fuel) <= r.fuel[node_destroy - 1] && r.places[node_destroy - 1] != r.places[node_destroy + 1]) {
 						check = false;
 						vector<int> int_removed;
 						
@@ -577,8 +577,8 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 								if (r.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = r.passengers_in_route[p].solution_to;
 								int_removed.push_back(p);
 								for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-									r.capacity[t] -= r.passengers_in_route[p].capacity;
-									r.weight[t] += r.passengers_in_route[p].weight;
+									r.capacities[t] -= r.passengers_in_route[p].capacity;
+									r.weights[t] += r.passengers_in_route[p].weight;
 								}
 
 							}
@@ -601,20 +601,20 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 							if (r.refueling[i]) break;
 							
 							if (index_before == (node_destroy - 1)) {
-								diff = r.quantity_fuel[i];
+								diff = r.fuel[i];
 
-								r.quantity_fuel[i] = r.quantity_fuel[index_before] - fuel_consumed;
-								diff = diff - r.quantity_fuel[i];
+								r.fuel[i] = r.fuel[index_before] - fuel_consumed;
+								diff = diff - r.fuel[i];
 							}
 							else {
-								r.quantity_fuel[i] = r.quantity_fuel[i] - diff;
+								r.fuel[i] = r.fuel[i] - diff;
 							}
 
 							if (r.refueling[node_destroy]) {
-								r.weight[i] = r.weight[i] + diff;
+								r.weights[i] = r.weights[i] + diff;
 							}
 							else {
-								r.weight[i] = r.weight[i] + diff;
+								r.weights[i] = r.weights[i] + diff;
 							}
 
 							index_before = i + 1;
@@ -624,8 +624,8 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 						double add_fuel = 0;
 						int index_weight_neg = -1;
 						for (int j = 0; j < r.index; j++) {
-							if (r.weight[j] < 0) {
-								add_fuel = r.weight[j];
+							if (r.weights[j] < 0) {
+								add_fuel = r.weights[j];
 								index_weight_neg = j;
 								int index_refueling = index_weight_neg;
 								for (int i = index_weight_neg; i >= 0; i--) {
@@ -637,8 +637,8 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 
 								for (int t = index_refueling; t < r.index; t++) {
 									if (r.refueling[t] && t != index_refueling) break;
-									r.quantity_fuel[t] += add_fuel;
-									r.weight[t] -= add_fuel;
+									r.fuel[t] += add_fuel;
+									r.weights[t] -= add_fuel;
 								}
 							}
 						}
@@ -675,8 +675,8 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 	for (Route& s : route_destroyed) {
 		for (Passenger& pass : s.passengers_in_route) {
 			int Codpass = pass.pnr;
-			CostTWPass[Codpass] += cost__for_route_passenger_destroyCluster(s, pass, peso_itermediate_stop, peso_TW);
-			Myset.insert(cost__for_route_passenger_destroyCluster(s, pass, peso_itermediate_stop, peso_TW));
+			CostTWPass[Codpass] += cost_for_route_passenger_destroyCluster(s, pass, peso_itermediate_stop, peso_TW);
+			Myset.insert(cost_for_route_passenger_destroyCluster(s, pass, peso_itermediate_stop, peso_TW));
 		}
 	}
 	vector<string> OrderVectore;
@@ -746,8 +746,8 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 
 					int_removed.push_back(p);
 					for (int t = s.passengers_in_route[p].solution_from; t < s.passengers_in_route[p].solution_to; t++) {
-						s.capacity[t] -= s.passengers_in_route[p].capacity;
-						s.weight[t] += s.passengers_in_route[p].weight;
+						s.capacities[t] -= s.passengers_in_route[p].capacity;
+						s.weights[t] += s.passengers_in_route[p].weight;
 					}
 
 				}
@@ -769,11 +769,11 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 				}
 			}
 			for (int k = index_min_from; k < Max_To_Pass; k++) {
-				if (s.refueling[k] && s.quantity_fuel[k] < map_airplane[s.aircraft_code].max_fuel) { //&& k!= node_destroy
+				if (s.refueling[k] && s.fuel[k] < map_airplane[s.aircraft_code].max_fuel) { //&& k!= node_destroy
 					int index_updating_from = k;
 					int index_updating_to = s.index;
 					int Node_min = k;
-					double min_weight = s.weight[k];
+					double min_weight = s.weights[k];
 					//appena aggiunto
 					for (int i = Max_To_Pass; i < s.index; i++) {
 						if (s.refueling[i]) break;
@@ -783,8 +783,8 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 					for (int i = k + 1; i <= Max_To_Pass; i++) {
 						if (s.refueling[i]) break;
 
-						if (s.weight[i] < min_weight) {
-							min_weight = s.weight[i];
+						if (s.weights[i] < min_weight) {
+							min_weight = s.weights[i];
 							Node_min = i;
 						}
 					}
@@ -796,13 +796,13 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 							}
 						}
 
-						double Fuel_before = s.quantity_fuel[index_updating_from];
+						double Fuel_before = s.fuel[index_updating_from];
 
-						s.quantity_fuel[index_updating_from] = min(map_airplane[s.aircraft_code].max_fuel, s.quantity_fuel[index_updating_from] + min_weight);
-						s.weight[index_updating_from] -= (s.quantity_fuel[index_updating_from] - Fuel_before);
+						s.fuel[index_updating_from] = min(map_airplane[s.aircraft_code].max_fuel, s.fuel[index_updating_from] + min_weight);
+						s.weights[index_updating_from] -= (s.fuel[index_updating_from] - Fuel_before);
 						for (int i = index_updating_from + 1; i < index_updating_to; i++) {
-							s.quantity_fuel[i] += (s.quantity_fuel[index_updating_from] - Fuel_before);
-							s.weight[i] -= (s.quantity_fuel[index_updating_from] - Fuel_before);
+							s.fuel[i] += (s.fuel[index_updating_from] - Fuel_before);
+							s.weights[i] -= (s.fuel[index_updating_from] - Fuel_before);
 						}
 					}
 				}
@@ -812,38 +812,38 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 			int index_sup = s.index;
 			for (int i = index_sup - 1; i > 1; i--) {
 
-				if (s.capacity[i - 1] != 0) break;
+				if (s.capacities[i - 1] != 0) break;
 
-				if (s.capacity[i - 1] == 0) {
+				if (s.capacities[i - 1] == 0) {
 					s.places.erase(s.places.begin() + i);
-					s.time_arr.erase(s.time_arr.begin() + i);
-					s.time_dep.erase(s.time_dep.begin() + i);
+					s.arrival.erase(s.arrival.begin() + i);
+					s.departure.erase(s.departure.begin() + i);
 					s.refueling.erase(s.refueling.begin() + i);
-					s.quantity_fuel.erase(s.quantity_fuel.begin() + i);
-					s.weight.erase(s.weight.begin() + i);
-					s.capacity.erase(s.capacity.begin() + i);
+					s.fuel.erase(s.fuel.begin() + i);
+					s.weights.erase(s.weights.begin() + i);
+					s.capacities.erase(s.capacities.begin() + i);
 					s.index = s.index - 1;
 
 				}
 			}
 
 
-			if (s.index == 2 && s.capacity[0] == 0) {
+			if (s.index == 2 && s.capacities[0] == 0) {
 				s.places.erase(s.places.begin() + 1);
-				s.time_arr.erase(s.time_arr.begin() + 1);
-				s.time_dep.erase(s.time_dep.begin() + 1);
+				s.arrival.erase(s.arrival.begin() + 1);
+				s.departure.erase(s.departure.begin() + 1);
 				s.refueling.erase(s.refueling.begin() + 1);
-				s.quantity_fuel.erase(s.quantity_fuel.begin() + 1);
-				s.weight.erase(s.weight.begin() + 1);
-				s.capacity.erase(s.capacity.begin() + 1);
+				s.fuel.erase(s.fuel.begin() + 1);
+				s.weights.erase(s.weights.begin() + 1);
+				s.capacities.erase(s.capacities.begin() + 1);
 				s.index = s.index - 1;
 			}
 
 			// Questa parte qua forse si puo togliere
 			//qua ? la parte che ho aggiunto io (NELLI) per il problema del nodo al deposito che non si aggiorna
-			if ((int)s.places.size() == 1 && s.capacity[0] == 0) {
-				s.quantity_fuel[0] = map_airplane[s.aircraft_code].max_fuel;
-				s.weight[0] = map_airplane[s.aircraft_code].weight_fuel_people - map_airplane[s.aircraft_code].max_fuel;
+			if ((int)s.places.size() == 1 && s.capacities[0] == 0) {
+				s.fuel[0] = map_airplane[s.aircraft_code].max_fuel;
+				s.weights[0] = map_airplane[s.aircraft_code].load_weight - map_airplane[s.aircraft_code].max_fuel;
 			}
 		}
 	}
@@ -876,7 +876,7 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 				fuel_consumed_check = map_airplane[r.aircraft_code].fuel_burn_first + (time_travel - 1) * map_airplane[r.aircraft_code].fuel_burn_second;
 			}
 		}
-		if ((fuel_consumed_check + map_airplane[r.aircraft_code].min_fuel) <= r.quantity_fuel[node_destroy - 1]) {
+		if ((fuel_consumed_check + map_airplane[r.aircraft_code].min_fuel) <= r.fuel[node_destroy - 1]) {
 			check = false;
 			int number_initial_node = r.index;
 			for (int i = 0; i < 2; i++) {
@@ -897,8 +897,8 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 
 						int_removed.push_back(p);
 						for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-							r.capacity[t] -= r.passengers_in_route[p].capacity;
-							r.weight[t] += r.passengers_in_route[p].weight;
+							r.capacities[t] -= r.passengers_in_route[p].capacity;
+							r.weights[t] += r.passengers_in_route[p].weight;
 						}
 
 					}
@@ -921,16 +921,16 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 					if (r.refueling[i]) break;
 
 					if (index_before == (node_destroy - 1)) {
-						diff = r.quantity_fuel[i];
-						r.quantity_fuel[i] = r.quantity_fuel[index_before] - fuel_consumed;
-						diff = diff - r.quantity_fuel[i];
+						diff = r.fuel[i];
+						r.fuel[i] = r.fuel[index_before] - fuel_consumed;
+						diff = diff - r.fuel[i];
 
 					}
 					else {
-						r.quantity_fuel[i] = r.quantity_fuel[i] - diff;
+						r.fuel[i] = r.fuel[i] - diff;
 					}
 
-					r.weight[i] = r.weight[i] + diff;
+					r.weights[i] = r.weights[i] + diff;
 					index_before = i + 1;
 
 				}
@@ -939,8 +939,8 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 				double add_fuel = 0;
 				int index_weight_neg = -1;
 				for (int j = 0; j < r.index; j++) {
-					if (r.weight[j] < 0) {
-						add_fuel = r.weight[j];
+					if (r.weights[j] < 0) {
+						add_fuel = r.weights[j];
 						index_weight_neg = j;
 						int index_refueling = index_weight_neg;
 						for (int i = index_weight_neg; i >= 0; i--) {
@@ -952,8 +952,8 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 						for (int t = index_refueling; t < r.index; t++) {
 
 							if (r.refueling[t] && t != index_refueling) break;
-							r.quantity_fuel[t] += add_fuel;
-							r.weight[t] -= add_fuel;
+							r.fuel[t] += add_fuel;
+							r.weights[t] -= add_fuel;
 						}
 					}
 				}

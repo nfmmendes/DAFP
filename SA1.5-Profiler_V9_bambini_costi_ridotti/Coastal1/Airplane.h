@@ -26,8 +26,8 @@ public:
 	double min_fuel;
 	double fixed_cost;
 
-	//for the check of the weight
-	double weight_fuel_people;
+	//for the check of the weights
+	double load_weight;
 
 
 	//costructors and distructor

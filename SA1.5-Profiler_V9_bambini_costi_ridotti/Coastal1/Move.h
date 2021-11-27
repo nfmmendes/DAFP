@@ -116,13 +116,13 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 		for (int i = 1; i < r.index; i++) {
 			if ((i < A) || (i > B)) {
 				// Caso in cui rimane come prima
-				r_new.addPlace(r.places[i], r.refueling[i], r.quantity_fuel[i], 0.0, 0, r.time_arr[i], r.time_dep[i]);
+				r_new.addPlace(r.places[i], r.refueling[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
 			}
 			else if ((i >= A) && (i < B)) {
-				r_new.addPlace(r.places[i + 1], r.refueling[i + 1], r.quantity_fuel[i + 1], 0.0, 0, r.time_arr[i + 1], r.time_dep[i + 1]);
+				r_new.addPlace(r.places[i + 1], r.refueling[i + 1], r.fuel[i + 1], 0.0, 0, r.arrival[i + 1], r.departure[i + 1]);
 			}
 			else if (i == B) {
-				r_new.addPlace(r.places[A], r.refueling[A], r.quantity_fuel[A], 0.0, 0, r.time_arr[A], r.time_dep[A]);
+				r_new.addPlace(r.places[A], r.refueling[A], r.fuel[A], 0.0, 0, r.arrival[A], r.departure[A]);
 			}
 		}
 	}
@@ -131,18 +131,18 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 			if (i < (B + 1)) {
 
 				//in questo posto ci devo mettere normalmente i
-				r_new.addPlace(r.places[i], r.refueling[i], r.quantity_fuel[i], 0.0, 0, r.time_arr[i], r.time_dep[i]);
+				r_new.addPlace(r.places[i], r.refueling[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
 			}
 			else if (i == (B + 1)) {
 				//in questo posto ci devo mettere A
-				r_new.addPlace(r.places[A], r.refueling[A], r.quantity_fuel[A], 0.0, 0, r.time_arr[A], r.time_dep[A]);
+				r_new.addPlace(r.places[A], r.refueling[A], r.fuel[A], 0.0, 0, r.arrival[A], r.departure[A]);
 			}
 			else if (i >= A + 1) {
 				//in questo posto ci devo mettere normalmente i-1
-				r_new.addPlace(r.places[i], r.refueling[i], r.quantity_fuel[i], 0.0, 0, r.time_arr[i], r.time_dep[i]);
+				r_new.addPlace(r.places[i], r.refueling[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
 			}
 			else {
-				r_new.addPlace(r.places[i - 1], r.refueling[i - 1], r.quantity_fuel[i - 1], 0.0, 0, r.time_arr[i - 1], r.time_dep[i - 1]);
+				r_new.addPlace(r.places[i - 1], r.refueling[i - 1], r.fuel[i - 1], 0.0, 0, r.arrival[i - 1], r.departure[i - 1]);
 			}
 		}
 	}
@@ -158,29 +158,29 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, const Route& r
 	r_new.aircraft_code = r.aircraft_code;
 	r_new.primo_pass = r.primo_pass;
 
-	r_new.addPlace(r.places[0], r.refueling[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.time_arr[0], r.time_dep[0]);
+	r_new.addPlace(r.places[0], r.refueling[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.arrival[0], r.departure[0]);
 	add_new_place(A, B, r, r_new);
 
 	//aggiorno i tempi e fuel senza aver considerato il probabile peso negativo, il paso qua ? come se lo inizializzassi
 	for (int i = 0; i < r_new.index; i++) {
 		if (i > 0) {
 
-			r_new.time_arr[i] = r_new.time_dep[i - 1] + (((from_to[r_new.places[i - 1]][r_new.places[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
-			r_new.time_dep[i] = r_new.time_arr[i] + map_airstrip[r_new.places[i]].ground_time;
+			r_new.arrival[i] = r_new.departure[i - 1] + (((from_to[r_new.places[i - 1]][r_new.places[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
+			r_new.departure[i] = r_new.arrival[i] + map_airstrip[r_new.places[i]].ground_time;
 
 			double fuel_consumed = from_to_FuelConsumed[r_new.aircraft_code][r_new.places[i - 1]][r_new.places[i]];
 
 			if (r_new.refueling[i]) {
-				r_new.quantity_fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
+				r_new.fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
 			}
 			else {
-				r_new.quantity_fuel[i] = r_new.quantity_fuel[i - 1] - fuel_consumed;
+				r_new.fuel[i] = r_new.fuel[i - 1] - fuel_consumed;
 			}
-			r_new.weight[i] = map_airplane[r_new.aircraft_code].weight_fuel_people - r_new.quantity_fuel[i];
+			r_new.weights[i] = map_airplane[r_new.aircraft_code].load_weight - r_new.fuel[i];
 		}
 		else {
-			r_new.quantity_fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
-			r_new.weight[i] = map_airplane[r_new.aircraft_code].weight_fuel_people - r_new.quantity_fuel[i];
+			r_new.fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
+			r_new.weights[i] = map_airplane[r_new.aircraft_code].load_weight - r_new.fuel[i];
 		}
 	}
 
@@ -189,14 +189,14 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, const Route& r
 		r_new.passengers_in_route.push_back(p);
 
 		for (int t = p.solution_from; t < p.solution_to; t++) {
-			r_new.capacity[t] += p.capacity;
-			r_new.weight[t] -= p.weight;
+			r_new.capacities[t] += p.capacity;
+			r_new.weights[t] -= p.weight;
 		}
 	}
 
 	//aggiorno fuel se il peso ? negatico */
 	for (int i = 0; i < r_new.index; i++) {
-		if (r_new.weight[i] < 0) {
+		if (r_new.weights[i] < 0) {
 			int index_refueling = i;
 			for (int t = i; t >= 0; t--) {
 				if (r_new.refueling[t]) {
@@ -204,14 +204,14 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, const Route& r
 					break;
 				}
 			}
-			double Update_value = r_new.weight[i];
-			r_new.quantity_fuel[index_refueling] += r_new.weight[i];
-			r_new.weight[index_refueling] -= r_new.weight[i];
+			double Update_value = r_new.weights[i];
+			r_new.fuel[index_refueling] += r_new.weights[i];
+			r_new.weights[index_refueling] -= r_new.weights[i];
 			for (int j = index_refueling + 1; j < r_new.index; j++) {
 				if (r_new.refueling[j]) break;
 				else {
-					r_new.quantity_fuel[j] += Update_value;
-					r_new.weight[j] -= Update_value;
+					r_new.fuel[j] += Update_value;
+					r_new.weights[j] -= Update_value;
 				}
 			}
 		}
@@ -223,16 +223,16 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, const Route& r
 void modify_fuel_when_non_max(map<int, Airplane>& map_airplane, Route &r_support)
 {
 	for (int k = 0; k < r_support.index; k++) {
-		if (r_support.refueling[k] && r_support.quantity_fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
+		if (r_support.refueling[k] && r_support.fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
 
 			int Node_min = k;
-			double min_weight = r_support.weight[k];
+			double min_weight = r_support.weights[k];
 			int index_updating_from = k;
 			int index_updating_to = r_support.index;  //qua prima c'era -1
 			for (int i = k + 1; i < r_support.index; i++) {  // SECONDO ME QUA NON CI VA <=
 				if (r_support.refueling[i]) break;
-				if (r_support.weight[i] < min_weight) {
-					min_weight = r_support.weight[i];
+				if (r_support.weights[i] < min_weight) {
+					min_weight = r_support.weights[i];
 					Node_min = i;
 				}
 			}
@@ -246,13 +246,13 @@ void modify_fuel_when_non_max(map<int, Airplane>& map_airplane, Route &r_support
 					}
 				}
 
-				double Fuel_before = r_support.quantity_fuel[index_updating_from];
-				r_support.quantity_fuel[index_updating_from] = min(map_airplane[r_support.aircraft_code].max_fuel, r_support.quantity_fuel[index_updating_from] + min_weight);
-				r_support.weight[index_updating_from] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
+				double Fuel_before = r_support.fuel[index_updating_from];
+				r_support.fuel[index_updating_from] = min(map_airplane[r_support.aircraft_code].max_fuel, r_support.fuel[index_updating_from] + min_weight);
+				r_support.weights[index_updating_from] -= (r_support.fuel[index_updating_from] - Fuel_before);
 
 				for (int i = index_updating_from + 1; i < index_updating_to; i++) {
-					r_support.quantity_fuel[i] += (r_support.quantity_fuel[index_updating_from] - Fuel_before);
-					r_support.weight[i] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
+					r_support.fuel[i] += (r_support.fuel[index_updating_from] - Fuel_before);
+					r_support.weights[i] -= (r_support.fuel[index_updating_from] - Fuel_before);
 				}
 			}
 		}
@@ -325,17 +325,17 @@ vector <Route> move(ProcessedInput* input, const PenaltyWeights& penalty_weights
 void update_fuel_when_no_max_2(map<int, Airplane>& map_airplane, Route r_support)
 {
 	for (int k = 0; k < r_support.index; k++) {
-		if (r_support.refueling[k] && r_support.quantity_fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
+		if (r_support.refueling[k] && r_support.fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
 			int Node_min = k;
-			double min_weight = r_support.weight[k];
+			double min_weight = r_support.weights[k];
 			int index_updating_from = k;
 			int index_updating_to = r_support.index;  //qua prima c'era -1
 			for (int i = k + 1; i < r_support.index; i++) {  // SECONDO ME QUA NON CI VA <=
 				if (r_support.refueling[i]) 
 					break;
 					
-				if (r_support.weight[i] < min_weight) {
-					min_weight = r_support.weight[i];
+				if (r_support.weights[i] < min_weight) {
+					min_weight = r_support.weights[i];
 					Node_min = i;
 				}
 			}
@@ -348,14 +348,14 @@ void update_fuel_when_no_max_2(map<int, Airplane>& map_airplane, Route r_support
 					}
 				}
 					
-				double Fuel_before = r_support.quantity_fuel[index_updating_from];					
-				r_support.quantity_fuel[index_updating_from] = min(map_airplane[r_support.aircraft_code].max_fuel, r_support.quantity_fuel[index_updating_from] + min_weight);
+				double Fuel_before = r_support.fuel[index_updating_from];					
+				r_support.fuel[index_updating_from] = min(map_airplane[r_support.aircraft_code].max_fuel, r_support.fuel[index_updating_from] + min_weight);
 					
-				r_support.weight[index_updating_from] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
+				r_support.weights[index_updating_from] -= (r_support.fuel[index_updating_from] - Fuel_before);
 					
 				for (int i = index_updating_from + 1; i < index_updating_to; i++) {
-					r_support.quantity_fuel[i] += (r_support.quantity_fuel[index_updating_from] - Fuel_before);
-					r_support.weight[i] -= (r_support.quantity_fuel[index_updating_from] - Fuel_before);
+					r_support.fuel[i] += (r_support.fuel[index_updating_from] - Fuel_before);
+					r_support.weights[i] -= (r_support.fuel[index_updating_from] - Fuel_before);
 				}
 			}
 		}

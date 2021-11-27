@@ -15,7 +15,7 @@ const int numero_airstrip_const = 58;
 const int numero_airplane_const = 36;
 
 class ProcessedInput; 
-
+//TODO: Transform in a list of places 
 class Route
 {
 public:
@@ -26,15 +26,15 @@ public:
 	string aircraft_code_company_comparison;
 	vector<int> places;
 	vector<bool> refueling;
-	vector<double> quantity_fuel;
-	vector<double> weight;
+	vector<double> fuel;
+	vector<double> weights;
 	int index;
-	vector<int> capacity;
+	vector<int> capacities;
 	bool primo_pass;
 
 	vector<Passenger> passengers_in_route;
-	vector<double> time_arr;
-	vector<double> time_dep;
+	vector<double> arrival;
+	vector<double> departure;
 
 	Route();
 	Route(int, vector<Passenger>& passengers_in_route);
