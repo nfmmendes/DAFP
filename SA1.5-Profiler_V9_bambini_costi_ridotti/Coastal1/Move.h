@@ -9,8 +9,8 @@
 
 int sequential_same_node(const Route& r) {
 	int node = -1;
-	for (int i = 0; i < ((int)r.places.size()) - 1; i++) {
-		if (r.places[i] == r.places[i + 1]) {
+	for (int i = 0; i < ((int)r.airstrips.size()) - 1; i++) {
+		if (r.airstrips[i] == r.airstrips[i + 1]) {
 			node = i;
 			break;
 		}
@@ -116,13 +116,13 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 		for (int i = 1; i < r.index; i++) {
 			if ((i < A) || (i > B)) {
 				// Caso in cui rimane come prima
-				r_new.addPlace(r.places[i], r.refueling[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
+				r_new.addPlace(r.airstrips[i], r.refueling[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
 			}
 			else if ((i >= A) && (i < B)) {
-				r_new.addPlace(r.places[i + 1], r.refueling[i + 1], r.fuel[i + 1], 0.0, 0, r.arrival[i + 1], r.departure[i + 1]);
+				r_new.addPlace(r.airstrips[i + 1], r.refueling[i + 1], r.fuel[i + 1], 0.0, 0, r.arrival[i + 1], r.departure[i + 1]);
 			}
 			else if (i == B) {
-				r_new.addPlace(r.places[A], r.refueling[A], r.fuel[A], 0.0, 0, r.arrival[A], r.departure[A]);
+				r_new.addPlace(r.airstrips[A], r.refueling[A], r.fuel[A], 0.0, 0, r.arrival[A], r.departure[A]);
 			}
 		}
 	}
@@ -131,18 +131,18 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 			if (i < (B + 1)) {
 
 				//in questo posto ci devo mettere normalmente i
-				r_new.addPlace(r.places[i], r.refueling[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
+				r_new.addPlace(r.airstrips[i], r.refueling[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
 			}
 			else if (i == (B + 1)) {
 				//in questo posto ci devo mettere A
-				r_new.addPlace(r.places[A], r.refueling[A], r.fuel[A], 0.0, 0, r.arrival[A], r.departure[A]);
+				r_new.addPlace(r.airstrips[A], r.refueling[A], r.fuel[A], 0.0, 0, r.arrival[A], r.departure[A]);
 			}
 			else if (i >= A + 1) {
 				//in questo posto ci devo mettere normalmente i-1
-				r_new.addPlace(r.places[i], r.refueling[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
+				r_new.addPlace(r.airstrips[i], r.refueling[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
 			}
 			else {
-				r_new.addPlace(r.places[i - 1], r.refueling[i - 1], r.fuel[i - 1], 0.0, 0, r.arrival[i - 1], r.departure[i - 1]);
+				r_new.addPlace(r.airstrips[i - 1], r.refueling[i - 1], r.fuel[i - 1], 0.0, 0, r.arrival[i - 1], r.departure[i - 1]);
 			}
 		}
 	}
@@ -158,17 +158,17 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, const Route& r
 	r_new.aircraft_code = r.aircraft_code;
 	r_new.primo_pass = r.primo_pass;
 
-	r_new.addPlace(r.places[0], r.refueling[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.arrival[0], r.departure[0]);
+	r_new.addPlace(r.airstrips[0], r.refueling[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.arrival[0], r.departure[0]);
 	add_new_place(A, B, r, r_new);
 
 	//aggiorno i tempi e fuel senza aver considerato il probabile peso negativo, il paso qua ? come se lo inizializzassi
 	for (int i = 0; i < r_new.index; i++) {
 		if (i > 0) {
 
-			r_new.arrival[i] = r_new.departure[i - 1] + (((from_to[r_new.places[i - 1]][r_new.places[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
-			r_new.departure[i] = r_new.arrival[i] + map_airstrip[r_new.places[i]].ground_time;
+			r_new.arrival[i] = r_new.departure[i - 1] + (((from_to[r_new.airstrips[i - 1]][r_new.airstrips[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
+			r_new.departure[i] = r_new.arrival[i] + map_airstrip[r_new.airstrips[i]].ground_time;
 
-			double fuel_consumed = from_to_FuelConsumed[r_new.aircraft_code][r_new.places[i - 1]][r_new.places[i]];
+			double fuel_consumed = from_to_FuelConsumed[r_new.aircraft_code][r_new.airstrips[i - 1]][r_new.airstrips[i]];
 
 			if (r_new.refueling[i]) {
 				r_new.fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
@@ -388,7 +388,7 @@ vector <Route> inter_move(ProcessedInput* input, const PenaltyWeights& penalty_w
 			// Ora devo eliminare i nodi solo se sono allowed
 			if (move_flightleg_is_allowed(A, r_support)) {
 				Route r_new = r_support;
-				int NomeA1 = r_new.places[A + 1];
+				int NomeA1 = r_new.airstrips[A + 1];
 
 				destroy_ls(input, n_route, A, passenger_removed, r_new);
 				if (r_new.index != -1) {

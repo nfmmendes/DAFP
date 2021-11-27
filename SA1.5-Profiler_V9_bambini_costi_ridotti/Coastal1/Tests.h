@@ -10,9 +10,9 @@ void stampo_caso_strano_single_tempi(Route r, vector<vector<double>>& from_to, m
 
 	for (int i = 1; i < r.index; i++) {
 
-		if (r.arrival[i] <= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] - 1) || r.arrival[i] >= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] + 1)) {
+		if (r.arrival[i] <= (((from_to[r.airstrips[i - 1]][r.airstrips[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] - 1) || r.arrival[i] >= (((from_to[r.airstrips[i - 1]][r.airstrips[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] + 1)) {
 			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' UN PROBLEMA CON i TEMPIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII nell arco " << (i - 1) << endl;
-			cout << "dovrebbe essere: " << (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1]) << " mentre invece ? " << r.arrival[i] << endl;
+			cout << "dovrebbe essere: " << (((from_to[r.airstrips[i - 1]][r.airstrips[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1]) << " mentre invece ? " << r.arrival[i] << endl;
 			r.print();
 			system("pause");
 		}
@@ -27,7 +27,7 @@ void stampo_caso_strano_single_all(Route r, vector<vector<double>>& from_to, map
 
 	for (Passenger p : r.passengers_in_route) {
 
-		if (r.places[p.solution_from] != p.departure_location || r.places[p.solution_to] != p.arrival_location) {
+		if (r.airstrips[p.solution_from] != p.departure_location || r.airstrips[p.solution_to] != p.arrival_location) {
 			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' UN PROBLEMA CON IL PASSEGGERO:" << endl;
 			cout << " Sto chiamando questo codice dentro a Update di Route " << endl;
 			p.print();
@@ -39,14 +39,14 @@ void stampo_caso_strano_single_all(Route r, vector<vector<double>>& from_to, map
 
 	for (int i = 1; i < r.index; i++) {
 
-		if (r.arrival[i] <= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] - 1) || r.arrival[i] >= (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] + 1)) {
+		if (r.arrival[i] <= (((from_to[r.airstrips[i - 1]][r.airstrips[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] - 1) || r.arrival[i] >= (((from_to[r.airstrips[i - 1]][r.airstrips[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1] + 1)) {
 			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' UN PROBLEMA CON i TEMPIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII nell arco " << (i - 1) << endl;
-			cout << "dovrebbe essere: " << (((from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1]) << " mentre invece ? " << r.arrival[i] << endl;
+			cout << "dovrebbe essere: " << (((from_to[r.airstrips[i - 1]][r.airstrips[i]] / map_airplane[r.aircraft_code].speed) * 60) + r.departure[i - 1]) << " mentre invece ? " << r.arrival[i] << endl;
 			r.print();
 			system("pause");
 		}
 
-		double fly_time = (from_to[r.places[i - 1]][r.places[i]] / map_airplane[r.aircraft_code].speed);
+		double fly_time = (from_to[r.airstrips[i - 1]][r.airstrips[i]] / map_airplane[r.aircraft_code].speed);
 		double fuel_consumed = 0.0;
 		if (fly_time <= 1) {
 			fuel_consumed = fly_time * map_airplane[r.aircraft_code].fuel_burn_first;
@@ -73,7 +73,7 @@ void stampo_caso_strano_single_all(Route r, vector<vector<double>>& from_to, map
 		}
 
 
-		if (r.places[i] == r.places[i + 1]) {
+		if (r.airstrips[i] == r.airstrips[i + 1]) {
 			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' IL PROBLEMA DI PI? POSTI UGUALI " << endl;
 			r.print();
 			system("pause");

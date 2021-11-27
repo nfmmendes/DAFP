@@ -408,20 +408,20 @@ void calculate_ObjectiveFunction_final(ProcessedInput*input, double costo_compan
 		for (int i = 0; i < r.index; i++) {
 
 			if (i >= 1) {
-				cost += map_airstrip[r.places[i]].landing_cost;
-				cost_route += map_airstrip[r.places[i]].landing_cost;
-				costo_landing += map_airstrip[r.places[i]].landing_cost;
+				cost += map_airstrip[r.airstrips[i]].landing_cost;
+				cost_route += map_airstrip[r.airstrips[i]].landing_cost;
+				costo_landing += map_airstrip[r.airstrips[i]].landing_cost;
 			}
 			if (i < r.index - 1) {
 				if (i == 0 && r.capacities[i] == 0) {
 					mileage = 0.0;
 				}
 				else {
-					mileage += from_to[r.places[i]][r.places[i + 1]];
-					costo_km += from_to[r.places[i]][r.places[i + 1]];
-					//time_travel = from_to[r.places[i] + ";" + r.places[i + 1]] / map_airplane[r.aircraft_code].speed;
-					fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
-					costo_fuel += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
+					mileage += from_to[r.airstrips[i]][r.airstrips[i + 1]];
+					costo_km += from_to[r.airstrips[i]][r.airstrips[i + 1]];
+					//time_travel = from_to[r.airstrips[i] + ";" + r.airstrips[i + 1]] / map_airplane[r.aircraft_code].speed;
+					fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.airstrips[i]][r.airstrips[i + 1]];
+					costo_fuel += from_to_FuelConsumed[r.aircraft_code][r.airstrips[i]][r.airstrips[i + 1]];
 				}
 			}
 		}
@@ -484,7 +484,7 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 	double costo_Intermediate = 0.0;
 
 	for (Route& r : solution) {
-		auto origin = r.places[r.index - 1];
+		auto origin = r.airstrips[r.index - 1];
 		if (origin != 1 || origin != 4) {
 			Airplane* airplane = &map_airplane[r.aircraft_code];
 			
@@ -516,19 +516,19 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 		for (int i = 0; i < r.index; i++) {
 
 			if (i >= 1) {
-				cost += map_airstrip[r.places[i]].landing_cost;
-				cost_route += map_airstrip[r.places[i]].landing_cost;
-				costo_landing += map_airstrip[r.places[i]].landing_cost;
+				cost += map_airstrip[r.airstrips[i]].landing_cost;
+				cost_route += map_airstrip[r.airstrips[i]].landing_cost;
+				costo_landing += map_airstrip[r.airstrips[i]].landing_cost;
 			}
 			if (i < r.index - 1) {
 				if (i == 0 && r.capacities[i] == 0) {
 					mileage = 0.0;
 				}
 				else {
-					mileage += from_to[r.places[i]][r.places[i + 1]];
-					costo_km += from_to[r.places[i]][r.places[i + 1]];
-					fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
-					costo_fuel += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
+					mileage += from_to[r.airstrips[i]][r.airstrips[i + 1]];
+					costo_km += from_to[r.airstrips[i]][r.airstrips[i + 1]];
+					fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.airstrips[i]][r.airstrips[i + 1]];
+					costo_fuel += from_to_FuelConsumed[r.aircraft_code][r.airstrips[i]][r.airstrips[i + 1]];
 				}
 			}
 		}
@@ -580,7 +580,7 @@ double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_we
 	for (int i = 0; i < r.index; i++) {
 		//double time_travel = 0.0;
 		if (i >= 1) {
-			cost += map_airstrip[r.places[i]].landing_cost;
+			cost += map_airstrip[r.airstrips[i]].landing_cost;
 		}
 
 		if (i < r.index - 1) {
@@ -588,8 +588,8 @@ double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_we
 				mileage = 0.0;
 			}
 			else {
-				mileage += from_to[r.places[i]][r.places[i + 1]];
-				fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
+				mileage += from_to[r.airstrips[i]][r.airstrips[i + 1]];
+				fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.airstrips[i]][r.airstrips[i + 1]];
 			}
 		}
 	}
@@ -636,16 +636,16 @@ double calculate_ObjectiveFunction(ProcessedInput* input, const  PenaltyWeights&
 		for (int i = 0; i < r.index; i++) {
 
 			if (i >= 1) {
-				cost += map_airstrip[r.places[i]].landing_cost;
-				cost_route += map_airstrip[r.places[i]].landing_cost;
+				cost += map_airstrip[r.airstrips[i]].landing_cost;
+				cost_route += map_airstrip[r.airstrips[i]].landing_cost;
 			}
 			if (i < r.index - 1) {
 				if (i == 0 && r.capacities[i] == 0) {
 					mileage = 0.0;
 				}
 				else {
-					mileage += from_to[r.places[i]][r.places[i + 1]];
-					fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
+					mileage += from_to[r.airstrips[i]][r.airstrips[i + 1]];
+					fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.airstrips[i]][r.airstrips[i + 1]];
 				}
 			}
 		}
@@ -755,8 +755,8 @@ double costo_senza_time_windows(ProcessedInput* input, vector<Route>& solution) 
 		cost_route += map_airplane[r.aircraft_code].fixed_cost;
 		//cout << "costo fisso: " << cost << endl;
 		for (int i = 1; i < r.index; i++) {
-			cost += map_airstrip[r.places[i]].landing_cost;
-			cost_route += map_airstrip[r.places[i]].landing_cost;
+			cost += map_airstrip[r.airstrips[i]].landing_cost;
+			cost_route += map_airstrip[r.airstrips[i]].landing_cost;
 		}
 
 		//second of all calculate the cost of the Km and the fuel burn
@@ -770,8 +770,8 @@ double costo_senza_time_windows(ProcessedInput* input, vector<Route>& solution) 
 				mileage = 0.0;
 			}
 			else {
-				mileage += from_to[r.places[i]][r.places[i + 1]];
-				fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.places[i]][r.places[i + 1]];
+				mileage += from_to[r.airstrips[i]][r.airstrips[i + 1]];
+				fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.airstrips[i]][r.airstrips[i + 1]];
 			}
 
 

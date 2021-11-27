@@ -12,7 +12,7 @@ void remove_node(Route& r, const int &node)
 		r.arrival[node + 1] = r.arrival[node];
 		r.index--;
 		//r.index_cap--;
-		r.places.erase(r.places.begin() + node);
+		r.airstrips.erase(r.airstrips.begin() + node);
 		r.arrival.erase(r.arrival.begin() + node);
 		r.departure.erase(r.departure.begin() + node);
 		r.refueling.erase(r.refueling.begin() + node);
@@ -29,7 +29,7 @@ void remove_node(Route& r, const int &node)
 		}
 		r.index--;
 		//r.index_cap--;
-		r.places.erase(r.places.begin() + node);
+		r.airstrips.erase(r.airstrips.begin() + node);
 		r.arrival.erase(r.arrival.begin() + node);
 		r.departure.erase(r.departure.begin() + node);
 		r.refueling.erase(r.refueling.begin() + node);
@@ -67,7 +67,7 @@ void aggregate_same_nodes_inter_ls(Route& r, int node) {
 		r.arrival[node + 1] = r.arrival[node];
 		r.index--;
 		//r.index_cap--;
-		r.places.erase(r.places.begin() + node);
+		r.airstrips.erase(r.airstrips.begin() + node);
 		r.arrival.erase(r.arrival.begin() + node);
 		r.departure.erase(r.departure.begin() + node);
 		r.refueling.erase(r.refueling.begin() + node);
@@ -90,7 +90,7 @@ void aggregate_same_nodes_inter_ls(Route& r, int node) {
 
 		}
 		r.index--;
-		r.places.erase(r.places.begin() + node);
+		r.airstrips.erase(r.airstrips.begin() + node);
 		r.arrival.erase(r.arrival.begin() + node);
 		r.departure.erase(r.departure.begin() + node);
 		r.refueling.erase(r.refueling.begin() + node);
@@ -115,7 +115,7 @@ vector <Route> aggrezione_simple_after_model(vector<Route>& solution_model, map<
 			string val = to_string(r) + ";";
 			string val1 = to_string(r1) + ";";
 
-			if (r != r1 && solution_model[r].places[solution_model[r].index - 1] == solution_model[r1].places[0] &&
+			if (r != r1 && solution_model[r].airstrips[solution_model[r].index - 1] == solution_model[r1].airstrips[0] &&
 				solution_model[r].departure[solution_model[r].index - 1] <= solution_model[r1].arrival[0] &&
 				map_airplane[solution_model[r].aircraft_code].model == map_airplane[solution_model[r1].aircraft_code].model
 				&& index_not.find(val, 0) > index_not.size() && index_not.find(val1, 0) > index_not.size()) {
@@ -125,17 +125,17 @@ vector <Route> aggrezione_simple_after_model(vector<Route>& solution_model, map<
 				r_add.primo_pass = true;
 				for (int i = 0; i < solution_model[r].index - 1; i++) {
 					if (i == solution_model[r].index - 2) {
-						r_add.addPlace(solution_model[r].places[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
-							solution_model[r].capacities[i], solution_model[r].arrival[i], (solution_model[r1].arrival[0] - (((from_to[solution_model[r].places[i]][solution_model[r1].places[0]]) / map_airplane[solution_model[r].aircraft_code].speed) * 60)));
+						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
+							solution_model[r].capacities[i], solution_model[r].arrival[i], (solution_model[r1].arrival[0] - (((from_to[solution_model[r].airstrips[i]][solution_model[r1].airstrips[0]]) / map_airplane[solution_model[r].aircraft_code].speed) * 60)));
 					}
 					else {
-						r_add.addPlace(solution_model[r].places[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
+						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
 							solution_model[r].capacities[i], solution_model[r].arrival[i], solution_model[r].departure[i]);
 					}
 				}
 
 				for (int i = 0; i < solution_model[r1].index; i++) {
-					r_add.addPlace(solution_model[r1].places[i], solution_model[r1].refueling[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
+					r_add.addPlace(solution_model[r1].airstrips[i], solution_model[r1].refueling[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
 						solution_model[r1].capacities[i], solution_model[r1].arrival[i], solution_model[r1].departure[i]);
 				}
 				for (Passenger& p : solution_model[r1].passengers_in_route) {
@@ -170,11 +170,11 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 		for (int r1 = 0; r1 < (int)solution_model.size(); r1++) {
 			string val = to_string(r) + ";";
 			string val1 = to_string(r1) + ";";
-			double time_trascorso = (from_to[solution_model[r].places[solution_model[r].index - 1]][solution_model[r1].places[0]] / map_airplane[solution_model[r].aircraft_code].speed) * 60;
-			double fuel_consumed = from_to_FuelConsumed[solution_model[r].aircraft_code][solution_model[r].places[solution_model[r].index - 1]][solution_model[r1].places[0]];
+			double time_trascorso = (from_to[solution_model[r].airstrips[solution_model[r].index - 1]][solution_model[r1].airstrips[0]] / map_airplane[solution_model[r].aircraft_code].speed) * 60;
+			double fuel_consumed = from_to_FuelConsumed[solution_model[r].aircraft_code][solution_model[r].airstrips[solution_model[r].index - 1]][solution_model[r1].airstrips[0]];
 
 
-			double costo_aggiunta = fuel_consumed + from_to[solution_model[r].places[solution_model[r].index - 1]][solution_model[r1].places[0]];
+			double costo_aggiunta = fuel_consumed + from_to[solution_model[r].airstrips[solution_model[r].index - 1]][solution_model[r1].airstrips[0]];
 			//READ ME: non ? importante fare il check se i due posti (finale di una route, inziale della seconda) siano uguali, questa casistica viene eliminata dall'aggregazione semplice
 			//non devo nemmeno fare il check sul fuel per andare in un altro posto in quanto vado sicuramente in un deposito dato che tutte le route partono in un depot
 			//CONSIDERAZIONE, SI POTREBBE VALUTARE DI TOGLIERE IL PRIMO ARCO DAL DEPOT ALLA PRIMA LOCATION NEL CASO QUESTO SIA VUOTO, MA QUESTO PORTEREBBE ALLA CREAZIONE DI SCENARI DIFFERENTI:
@@ -192,18 +192,18 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 				Route r_add(route->aircraft_code, route->passengers_in_route);
 				r_add.primo_pass = true; //N.B. commentare questa riga se si vuole vedere quelle che aggrega
 				for (int i = 0; i <= solution_model[r].index - 1; i++) {
-					double time_to_go = (((from_to[route->places[i]][solution_model[r1].places[0]]) / map_airplane[route->aircraft_code].speed) * 60);
+					double time_to_go = (((from_to[route->airstrips[i]][solution_model[r1].airstrips[0]]) / map_airplane[route->aircraft_code].speed) * 60);
 					if (i == solution_model[r].index - 1) {
-						r_add.addPlace(route->places[i], route->refueling[i], route->fuel[i], route->weights[i],route->capacities[i], route->arrival[i], (solution_model[r1].arrival[0] - time_to_go));
+						r_add.addPlace(route->airstrips[i], route->refueling[i], route->fuel[i], route->weights[i],route->capacities[i], route->arrival[i], (solution_model[r1].arrival[0] - time_to_go));
 					}
 					else {
-						r_add.addPlace(solution_model[r].places[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
+						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
 							solution_model[r].capacities[i], solution_model[r].arrival[i], solution_model[r].departure[i]);
 					}
 				}
 
 				for (int i = 0; i < solution_model[r1].index; i++) {
-					r_add.addPlace(solution_model[r1].places[i], solution_model[r1].refueling[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
+					r_add.addPlace(solution_model[r1].airstrips[i], solution_model[r1].refueling[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
 						solution_model[r1].capacities[i], solution_model[r1].arrival[i], solution_model[r1].departure[i]);
 				}
 				for (Passenger& p : solution_model[r1].passengers_in_route) {

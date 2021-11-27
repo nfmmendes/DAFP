@@ -14,8 +14,21 @@ using namespace std;
 const int numero_airstrip_const = 58;
 const int numero_airplane_const = 36;
 
+struct Place
+{
+	string code_company; 
+	int airstrip;
+	bool has_refueling;
+	double fuel;
+	double weight;
+	double capacity;
+	double arrival;
+	double departure;
+};
+
+
 class ProcessedInput; 
-//TODO: Transform in a list of places 
+//TODO: Transform in a list of airstrips 
 class Route
 {
 public:
@@ -24,7 +37,7 @@ public:
 	double cost;
 	int aircraft_code;  //questo dovrebbe diventare un interoper un accesso più veloce 
 	string aircraft_code_company_comparison;
-	vector<int> places;
+	vector<int> airstrips;
 	vector<bool> refueling;
 	vector<double> fuel;
 	vector<double> weights;
@@ -40,10 +53,6 @@ public:
 	Route(int, vector<Passenger>& passengers_in_route);
 	~Route();
 
-
-
-
-
 	//void update_route(int, map<string, double>, map<string, Airplane>, map<string, Airstrip>);
 	void print();
 	void printCompany();
@@ -58,9 +67,6 @@ public:
 	void update_time_for_check_repair(ProcessedInput* ,int node_add_from, int node_add_to, int location_from, int location_to);
 	void update_route_rebuilt_one_first_fase(ProcessedInput*, int& caso, int& node_add_from, int& node_add_to, int location_from, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
 	void update_route_rebuilt_one_second_fase(ProcessedInput*, int& caso, int& node_add_from, int& node_add_to, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
-
-
-
 };
 
 #endif // Route_h
