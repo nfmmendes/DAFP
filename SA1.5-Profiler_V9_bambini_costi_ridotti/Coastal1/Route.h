@@ -10,6 +10,7 @@
 #include <map>
 #include "Airplane.h"
 #include "Airstrip.h"
+#include "Util.h"
 using namespace std;
 const int numero_airstrip_const = 58;
 const int numero_airplane_const = 36;
@@ -54,19 +55,20 @@ public:
 	Route(int, vector<Passenger>& passengers_in_route);
 	~Route();
 
-	//void update_route(int, map<string, double>, map<string, Airplane>, map<string, Airstrip>);
 	void print();
 	void printCompany();
 	void addPlace_companySolution(string, int);
 	void addPlace(int, bool, double, double, int, double, double);
 	void removePlace(int, map<int, Airplane>&);
+	void update_from_to(int node_destroy);
 	void update_route_destroy(ProcessedInput*, int, int, int);
 	void update_route_rebuilt_one(ProcessedInput*, int, int, int, int, Passenger&);
 	void add_update_only_one_node_first_passanger(ProcessedInput* , Passenger&);
 	void move_c(ProcessedInput*, Passenger& p, int location_from, int location_to);
-	//void add_update_only_few_node_first_passanger(Passenger&, int, int, int, int, vector<vector<double>>&, map<int, Airplane>&, map<int, Airstrip>&, vector<vector<vector<double>>>&);
 	void update_time_for_check_repair(ProcessedInput* ,int node_add_from, int node_add_to, int location_from, int location_to);
 	void update_route_rebuilt_one_first_fase(ProcessedInput*, int& caso, int& node_add_from, int& node_add_to, int location_from, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
+	void update_a_b(const int& node_add_from,const int& node_add_to, bool& non_to, int& A, int& B);
+	void update_fuel_and_weight(const int& node_add_to, const bool& non_to, double add_fuel, int index_weight_neg);
 	void update_route_rebuilt_one_second_fase(ProcessedInput*, int& caso, int& node_add_from, int& node_add_to, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
 };
 
