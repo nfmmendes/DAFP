@@ -33,6 +33,7 @@ class Route
 {
 public:
 
+	vector<Place> places; 
 	vector<string> places_company;
 	double cost;
 	int aircraft_code;  //questo dovrebbe diventare un interoper un accesso più veloce 

@@ -10,7 +10,7 @@
 struct PenaltyWeights
 {
 	double intermediate_stop;  //valore che si da ad una sosta intermedia 
-	double peso_transhipment;  //valore che si da ad un transhipment
+	double transhipment;  //valore che si da ad un transhipment
 	double time_window; //peso dato ad un minuto di Time Windows
 };
 
