@@ -68,11 +68,11 @@ public:
 	void add_update_only_one_node_first_passanger(ProcessedInput* , Passenger&);
 	void move_c(ProcessedInput*, Passenger& p, int location_from, int location_to);
 	void update_time_for_check_repair(ProcessedInput* ,int node_add_from, int node_add_to, int location_from, int location_to);
-	void update_route_rebuilt_one_first_fase(ProcessedInput*, int& caso, int& node_add_from, int& node_add_to, int location_from, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
+	void update_rebuilt_one_first_fase(ProcessedInput*, int& caso, int& node_add_from, int& node_add_to, int location_from, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
 	void update_a_b(const int& node_add_from,const int& node_add_to, bool& non_to, int& A, int& B);
 	void update_fuel_and_weight(const int& node_add_to, const bool& non_to, double add_fuel, int index_weight_neg);
 	void update_solution_from_to(int& node_add_from);
-	void update_route_rebuilt_one_second_fase(ProcessedInput*, int& caso, int& node_add_from, int& node_add_to, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
+	void update_rebuilt_one_second_fase(ProcessedInput*, int& caso, int& node_add_from, int& node_add_to, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
 };
 
 #endif // Route_h

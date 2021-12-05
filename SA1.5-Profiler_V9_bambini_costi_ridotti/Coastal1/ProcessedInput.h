@@ -20,7 +20,7 @@ class ProcessedInput
 public:
 	ProcessedInput(std::map <int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double2DVector& location_fuel, double3DVector& from_to_fuel_consumed);
 
-	const map<int, Airplane>& get_map_airplane() const;
+	map<int, Airplane>& get_map_airplane();
 	const map<int, Airstrip>& get_map_airstrip() const;
 	const double2DVector& get_from_to() const; 
 	const double2DVector& get_location_fuel() const;

@@ -55,7 +55,7 @@ void fix_key_passenger_for_regret(vector<Passenger>& passengers) {
 	map<string, int> string_key;
 
 	for (Passenger& p : passengers) {
-		string conc = to_string(p.departure_location) + "/" + to_string(p.arrival_location) + "/" + to_string(p.departure_time) + "/" + to_string(p.arrival_time);
+		string conc = to_string(p.origin) + "/" + to_string(p.destination) + "/" + to_string(p.departure_time) + "/" + to_string(p.arrival_time);
 
 		if (string_key.count(conc) >= 1) {
 			p.chiave_regret = string_key[conc];

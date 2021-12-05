@@ -6,8 +6,8 @@ using namespace std;
 
 
 Passenger::Passenger() {
-	departure_location = 0;
-	arrival_location = 0;
+	origin = 0;
+	destination = 0;
 	pnr = 0;
 	code_flight = "";
 	departure_location_company = "";
@@ -41,8 +41,8 @@ Passenger::Passenger() {
 Passenger::Passenger(int departure_location, int arrival_location, int pnr, string code_flight, string departure_location_comapny, string arrival_location_company,
 	string pas_class, string name, string surname, string gender, int departure_time, int arrival_time) {
 
-	this->departure_location = departure_location;
-	this->arrival_location = arrival_location;
+	this->origin = departure_location;
+	this->destination = arrival_location;
 	this->pnr = pnr;
 	this->code_flight = code_flight;
 	this->departure_location_company = departure_location_comapny;

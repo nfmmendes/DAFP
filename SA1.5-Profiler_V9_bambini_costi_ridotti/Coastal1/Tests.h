@@ -27,7 +27,7 @@ void stampo_caso_strano_single_all(Route r, vector<vector<double>>& from_to, map
 
 	for (Passenger p : r.passengers_in_route) {
 
-		if (r.airstrips[p.solution_from] != p.departure_location || r.airstrips[p.solution_to] != p.arrival_location) {
+		if (r.airstrips[p.solution_from] != p.origin || r.airstrips[p.solution_to] != p.destination) {
 			cout << "ATTENTOOOOOOOOOOOOOOOOO C'E' UN PROBLEMA CON IL PASSEGGERO:" << endl;
 			cout << " Sto chiamando questo codice dentro a Update di Route " << endl;
 			p.print();

@@ -50,11 +50,11 @@ void unione_children_INTELLIGENTE(vector<Passenger>& passengers, vector<Passenge
 			int indice_parent = 0;
 			string precedente = "";
 			for (Passenger p : bambini) {
-				int loc_dep = p.departure_location;
-				int loc_arr = p.arrival_location;
+				int loc_dep = p.origin;
+				int loc_arr = p.destination;
 				int time_dep = p.departure_time;
 				int time_arr = p.arrival_time;
-				string attuale = to_string(p.departure_location) + to_string(p.arrival_location) + to_string(p.departure_time) + to_string(p.arrival_time);
+				string attuale = to_string(p.origin) + to_string(p.destination) + to_string(p.departure_time) + to_string(p.arrival_time);
 				if (precedente != attuale) indice_parent = 0;
 				precedente = attuale;
 
@@ -64,7 +64,7 @@ void unione_children_INTELLIGENTE(vector<Passenger>& passengers, vector<Passenge
 				if ((int)genitori_donna.size() > 0) {
 					// metti i bambini con la mamma
 					for (Passenger& g : genitori_donna) {
-						if (g.departure_location == loc_dep && g.arrival_location == loc_arr && time_dep == g.departure_time && time_arr == g.arrival_time) {
+						if (g.origin == loc_dep && g.destination == loc_arr && time_dep == g.departure_time && time_arr == g.arrival_time) {
 							genitori_gruppo.push_back(g);
 							non_ha_genitore = false;
 						}
@@ -73,7 +73,7 @@ void unione_children_INTELLIGENTE(vector<Passenger>& passengers, vector<Passenge
 				if ((int)genitori_maschi.size() > 0) {
 					//mettili con il papa
 					for (Passenger& g : genitori_maschi) {
-						if (g.departure_location == loc_dep && g.arrival_location == loc_arr && time_dep == g.departure_time && time_arr == g.arrival_time) {
+						if (g.origin == loc_dep && g.destination == loc_arr && time_dep == g.departure_time && time_arr == g.arrival_time) {
 							genitori_gruppo.push_back(g);
 							non_ha_genitore = false;
 						}
@@ -184,15 +184,15 @@ void unione_children_VECCHIA(vector<Passenger>& passengers, vector<Passenger>& p
 		if ((int)bambini.size() > 0) {
 			//incomincio a metterli con la mamma
 			for (Passenger p : bambini) {
-				int loc_dep = p.departure_location;
-				int loc_arr = p.arrival_location;
+				int loc_dep = p.origin;
+				int loc_arr = p.destination;
 				int time_dep = p.departure_time;
 				int time_arr = p.arrival_time;
 
 				if ((int)genitori_donna.size() > 0) {
 					// metti i bambini con la mamma
 					for (Passenger& g : genitori_donna) {
-						if (g.departure_location == loc_dep && g.arrival_location == loc_arr && time_dep == g.departure_time && time_arr == g.arrival_time) {
+						if (g.origin == loc_dep && g.destination == loc_arr && time_dep == g.departure_time && time_arr == g.arrival_time) {
 							g.capacity += p.capacity;
 							g.weight += p.weight;
 							break;
@@ -202,7 +202,7 @@ void unione_children_VECCHIA(vector<Passenger>& passengers, vector<Passenger>& p
 				else if ((int)genitori_maschi.size() > 0) {
 					//mettili con il papa
 					for (Passenger& g : genitori_maschi) {
-						if (g.departure_location == loc_dep && g.arrival_location == loc_arr && time_dep == g.departure_time && time_arr == g.arrival_time) {
+						if (g.origin == loc_dep && g.destination == loc_arr && time_dep == g.departure_time && time_arr == g.arrival_time) {
 							g.capacity += p.capacity;
 							g.weight += p.weight;
 							break;

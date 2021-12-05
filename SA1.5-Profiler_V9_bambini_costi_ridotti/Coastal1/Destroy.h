@@ -12,7 +12,7 @@
 bool relateness_passenger2(int trheshold, vector<vector<double>>& from_to, int idP, Passenger& r, vector<Passenger>& passengers_removed, map<string, vector<int>>& agr_pass, vector<string>& sequenza, string pointer, int y, map<int, Passenger>& map_id_passenger) {
 	// Poi questo for si potra togliere
 	Passenger pass = map_id_passenger[idP];
-	double Relateness = from_to[r.arrival_location][pass.arrival_location] + from_to[r.departure_location][pass.departure_location] + abs(r.arrival_time - pass.arrival_time) + abs(r.departure_time - pass.departure_time);
+	double Relateness = from_to[r.destination][pass.destination] + from_to[r.origin][pass.origin] + abs(r.arrival_time - pass.arrival_time) + abs(r.departure_time - pass.departure_time);
 
 	if (Relateness <= trheshold) {
 
@@ -693,7 +693,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 	for (string x : OrderVectore) {
 
 		int codice = stoi(split(x, '|')[0]);
-		string code = split(x, '|')[1] + "|" + to_string(map_id_passenger[codice].departure_location) + "|" + to_string(map_id_passenger[codice].arrival_location);
+		string code = split(x, '|')[1] + "|" + to_string(map_id_passenger[codice].origin) + "|" + to_string(map_id_passenger[codice].destination);
 		if (agr_pass.find(code) != agr_pass.end())
 		{
 			agr_pass[code].push_back(map_id_passenger[codice].pnr);

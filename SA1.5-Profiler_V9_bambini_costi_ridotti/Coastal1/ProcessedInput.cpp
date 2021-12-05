@@ -5,7 +5,7 @@ ProcessedInput::ProcessedInput(map<int, Airplane>& map_airplane, map<int, Airstr
 {
 }
 
-const map<int, Airplane>& ProcessedInput::get_map_airplane() const
+map<int, Airplane>& ProcessedInput::get_map_airplane()
 {
 	return map_airplane;
 }

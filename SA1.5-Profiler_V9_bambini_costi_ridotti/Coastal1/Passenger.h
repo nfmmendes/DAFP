@@ -13,8 +13,8 @@ public:
 	Passenger(int, int, int, string, string, string, string, string, string, string, int, int);
 	~Passenger();
 
-	int departure_location;
-	int arrival_location;
+	int origin;
+	int destination;
 	int pnr;
 	string code_flight;
 	string departure_location_company;
