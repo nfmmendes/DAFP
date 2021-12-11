@@ -17,6 +17,7 @@ vector<Route> heuristic_costructive_second_fase(vector<Route>& solution, double 
 		Route best_route = r;
 		Route r_support = best_route;
 		double best_cost = cost_time_windows_for_route(best_route, peso_TW);
+		
 		if (cost_time_windows_for_route(r, peso_TW) != 0) { //chiaramente cerco di migliorare la dove le timewindows non sono zero
 			for (int i = 0; i < r.index - 1; i++) { 
 				double wait_time = 0;
@@ -33,7 +34,7 @@ vector<Route> heuristic_costructive_second_fase(vector<Route>& solution, double 
 								best_cost = cost_support;
 							}
 						}
-						//prima c'era ++ per ottimizzare ho messo pi? due in modo da valutare ogni due minuti non ogni minuto
+						
 						wait_time += 2;  
 					} while (wait_time <= 60);
 				}
@@ -69,7 +70,7 @@ vector<Route> heuristic_costructive_second_fase_SP(vector<Route>& solution, doub
 		Route best_route = r;
 		Route r_support = best_route;
 		double best_cost = cost_time_windows_for_route(best_route, peso_TW);
-		if (cost_time_windows_for_route(r, peso_TW) != 0) { //chiaramente cerco di migliorare la dove le timewindows non sono zero
+		if (cost_time_windows_for_route(r, peso_TW) != 0) { 
 			for (int i = 0; i < r.index - 1; i++) {  //ATTENTO, SECONDO ME QUA CI VUOLE UN MENO 1 oppure no!!!! se ci sono dei problemi BUTTA L'OCCCHIO QUA
 				double wait_time = 0;
 				if (i == 0) {
@@ -132,7 +133,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		route->arrival[route->index - 1] = p.early_departure; // in questo caso anche l'arrivo in quanto ? la partenza dal depot
 
 		p.solution_from = route->index - 1;
-		route->capacities[route->index - 1] += p.capacity;
+		route->addCapacityAt(route->index - 1, p.capacity);
 
 		//for the weights
 		//here i put max_fuel because at the beginnig in the depot all the airplane have full fuel
@@ -279,7 +280,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
 		for (int h = best_from; h < best_to; h++) {
-			route->capacities[h] += p.capacity;
+			route->addCapacityAt(h, p.capacity);
 			route->weights[h] -= p.weight;
 		}
 
@@ -323,7 +324,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		Airplane* airplane = &map_airplane[route->aircraft_code];
 		
 		for (int h = best_from; h < route->index; h++) {
-			route->capacities[h] += p.capacity;
+			route->addCapacityAt(h, p.capacity);
 			route->weights[h] -= p.weight;
 		}
 
@@ -486,7 +487,7 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 									//per prima cosa guardo se ci sto con la capacit?, altrimenti break sul primo for
 									bool capacity_satisfy = true;
 									for (int c = from; c < to; c++) {
-										if ((r.capacities[c] + p.capacity) > map_airplane[r.aircraft_code].capacity) 
+										if ((r.getCapacities()[c] + p.capacity) > map_airplane[r.aircraft_code].capacity) 
 											capacity_satisfy = false;
 										
 										double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[c]][r.airstrips[c + 1]];
@@ -532,7 +533,7 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 						for (auto from : FROM) {
 							bool capacity_satisfy = true;
 							for (int c = from; c < r.index; c++) {
-								if ((r.capacities[c] + p.capacity) > map_airplane[r.aircraft_code].capacity) capacity_satisfy = false;
+								if ((r.getCapacities()[c] + p.capacity) > map_airplane[r.aircraft_code].capacity) capacity_satisfy = false;
 
 								if (c < r.index - 1) {
 									//double travel_time = (from_to[r.airstrips[c] + ";" + r.airstrips[c + 1]]) / map_airplane[r.aircraft_code].speed;
@@ -672,7 +673,7 @@ void run_situation_1(ProcessedInput* input, vector<Passenger>& passengers, Route
 	r.arrival[r.index - 1] = passengers[best_passenger].early_departure; // in questo caso anche l'arrivo in quanto ? la partenza dal depot
 
 	passengers[best_passenger].solution_from = r.index - 1;
-	r.capacities[r.index - 1] += passengers[best_passenger].capacity;
+	r.addCapacityAt(r.index - 1, passengers[best_passenger].capacity);
 
 	//for the weights
 	r.weights[r.index - 1] = map_airplane[r.aircraft_code].load_weight -
@@ -833,7 +834,7 @@ void run_situation_4(ProcessedInput* input, vector<Passenger> &passengers, Route
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 	
 	for (int h = best_from; h < best_to; h++) {
-		r.capacities[h] += passengers[best_passenger].capacity;
+		r.addCapacityAt(h, passengers[best_passenger].capacity);
 		r.weights[h] -= passengers[best_passenger].weight;
 	}
 
@@ -875,7 +876,7 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 	
 	for (int h = best_from; h < r.index; h++) {
-		r.capacities[h] += passengers[best_passenger].capacity;
+		r.addCapacityAt(h, passengers[best_passenger].capacity);
 		r.weights[h] -= passengers[best_passenger].weight;
 	}
 
@@ -1040,7 +1041,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 										//per prima cosa guardo se ci sto con la capacit?, altrimenti break sul primo for
 										bool capacity_satisfy = true;
 										for (int c = from; c < to; c++) {
-											if ((r.capacities[c] + passengers[p].capacity) > map_airplane[r.aircraft_code].capacity) capacity_satisfy = false;
+											if ((r.getCapacities()[c] + passengers[p].capacity) > map_airplane[r.aircraft_code].capacity) capacity_satisfy = false;
 
 											//double travel_time = (from_to[r.airstrips[c] + ";" + r.airstrips[c + 1]]) / map_airplane[r.aircraft_code].speed;
 											double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[c]][r.airstrips[c + 1]];
@@ -1089,7 +1090,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 							for (auto from : FROM) {
 								bool capacity_satisfy = true;
 								for (int c = from; c < r.index; c++) {
-									if ((r.capacities[c] + passengers[p].capacity) > map_airplane[r.aircraft_code].capacity) capacity_satisfy = false;
+									if ((r.getCapacities()[c] + passengers[p].capacity) > map_airplane[r.aircraft_code].capacity) capacity_satisfy = false;
 
 									if (c < r.index - 1) {
 										//double travel_time = (from_to[r.airstrips[c] + ";" + r.airstrips[c + 1]]) / map_airplane[r.aircraft_code].speed;
@@ -1315,7 +1316,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		route->arrival[route->index - 1] = p.early_departure; // in questo caso anche l'arrivo in quanto ? la partenza dal depot
 
 		p.solution_from = route->index - 1;
-		route->capacities[route->index - 1] += p.capacity;
+		route->addCapacityAt(route->index - 1, p.capacity);
 
 		//for the weights
 		route->weights[route->index - 1] = map_airplane[route->aircraft_code].load_weight -
@@ -1467,7 +1468,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		
 		Route* route = &solution[best_route];
 		for (int h = best_from; h < best_to; h++) {
-			route->capacities[h] += p.capacity;
+			route->addCapacityAt(h, p.capacity);
 			route->weights[h] -= p.weight;
 		}
 
@@ -1509,7 +1510,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		
 		Route* route = &solution[best_route];
 		for (int h = best_from; h < route->index; h++) {
-			route->capacities[h] += p.capacity;
+			route->addCapacityAt(h, p.capacity);
 			route->weights[h] -= p.weight;
 		}
 
@@ -1680,7 +1681,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, double peso
 									//per prima cosa guardo se ci sto con la capacit?, altrimenti break sul primo for
 									bool capacity_satisfy = true;
 									for (int c = from; c < to; c++) {
-										if ((r.capacities[c] + p.capacity) > airplane->capacity) 
+										if ((r.getCapacities()[c] + p.capacity) > airplane->capacity) 
 											capacity_satisfy = false;
 
 										double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[c]][r.airstrips[c + 1]];
@@ -1717,7 +1718,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, double peso
 						for (auto from : FROM) {
 							bool capacity_satisfy = true;
 							for (int c = from; c < r.index; c++) {
-								if ((r.capacities[c] + p.capacity) > airplane->capacity) 
+								if ((r.getCapacities()[c] + p.capacity) > airplane->capacity) 
 									capacity_satisfy = false;
 
 								if (c < r.index - 1) {

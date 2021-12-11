@@ -43,7 +43,7 @@ bool route_feasible(ProcessedInput* input, Route& r, double end_day) {
 				}
 			}
 			if (i < r.index - 1) {
-				if (r.capacities[i] > map_airplane[r.aircraft_code].capacity) {
+				if (r.getCapacities()[i] > map_airplane[r.aircraft_code].capacity) {
 					return false;
 					feasible = false;
 				}

@@ -10,15 +10,7 @@ void remove_node(Route& r, const int &node)
 	if ((node + 1) == (r.index - 1)) {
 		r.departure[node + 1] = r.departure[node];
 		r.arrival[node + 1] = r.arrival[node];
-		r.index--;
-		//r.index_cap--;
-		r.airstrips.erase(r.airstrips.begin() + node);
-		r.arrival.erase(r.arrival.begin() + node);
-		r.departure.erase(r.departure.begin() + node);
-		r.refueling.erase(r.refueling.begin() + node);
-		r.fuel.erase(r.fuel.begin() + node);
-		r.weights.erase(r.weights.begin() + node);
-		r.capacities.erase(r.capacities.begin() + node);
+		r.eraseAt(node);
 	}
 	else {
 		// I remove the extra time that was considered
@@ -27,15 +19,7 @@ void remove_node(Route& r, const int &node)
 			r.departure[i] -= time_to_remove;
 			r.arrival[i] -= time_to_remove;
 		}
-		r.index--;
-		//r.index_cap--;
-		r.airstrips.erase(r.airstrips.begin() + node);
-		r.arrival.erase(r.arrival.begin() + node);
-		r.departure.erase(r.departure.begin() + node);
-		r.refueling.erase(r.refueling.begin() + node);
-		r.fuel.erase(r.fuel.begin() + node);
-		r.weights.erase(r.weights.begin() + node);
-		r.capacities.erase(r.capacities.begin() + node);
+		r.remove_at(node);
 	}
 }
 
@@ -65,15 +49,8 @@ void aggregate_same_nodes_inter_ls(Route& r, int node) {
 	if ((node + 1) == (r.index - 1)) {
 		r.departure[node + 1] = r.departure[node];
 		r.arrival[node + 1] = r.arrival[node];
-		r.index--;
-		//r.index_cap--;
-		r.airstrips.erase(r.airstrips.begin() + node);
-		r.arrival.erase(r.arrival.begin() + node);
-		r.departure.erase(r.departure.begin() + node);
-		r.refueling.erase(r.refueling.begin() + node);
-		r.fuel.erase(r.fuel.begin() + node);
-		r.weights.erase(r.weights.begin() + node);
-		r.capacities.erase(r.capacities.begin() + node);
+
+		r.remove_at(node);
 	}
 	else {
 		// I remove the extra time that was considered
@@ -89,14 +66,7 @@ void aggregate_same_nodes_inter_ls(Route& r, int node) {
 			}
 
 		}
-		r.index--;
-		r.airstrips.erase(r.airstrips.begin() + node);
-		r.arrival.erase(r.arrival.begin() + node);
-		r.departure.erase(r.departure.begin() + node);
-		r.refueling.erase(r.refueling.begin() + node);
-		r.fuel.erase(r.fuel.begin() + node);
-		r.weights.erase(r.weights.begin() + node);
-		r.capacities.erase(r.capacities.begin() + node);
+		r.remove_at(node);
 	}
 }
 
@@ -124,19 +94,20 @@ vector <Route> aggrezione_simple_after_model(vector<Route>& solution_model, map<
 				Route r_add(solution_model[r].aircraft_code, solution_model[r].passengers_in_route);
 				r_add.primo_pass = true;
 				for (int i = 0; i < solution_model[r].index - 1; i++) {
+					double travel_time = (((from_to[solution_model[r].airstrips[i]][solution_model[r1].airstrips[0]]) / map_airplane[solution_model[r].aircraft_code].speed) * 60);
 					if (i == solution_model[r].index - 2) {
 						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
-							solution_model[r].capacities[i], solution_model[r].arrival[i], (solution_model[r1].arrival[0] - (((from_to[solution_model[r].airstrips[i]][solution_model[r1].airstrips[0]]) / map_airplane[solution_model[r].aircraft_code].speed) * 60)));
+							solution_model[r].getCapacities()[i], solution_model[r].arrival[i], (solution_model[r1].arrival[0] - travel_time));
 					}
 					else {
 						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
-							solution_model[r].capacities[i], solution_model[r].arrival[i], solution_model[r].departure[i]);
+							solution_model[r].getCapacities()[i], solution_model[r].arrival[i], solution_model[r].departure[i]);
 					}
 				}
 
 				for (int i = 0; i < solution_model[r1].index; i++) {
 					r_add.addPlace(solution_model[r1].airstrips[i], solution_model[r1].refueling[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
-						solution_model[r1].capacities[i], solution_model[r1].arrival[i], solution_model[r1].departure[i]);
+						solution_model[r1].getCapacities()[i], solution_model[r1].arrival[i], solution_model[r1].departure[i]);
 				}
 				for (Passenger& p : solution_model[r1].passengers_in_route) {
 					p.solution_from += (solution_model[r].index - 1);
@@ -194,17 +165,17 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 				for (int i = 0; i <= solution_model[r].index - 1; i++) {
 					double time_to_go = (((from_to[route->airstrips[i]][solution_model[r1].airstrips[0]]) / map_airplane[route->aircraft_code].speed) * 60);
 					if (i == solution_model[r].index - 1) {
-						r_add.addPlace(route->airstrips[i], route->refueling[i], route->fuel[i], route->weights[i],route->capacities[i], route->arrival[i], (solution_model[r1].arrival[0] - time_to_go));
+						r_add.addPlace(route->airstrips[i], route->refueling[i], route->fuel[i], route->weights[i],route->getCapacities()[i], route->arrival[i], (solution_model[r1].arrival[0] - time_to_go));
 					}
 					else {
 						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
-							solution_model[r].capacities[i], solution_model[r].arrival[i], solution_model[r].departure[i]);
+							solution_model[r].getCapacities()[i], solution_model[r].arrival[i], solution_model[r].departure[i]);
 					}
 				}
 
 				for (int i = 0; i < solution_model[r1].index; i++) {
 					r_add.addPlace(solution_model[r1].airstrips[i], solution_model[r1].refueling[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
-						solution_model[r1].capacities[i], solution_model[r1].arrival[i], solution_model[r1].departure[i]);
+						solution_model[r1].getCapacities()[i], solution_model[r1].arrival[i], solution_model[r1].departure[i]);
 				}
 				for (Passenger& p : solution_model[r1].passengers_in_route) {
 					p.solution_from += (solution_model[r].index);

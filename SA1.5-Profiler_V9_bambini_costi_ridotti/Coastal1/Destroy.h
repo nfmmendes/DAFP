@@ -53,21 +53,14 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 
 			if (numero_random == r.airstrips.size() - 1) {
 				// qua devo distruggere tutta la route e lasciare solo il depot
-				for (int i = (int)(r.airstrips.size()) - 1; i >= 1; i--) {
-					r.airstrips.erase(r.airstrips.begin() + i);
-					r.refueling.erase(r.refueling.begin() + i);
-					r.fuel.erase(r.fuel.begin() + i);
-					r.arrival.erase(r.arrival.begin() + i);
-					r.departure.erase(r.departure.begin() + i);
-					r.capacities.erase(r.capacities.begin() + i);
-					r.weights.erase(r.weights.begin() + i);
-					r.index--;
-				}
+				for (int i = (int)(r.airstrips.size()) - 1; i >= 1; i--)
+					r.remove_at(i);
+					
 				//qua ci dovrebbe essere solo il deposito
 				//fisso il peso, capacita e fuel ai valori di default e la variabile passeggeri dentro a false
 				r.fuel[0] = map_airplane[r.aircraft_code].max_fuel;
 				r.weights[0] = map_airplane[r.aircraft_code].load_weight - r.fuel[0];
-				r.capacities[0] = 0;
+				r.setCapacityAt(0, 0);
 				r.primo_pass = false;
 
 				//ora devo togliere tutti i passeggeri
@@ -100,7 +93,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 									if (r.passengers_in_route[p].solution_from < Min_From_Pass) Min_From_Pass = r.passengers_in_route[p].solution_from;
 									int_removed.push_back(p);
 									for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-										r.capacities[t] -= r.passengers_in_route[p].capacity;
+										r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
 										r.weights[t] += r.passengers_in_route[p].weight;
 									}
 								}
@@ -177,7 +170,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 										if (r.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = r.passengers_in_route[p].solution_to;
 										int_removed.push_back(p);
 										for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-											r.capacities[t] -= r.passengers_in_route[p].capacity;
+											r.addCapacityAt(t, -1.0*r.passengers_in_route[p].capacity);
 											r.weights[t] += r.passengers_in_route[p].weight;
 										}
 
@@ -288,7 +281,7 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 							int_removed.push_back(p);
 
 							for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-								r.capacities[t] -= r.passengers_in_route[p].capacity;
+								r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
 								r.weights[t] += r.passengers_in_route[p].weight;
 							}
 						}
@@ -392,7 +385,7 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 								if (r.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = r.passengers_in_route[p].solution_to;
 								int_removed.push_back(p);
 								for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-									r.capacities[t] -= r.passengers_in_route[p].capacity;
+									r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
 									r.weights[t] += r.passengers_in_route[p].weight;
 								}
 
@@ -501,7 +494,7 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 							int_removed.push_back(p);
 
 							for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-								r.capacities[t] -= r.passengers_in_route[p].capacity;
+								r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
 								r.weights[t] += r.passengers_in_route[p].weight;
 							}
 						}
@@ -577,7 +570,7 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 								if (r.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = r.passengers_in_route[p].solution_to;
 								int_removed.push_back(p);
 								for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-									r.capacities[t] -= r.passengers_in_route[p].capacity;
+									r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
 									r.weights[t] += r.passengers_in_route[p].weight;
 								}
 
@@ -746,7 +739,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 
 					int_removed.push_back(p);
 					for (int t = s.passengers_in_route[p].solution_from; t < s.passengers_in_route[p].solution_to; t++) {
-						s.capacities[t] -= s.passengers_in_route[p].capacity;
+						s.addCapacityAt(t, -1*s.passengers_in_route[p].capacity);
 						s.weights[t] += s.passengers_in_route[p].weight;
 					}
 
@@ -812,36 +805,21 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 			int index_sup = s.index;
 			for (int i = index_sup - 1; i > 1; i--) {
 
-				if (s.capacities[i - 1] != 0) break;
+				if (s.getCapacities()[i - 1] != 0) break;
 
-				if (s.capacities[i - 1] == 0) {
-					s.airstrips.erase(s.airstrips.begin() + i);
-					s.arrival.erase(s.arrival.begin() + i);
-					s.departure.erase(s.departure.begin() + i);
-					s.refueling.erase(s.refueling.begin() + i);
-					s.fuel.erase(s.fuel.begin() + i);
-					s.weights.erase(s.weights.begin() + i);
-					s.capacities.erase(s.capacities.begin() + i);
-					s.index = s.index - 1;
-
+				if (s.getCapacities()[i - 1] == 0) {
+					s.remove_at(i);
 				}
 			}
 
 
-			if (s.index == 2 && s.capacities[0] == 0) {
-				s.airstrips.erase(s.airstrips.begin() + 1);
-				s.arrival.erase(s.arrival.begin() + 1);
-				s.departure.erase(s.departure.begin() + 1);
-				s.refueling.erase(s.refueling.begin() + 1);
-				s.fuel.erase(s.fuel.begin() + 1);
-				s.weights.erase(s.weights.begin() + 1);
-				s.capacities.erase(s.capacities.begin() + 1);
-				s.index = s.index - 1;
+			if (s.index == 2 && s.getCapacities()[0] == 0) {
+				s.remove_at(1);
 			}
 
 			// Questa parte qua forse si puo togliere
 			//qua ? la parte che ho aggiunto io (NELLI) per il problema del nodo al deposito che non si aggiorna
-			if ((int)s.airstrips.size() == 1 && s.capacities[0] == 0) {
+			if ((int)s.airstrips.size() == 1 && s.getCapacities()[0] == 0) {
 				s.fuel[0] = map_airplane[s.aircraft_code].max_fuel;
 				s.weights[0] = map_airplane[s.aircraft_code].load_weight - map_airplane[s.aircraft_code].max_fuel;
 			}
@@ -897,7 +875,7 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 
 						int_removed.push_back(p);
 						for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-							r.capacities[t] -= r.passengers_in_route[p].capacity;
+							r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
 							r.weights[t] += r.passengers_in_route[p].weight;
 						}
 

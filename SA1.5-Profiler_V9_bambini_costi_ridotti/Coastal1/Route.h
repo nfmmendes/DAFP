@@ -44,7 +44,7 @@ public:
 	vector<double> fuel;
 	vector<double> weights;
 	int index;
-	vector<int> capacities;
+	
 	bool primo_pass;
 
 	vector<Passenger> passengers_in_route;
@@ -55,6 +55,25 @@ public:
 	Route(int, vector<Passenger>& passengers_in_route);
 	~Route();
 
+	vector<int> getCapacities() { return capacities;  }
+	void setCapacityAt(int index, int value) { if (index >= 0 && index < static_cast<int>(capacities.size())) capacities[index] = value; }
+	void addCapacityAt(int index, int value) { if (index >= 0 && index < static_cast<int>(capacities.size())) capacities[index] += value; }
+
+
+	void remove_at(int position)
+	{		
+		airstrips.erase(airstrips.begin() + position);
+		refueling.erase(refueling.begin() + position);
+		fuel.erase(fuel.begin() + position);
+		arrival.erase(arrival.begin() + position);
+		departure.erase(departure.begin() + position);
+		capacities.erase(capacities.begin() + position);
+		weights.erase(weights.begin() + position);
+		index--;
+	}
+
+
+	
 	void print();
 	void printCompany();
 	void addPlace_companySolution(string, int);
@@ -73,6 +92,9 @@ public:
 	void update_fuel_and_weight(const int& node_add_to, const bool& non_to, double add_fuel, int index_weight_neg);
 	void update_solution_from_to(int& node_add_from);
 	void update_rebuilt_one_second_fase(ProcessedInput*, int& caso, int& node_add_from, int& node_add_to, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
+
+private:
+	vector<int> capacities;
 };
 
 #endif // Route_h
