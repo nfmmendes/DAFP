@@ -263,7 +263,7 @@ int main(int argc, char* argv[]) {
 					choosen_heuristic = 1;
 				}
 				for (Route& r : start_solution_route) 
-					npass += (int)r.passengers_in_route.size();
+					npass += (int)r.get_passengers().size();
 
 				cout << "numero di passeggeri " << npass << endl;
 				cout << "passengers.size()= " << passengers.size() << endl;
@@ -443,7 +443,7 @@ int main(int argc, char* argv[]) {
 			if (counter == start_route_bs) {
 				for (const Route& r : solution) {
 					// If ? la modififica
-					if (r.passengers_in_route.size() > 0) {
+					if (r.get_passengers().size() > 0) {
 						solution_warm_up[r.aircraft_code] = (int)(airplane_routes[r.aircraft_code].size());
 						airplane_routes[r.aircraft_code].push_back(r);
 					}
@@ -469,7 +469,7 @@ int main(int argc, char* argv[]) {
 		int n = 0;
 		for (Route& path : Prova) {
 			//path.print();
-			n += (int)path.passengers_in_route.size();
+			n += (int)path.get_passengers().size();
 		}
 		cout << " Soluzione contiene numero di passeggieri pari a " << n << endl;
 		//finito di fissare gli aerei
@@ -483,12 +483,11 @@ int main(int argc, char* argv[]) {
 				routes.push_back(r);
 				vector<int> A1;
 				for (Passenger& p : passengers) {
-					auto it = find_if(r.passengers_in_route.begin(), r.passengers_in_route.end(),
-						[=](Passenger p_)
-					{
+					auto it = find_if(r.get_passengers().begin(), r.get_passengers().end(), [=](Passenger p_){
 						return p.pnr == p_.pnr;
 					});
-					if (it != r.passengers_in_route.end())
+					
+					if (it != r.get_passengers().end())
 					{
 						A1.push_back(1);
 					}

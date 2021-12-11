@@ -37,8 +37,6 @@ public:
 
 	//for repair forbidden
 	int route_before;
-
-
 	int early_departure;
 	double mean_departure;
 	int late_departure;
@@ -46,12 +44,7 @@ public:
 	double mean_arrival;
 	int late_arrival;
 
-
-
-
 	void print();
-
-
 
 };
 #endif // !Passenger_h

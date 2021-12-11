@@ -436,7 +436,7 @@ void calculate_ObjectiveFunction_final(ProcessedInput*input, double costo_compan
 		cost_route += fuel_consumed;
 
 		//now i have to calculate the penalitis regarding the time windows for each passeger
-		for (const auto& p : r.passengers_in_route) {
+		for (const auto& p : r.get_passengers()) {
 			cost += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			cost_route += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			costo_Intermediate += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;
@@ -533,7 +533,7 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 		cost_route += fuel_consumed;
 
 		//now i have to calculate the penalitis regarding the time windows for each passeger
-		for (const auto& p : r.passengers_in_route) {
+		for (const auto& p : r.get_passengers()) {
 			cost += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			cost_route += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			costo_Intermediate += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;
@@ -582,7 +582,7 @@ double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_we
 	cost += mileage;
 	cost += fuel_consumed;
 
-	for (const auto& p : r.passengers_in_route) {
+	for (const auto& p : r.get_passengers()) {
 		cost += ((p.solution_to - p.solution_from - 1) * penalty_weights.intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 
 		double departure = r.departure[p.solution_from];
@@ -637,7 +637,7 @@ double calculate_ObjectiveFunction(ProcessedInput* input, const  PenaltyWeights&
 		cost_route += fuel_consumed;
 
 		//now i have to calculate the penalitis regarding the time windows for each passeger
-		for (const auto& p : r.passengers_in_route) {
+		for (const auto& p : r.get_passengers()) {
 			cost += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			cost_route += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 
@@ -659,7 +659,7 @@ double calculate_ObjectiveFunction(ProcessedInput* input, const  PenaltyWeights&
 double cost_time_windows_for_route(Route& r, double peso_TW) {
 	double cost = 0.0;
 
-	for (const Passenger& p : r.passengers_in_route) {
+	for (const Passenger& p : r.get_passengers()) {
 
 		double departure = r.departure[p.solution_from];
 		double arrival = r.arrival[p.solution_to];
@@ -674,7 +674,7 @@ double cost_time_windows_for_route(Route& r, double peso_TW) {
 	return cost;
 }
 
-double cost_for_route_passenger_destroyCluster(Route& r, Passenger& p, int inter_stop_factor, double peso_TW) {
+double cost_for_route_passenger_destroyCluster(Route& r, const Passenger& p, int inter_stop_factor, double peso_TW) {
 
 	double departure = r.departure[p.solution_from];
 	double arrival = r.arrival[p.solution_to]; 
@@ -759,7 +759,7 @@ double costo_time_windows_and_intermediate_stop(const PenaltyWeights& penalty_we
 
 	for (auto& r : solution) {
 
-		for (const auto& p : r.passengers_in_route) {
+		for (const auto& p : r.get_passengers()) {
 			double time_departure = r.arrival[p.solution_from];
 			double time_arrival = r.arrival[p.solution_to];
 

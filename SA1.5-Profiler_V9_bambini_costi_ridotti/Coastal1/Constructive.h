@@ -165,7 +165,7 @@ namespace heuristic_costructive_first_fase_namespace {
 
 		}
 		p.solution_to = route->index - 1;
-		route->passengers_in_route.push_back(p);
+		route->add_passenger(p);
 	}
 
 	inline void run_situation_2(ProcessedInput* input, Passenger& p, Route* route)
@@ -217,7 +217,7 @@ namespace heuristic_costructive_first_fase_namespace {
 
 		}
 		p.solution_to = route->index - 1;
-		route->passengers_in_route.push_back(p);
+		route->add_passenger(p);
 	}
 
 	inline void run_situation_3(ProcessedInput* input, Passenger& p, Route* route)
@@ -268,7 +268,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		}
 
 		p.solution_to = route->index - 1;
-		route->passengers_in_route.push_back(p);
+		route->add_passenger(p);
 	}
 
 	inline void run_situation_4(ProcessedInput* input, Passenger& p, int& best_from, int& best_to, Route* route)
@@ -310,7 +310,7 @@ namespace heuristic_costructive_first_fase_namespace {
 
 		p.solution_from = best_from;
 		p.solution_to = best_to;
-		route->passengers_in_route.push_back(p);
+		route->add_passenger(p);
 	}
 
 	inline void run_situation_5(ProcessedInput* input, Passenger& p, int& best_from, Route* route)
@@ -371,7 +371,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		}
 
 		p.solution_to = route->index - 1;
-		route->passengers_in_route.push_back(p);
+		route->add_passenger(p);
 	}
 
 }
@@ -702,7 +702,7 @@ void run_situation_1(ProcessedInput* input, vector<Passenger>& passengers, Route
 		r.weights[r.index - 1] = r.weights[r.index - 2] + fuel_consumed + passengers[best_passenger].weight;
 	}
 	passengers[best_passenger].solution_to = r.index - 1;
-	r.passengers_in_route.push_back(passengers[best_passenger]);
+	r.add_passenger(passengers[best_passenger]);
 }
 
 void run_situation_2(ProcessedInput* input, vector<Passenger>& passengers, Route& r, int& best_passenger)
@@ -767,7 +767,7 @@ void run_situation_2(ProcessedInput* input, vector<Passenger>& passengers, Route
 
 	}
 	passengers[best_passenger].solution_to = r.index - 1;
-	r.passengers_in_route.push_back(passengers[best_passenger]);
+	r.add_passenger(passengers[best_passenger]);
 }
 
 void run_situation_3(ProcessedInput* input, vector<Passenger>& passengers, Route& r, int& best_passenger)
@@ -822,7 +822,7 @@ void run_situation_3(ProcessedInput* input, vector<Passenger>& passengers, Route
 	}
 
 	passengers[best_passenger].solution_to = r.index - 1;
-	r.passengers_in_route.push_back(passengers[best_passenger]);
+	r.add_passenger(passengers[best_passenger]);
 }
 
 void run_situation_4(ProcessedInput* input, vector<Passenger> &passengers, Route& r, int best_passenger, int best_from, int best_to)
@@ -864,7 +864,7 @@ void run_situation_4(ProcessedInput* input, vector<Passenger> &passengers, Route
 
 	passengers[best_passenger].solution_from = best_from;
 	passengers[best_passenger].solution_to = best_to;
-	r.passengers_in_route.push_back(passengers[best_passenger]);
+	r.add_passenger(passengers[best_passenger]);
 }
 
 void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route& r, int& best_passenger, int& best_from)
@@ -925,7 +925,7 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 	}
 
 	passengers[best_passenger].solution_to = r.index - 1;
-	r.passengers_in_route.push_back(passengers[best_passenger]);
+	r.add_passenger(passengers[best_passenger]);
 }
 
 vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input, const PenaltyWeights& penalty_weights, vector<Airplane>& airplanes, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
@@ -1252,15 +1252,15 @@ map<int, int> Compute_WorstNode(double peso_TW, double peso_intermediate_stop, R
 				//cout << " Calcolo per nodo n mezzo " << endl;
 				dist += map_airstrip[route.airstrips[n]].landing_cost;
 				dist += from_to[route.airstrips[n - 1]][route.airstrips[n]] + from_to[route.airstrips[n]][route.airstrips[n + 1]] - from_to[route.airstrips[n - 1]][route.airstrips[n + 1]];
-				for (int p = 0; p < (int)route.passengers_in_route.size(); p++) {
-					if (route.passengers_in_route[p].solution_to == n || route.passengers_in_route[p].solution_from == n) {
-						PassengerNodo.push_back(route.passengers_in_route[p]);
+				for (int p = 0; p < (int)route.get_passengers().size(); p++) {
+					if (route.get_passengers()[p].solution_to == n || route.get_passengers()[p].solution_from == n) {
+						PassengerNodo.push_back(route.get_passengers()[p]);
 					}
 
 					//pezzo aggiunto per intermediate stop****************************************************************************************************
-					if (route.passengers_in_route[p].solution_from < n) {
-						if (route.passengers_in_route[p].solution_to > n) {
-							cost_IS += (peso_intermediate_stop)*route.passengers_in_route[p].capacity;
+					if (route.get_passengers()[p].solution_from < n) {
+						if (route.get_passengers()[p].solution_to > n) {
+							cost_IS += (peso_intermediate_stop)*route.get_passengers()[p].capacity;
 						}
 					}
 				}
@@ -1269,15 +1269,15 @@ map<int, int> Compute_WorstNode(double peso_TW, double peso_intermediate_stop, R
 				//cout << " Calcolo per ultimo nodo " << endl;
 				dist += map_airstrip[route.airstrips[n]].landing_cost;
 				dist += from_to[route.airstrips[n - 1]][route.airstrips[n]];
-				for (int p = 0; p < (int)route.passengers_in_route.size(); p++) {
-					if (route.passengers_in_route[p].solution_to == n) {
-						PassengerNodo.push_back(route.passengers_in_route[p]);
+				for (int p = 0; p < (int)route.get_passengers().size(); p++) {
+					if (route.get_passengers()[p].solution_to == n) {
+						PassengerNodo.push_back(route.get_passengers()[p]);
 					}
 					
 					//pezzo aggiunto per intermediate stop****************************************************************************************************
-					if (route.passengers_in_route[p].solution_from < n) {
-						if (route.passengers_in_route[p].solution_to > n) {
-							cost_IS += (peso_intermediate_stop)*route.passengers_in_route[p].capacity;
+					if (route.get_passengers()[p].solution_from < n) {
+						if (route.get_passengers()[p].solution_to > n) {
+							cost_IS += (peso_intermediate_stop)*route.get_passengers()[p].capacity;
 						}
 					}
 				}
@@ -1344,7 +1344,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 			route->weights[route->index - 1] = route->weights[route->index - 2] + fuel_consumed + p.weight;
 		}
 		p.solution_to = route->index - 1;
-		route->passengers_in_route.push_back(p);
+		route->add_passenger(p);
 	}
 
 	void run_situation_2(ProcessedInput* input, vector<Route>& solution, Passenger& p, int& best_route)
@@ -1400,7 +1400,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 
 		}
 		p.solution_to = route->index - 1;
-		route->passengers_in_route.push_back(p);
+		route->add_passenger(p);
 	}
 
 	void run_situation_3(ProcessedInput* input, vector<Route>& solution, Passenger& p, int& best_route)
@@ -1455,7 +1455,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		}
 
 		p.solution_to = route->index - 1;
-		route->passengers_in_route.push_back(p);
+		route->add_passenger(p);
 	}
 
 	void run_situation_4(ProcessedInput* input, vector<Route>& solution, Passenger& p, int best_route, int best_from, int best_to)
@@ -1497,7 +1497,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 
 		p.solution_from = best_from;
 		p.solution_to = best_to;
-		route->passengers_in_route.push_back(p);
+		route->add_passenger(p);
 	}
 
 	void run_situation_5(ProcessedInput* input, vector<Route>& solution, Passenger& p, int& best_route, int& best_from)
@@ -1558,7 +1558,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		}
 
 		p.solution_to = route->index - 1;
-		route->passengers_in_route.push_back(p);
+		route->add_passenger(p);
 	}
 }
 

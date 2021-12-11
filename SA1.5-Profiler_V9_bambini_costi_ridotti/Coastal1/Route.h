@@ -46,22 +46,25 @@ public:
 	int index;
 	
 	bool primo_pass;
-
-	vector<Passenger> passengers_in_route;
 	vector<double> arrival;
 	vector<double> departure;
 
 	Route();
-	Route(int, vector<Passenger>& passengers_in_route);
+	Route(int, const vector<Passenger>& passengers_in_route);
 	~Route();
 
-	vector<int> getCapacities() { return capacities;  }
+	const vector<int> getCapacities() { return capacities;  }
 	void setCapacityAt(int position, int value) { if (position >= 0 && position < static_cast<int>(capacities.size())) capacities[position] = value; }
 	void addCapacityAt(int position, int value) { if (position >= 0 && position < static_cast<int>(capacities.size())) capacities[position] += value; }
 
 	vector<string> get_places_company() { return places_company;  }
 	vector<string> setPlacesCompanyAt(int position, string value) { if (position >= 0 && position < static_cast<int>(places_company.size()))  places_company[position] = value;  }
 
+	const vector<Passenger> &get_passengers() const { return passengers_in_route;  };
+	Passenger& get_passenger(int position) { return passengers_in_route[position]; }
+	void add_passenger(const Passenger& p) { passengers_in_route.push_back(p);  }
+	void erase_passenger(int position) { passengers_in_route.erase(passengers_in_route.begin()+ position);  }
+	
 	void remove_at(int position)
 	{		
 		airstrips.erase(airstrips.begin() + position);
@@ -73,8 +76,6 @@ public:
 		weights.erase(weights.begin() + position);
 		index--;
 	}
-
-
 	
 	void print();
 	void printCompany();
@@ -98,6 +99,7 @@ public:
 private:
 	vector<int> capacities;
 	vector<string> places_company;
+	vector<Passenger> passengers_in_route;
 };
 
 #endif // Route_h

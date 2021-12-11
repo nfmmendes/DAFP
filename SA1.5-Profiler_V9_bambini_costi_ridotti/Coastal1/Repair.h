@@ -220,7 +220,7 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 					p.solution_to = to_per_route;
 				}
 			}
-			routes_destroyed[best_route].passengers_in_route.push_back(p);
+			routes_destroyed[best_route].add_passenger(p);
 		}
 	}
 
@@ -413,7 +413,7 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights
 				}
 			}
 
-			routes_destroyed[best_route].passengers_in_route.push_back(p);
+			routes_destroyed[best_route].add_passenger(p);
 		}
 	}
 
@@ -497,9 +497,9 @@ vector<Route> repairSP(ProcessedInput* input, const PenaltyWeights &penalty_weig
 			routes.push_back(r);
 			vector<int> A1;
 			for (Passenger& p : passengers) {
-				auto it = find_if(r.passengers_in_route.begin(), r.passengers_in_route.end(), [=](Passenger& p_) { return p.pnr == p_.pnr; });
+				auto it = find_if(r.get_passengers().begin(), r.get_passengers().end(), [=](const Passenger& p_) { return p.pnr == p_.pnr; });
 
-				if (it != r.passengers_in_route.end()) {
+				if (it != r.get_passengers().end()) {
 					A1.push_back(1);
 				}
 				else {
@@ -523,7 +523,8 @@ vector<Route> repairSP(ProcessedInput* input, const PenaltyWeights &penalty_weig
 	// adesso vettore delle Route non ? piu vuoto
 	// Non ho piu tutti gli aerei disponibili cout<<endl
 	int n = 0;
-	for (Route& r : model->solution_model) n += (int)r.passengers_in_route.size();
+	for (Route& r : model->solution_model) 
+		n += (int)r.get_passengers().size();
 
 	if ((int)(model->solution_model.size()) > 0 && (n == (int)passengers.size())) {
 		for (Route& s : model->solution_model) solution_model.push_back(s);
@@ -531,7 +532,8 @@ vector<Route> repairSP(ProcessedInput* input, const PenaltyWeights &penalty_weig
 		return solution_model;
 	}
 	n = 0;
-	for (Route& r : solutionAllSub[Best_iteration]) n += (int)r.passengers_in_route.size();
+	for (Route& r : solutionAllSub[Best_iteration]) 
+		n += (int)r.get_passengers().size();
 
 	if (n == (int)passengers.size()) {
 		delete model;
@@ -737,7 +739,7 @@ vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_w
 				}
 			}
 
-			routes_destroyed[best_route].passengers_in_route.push_back(p);
+			routes_destroyed[best_route].add_passenger(p);
 		}
 	}
 
@@ -1018,7 +1020,7 @@ vector<Route> two_regret_repair_aggragati(ProcessedInput* input, const PenaltyWe
 			}
 		}
 
-		routes_destroyed[regret_best_route[index]].passengers_in_route.push_back(passengers_removed[regret_index_pass[index]]);
+		routes_destroyed[regret_best_route[index]].add_passenger(passengers_removed[regret_index_pass[index]]);
 		
 		//QUA DEVO TOGLIERE IL PASSEGGERO CHE HO APPENA INSERITO DAL POOL DI PASSENGERS_REMOVED
 		vector<Passenger>::iterator it;
@@ -1227,7 +1229,7 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 			}
 
 
-			routes_destroyed[best_route].passengers_in_route.push_back(p);
+			routes_destroyed[best_route].add_passenger(p);
 		}
 	}
 

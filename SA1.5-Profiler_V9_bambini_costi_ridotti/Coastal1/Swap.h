@@ -9,7 +9,7 @@
 int swap_to(int node, const Route& r) {
 	int swap_to = 1000;
 
-	for (const Passenger& p : r.passengers_in_route) {
+	for (const Passenger& p : r.get_passengers()) {
 		if (p.solution_from == node) {
 			if (p.solution_to < swap_to) swap_to = p.solution_to;
 		}
@@ -24,15 +24,13 @@ int swap_from(int node, const Route& r) {
 
 	int swap_from = 0;
 
-	for (const Passenger& p : r.passengers_in_route) {
+	for ( auto& p : r.get_passengers()) {
 		if (p.solution_to == node) {
 			if (p.solution_from > swap_from) swap_from = p.solution_from;
 		}
 	}
 
-
 	return swap_from;
-
 }
 
 
@@ -89,12 +87,13 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 
 	//aggiorno capacita e peso e indici dei passeggeri
 	//ora devo cambiare gli indici dei passeggeri spostati
-	for (Passenger p : r.passengers_in_route) {
-		if (p.solution_from == A) p.solution_from = B;
-		else if (p.solution_to == A) p.solution_to = B;
-		else if (p.solution_from == B) p.solution_from = A;
-		else if (p.solution_to == B) p.solution_to = A;
-		r_new.passengers_in_route.push_back(p);
+	for (auto &p : r.get_passengers()) {
+		auto new_passenger = p;
+		if (p.solution_from == A) new_passenger.solution_from = B;
+		else if (p.solution_to == A) new_passenger.solution_to = B;
+		else if (p.solution_from == B) new_passenger.solution_from = A;
+		else if (p.solution_to == B) new_passenger.solution_to = A;
+		r_new.add_passenger(p);
 
 		for (int t = p.solution_from; t < p.solution_to; t++) {
 			r_new.addCapacityAt(t, p.capacity);

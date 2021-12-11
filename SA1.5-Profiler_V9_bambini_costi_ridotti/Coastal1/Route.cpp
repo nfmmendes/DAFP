@@ -18,7 +18,7 @@ Route::Route()
 }
 
 
-Route::Route(int aircraft_code, vector<Passenger>& pass)
+Route::Route(int aircraft_code, const vector<Passenger>& pass)
 {
 	this->aircraft_code = aircraft_code;
 	index = 0;

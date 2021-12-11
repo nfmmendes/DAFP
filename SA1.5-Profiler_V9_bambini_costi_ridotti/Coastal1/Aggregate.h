@@ -25,7 +25,8 @@ void remove_node(Route& r, const int &node)
 
 void aggregate_same_nodes(Route& r, int node) {
 	// La modicfica del form e to del passeggiero non funziona
-	for (Passenger& p : r.passengers_in_route) {
+	for(int i=0; i< r.get_passengers().size(); i++){
+		Passenger &p = r.get_passenger(i);
 		if (p.solution_from == (1 + node)) p.solution_from = node;
 		if (p.solution_to == (1 + node)) p.solution_to = node;
 		if (p.solution_from > (1 + node)) p.solution_from--;
@@ -38,7 +39,8 @@ void aggregate_same_nodes(Route& r, int node) {
 
 void aggregate_same_nodes_inter_ls(Route& r, int node) {
 	// La modicfica del form e to del passeggiero non funziona
-	for (Passenger& p : r.passengers_in_route) {
+	for (int i = 0; i < r.get_passengers().size(); i++) {
+		auto& p = r.get_passenger(i);
 		if (p.solution_from == (1 + node)) p.solution_from = node;
 		if (p.solution_to == (1 + node)) p.solution_to = node;
 		if (p.solution_from > (1 + node)) p.solution_from--;
@@ -71,7 +73,7 @@ void aggregate_same_nodes_inter_ls(Route& r, int node) {
 }
 
 vector <Route> aggrezione_simple_after_model(vector<Route>& solution_model, map<int, Airplane>& map_airplane, vector<vector<double>>& from_to) {
-	vector <Route> solution_after;
+	vector<Route> solution_after;
 
 	cout << "*****************************SOLUTION PRIMA DELL'AGGREAGZIONE********************************" << endl;
 	for (Route r : solution_model) {
@@ -91,7 +93,7 @@ vector <Route> aggrezione_simple_after_model(vector<Route>& solution_model, map<
 				&& index_not.find(val, 0) > index_not.size() && index_not.find(val1, 0) > index_not.size()) {
 
 				index_not += to_string(r) + ";" + to_string(r1) + ";";
-				Route r_add(solution_model[r].aircraft_code, solution_model[r].passengers_in_route);
+				Route r_add(solution_model[r].aircraft_code, solution_model[r].get_passengers());
 				r_add.primo_pass = true;
 				for (int i = 0; i < solution_model[r].index - 1; i++) {
 					double travel_time = (((from_to[solution_model[r].airstrips[i]][solution_model[r1].airstrips[0]]) / map_airplane[solution_model[r].aircraft_code].speed) * 60);
@@ -109,10 +111,11 @@ vector <Route> aggrezione_simple_after_model(vector<Route>& solution_model, map<
 					r_add.addPlace(solution_model[r1].airstrips[i], solution_model[r1].refueling[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
 						solution_model[r1].getCapacities()[i], solution_model[r1].arrival[i], solution_model[r1].departure[i]);
 				}
-				for (Passenger& p : solution_model[r1].passengers_in_route) {
-					p.solution_from += (solution_model[r].index - 1);
-					p.solution_to += (solution_model[r].index - 1);
-					r_add.passengers_in_route.push_back(p);
+				for (auto& p : solution_model[r1].get_passengers()) {
+					auto new_passenger = p;
+					new_passenger.solution_from += (solution_model[r].index - 1);
+					new_passenger.solution_to += (solution_model[r].index - 1);
+					r_add.add_passenger(new_passenger);
 
 				}
 
@@ -160,7 +163,7 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 				) {
 
 				index_not += to_string(r) + ";" + to_string(r1) + ";";
-				Route r_add(route->aircraft_code, route->passengers_in_route);
+				Route r_add(route->aircraft_code, route->get_passengers());
 				r_add.primo_pass = true; //N.B. commentare questa riga se si vuole vedere quelle che aggrega
 				for (int i = 0; i <= solution_model[r].index - 1; i++) {
 					double time_to_go = (((from_to[route->airstrips[i]][solution_model[r1].airstrips[0]]) / map_airplane[route->aircraft_code].speed) * 60);
@@ -177,10 +180,11 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 					r_add.addPlace(solution_model[r1].airstrips[i], solution_model[r1].refueling[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
 						solution_model[r1].getCapacities()[i], solution_model[r1].arrival[i], solution_model[r1].departure[i]);
 				}
-				for (Passenger& p : solution_model[r1].passengers_in_route) {
-					p.solution_from += (solution_model[r].index);
-					p.solution_to += (solution_model[r].index);
-					r_add.passengers_in_route.push_back(p);
+				for (const Passenger& p : solution_model[r1].get_passengers()) {
+					auto new_passenger = p;
+					new_passenger.solution_from += (solution_model[r].index);
+					new_passenger.solution_to += (solution_model[r].index);
+					r_add.add_passenger(new_passenger);
 
 				}
 				solution_after.push_back(r_add);

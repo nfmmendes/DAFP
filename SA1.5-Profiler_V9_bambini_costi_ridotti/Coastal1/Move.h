@@ -22,7 +22,7 @@ int move_from(int node, const Route& r) {
 
 	int swap_from = 0;
 
-	for (const Passenger& p : r.passengers_in_route) {
+	for ( auto& p : r.get_passengers()) {
 		if (p.solution_to == node) {
 			if (p.solution_from > swap_from) swap_from = p.solution_from;
 		}
@@ -36,9 +36,10 @@ int move_from(int node, const Route& r) {
 int move_to(int node, const Route& r) {
 	int swap_to = 1000;
 
-	for (const Passenger& p : r.passengers_in_route) {
+	for ( auto & p : r.get_passengers()) {
 		if (p.solution_from == node) {
-			if (p.solution_to < swap_to) swap_to = p.solution_to;
+			if (p.solution_to < swap_to) 
+				swap_to = p.solution_to;
 		}
 	}
 
@@ -55,7 +56,7 @@ bool move_is_allowed(int A, int B, Route& r) {
 bool move_flightleg_is_allowed(int A, Route& r) {
 	bool move = true;
 	
-	for (Passenger& p : r.passengers_in_route) {
+	for (auto& p : r.get_passengers()) {
 
 		if ((p.solution_from == A) && (p.solution_to != (A + 1))) {
 			move = false;
@@ -148,7 +149,7 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 	}
 }
 
-Route update_route_after_move(ProcessedInput*input, int A, int B, const Route& r) {
+Route update_route_after_move(ProcessedInput*input, int A, int B, Route& r) {
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector from_to = input->get_from_to();
@@ -184,9 +185,10 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, const Route& r
 		}
 	}
 
-	for (Passenger p : r.passengers_in_route) {
+	for(int i=0; i < r.get_passengers().size(); i++){
+		Passenger& p = r.get_passenger(i);
 		update_passenger_solution_to_from(A, B, p);
-		r_new.passengers_in_route.push_back(p);
+		r_new.add_passenger(p);
 
 		for (int t = p.solution_from; t < p.solution_to; t++) {
 			r_new.addCapacityAt(t, p.capacity);

@@ -54,7 +54,7 @@ bool route_feasible(ProcessedInput* input, Route& r, double end_day) {
 
 	if (feasible) {
 		//check of the intermediate stop
-		for (Passenger& p : r.passengers_in_route) {
+		for (auto& p : r.get_passengers()) {
 			if (p.solution_to - p.solution_from > p.stop) {
 				return false;
 				feasible = false;

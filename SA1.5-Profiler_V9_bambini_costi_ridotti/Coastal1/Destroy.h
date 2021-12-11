@@ -64,10 +64,10 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 				r.primo_pass = false;
 
 				//ora devo togliere tutti i passeggeri
-				for (int p = r.passengers_in_route.size() - 1; p >= 0; p--) {
-					r.passengers_in_route[p].route_before = index;
-					passenger_removed.push_back(r.passengers_in_route[p]);
-					r.passengers_in_route.erase(r.passengers_in_route.begin() + p);
+				for (int p = r.get_passengers().size() - 1; p >= 0; p--) {
+					r.get_passenger(p).route_before = index;
+					passenger_removed.push_back(r.get_passengers()[p]);
+					r.erase_passenger(p);
 				}
 
 			}
@@ -88,22 +88,20 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 
 							int Min_From_Pass = node_destroy;
 							int Max_To_Pass = node_destroy;
-							for (int p = 0; p < (int)r.passengers_in_route.size(); p++) {
-								if (r.passengers_in_route[p].solution_to == node_destroy) {  // ho cambiato questa condizione
-									if (r.passengers_in_route[p].solution_from < Min_From_Pass) Min_From_Pass = r.passengers_in_route[p].solution_from;
+							for (int p = 0; p < (int)r.get_passengers().size(); p++) {
+								if (r.get_passengers()[p].solution_to == node_destroy) {  // ho cambiato questa condizione
+									if (r.get_passengers()[p].solution_from < Min_From_Pass) Min_From_Pass = r.get_passengers()[p].solution_from;
 									int_removed.push_back(p);
-									for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-										r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
-										r.weights[t] += r.passengers_in_route[p].weight;
+									for (int t = r.get_passengers()[p].solution_from; t < r.get_passengers()[p].solution_to; t++) {
+										r.addCapacityAt(t, -1*r.get_passengers()[p].capacity);
+										r.weights[t] += r.get_passengers()[p].weight;
 									}
 								}
 							}
 							for (int i = int_removed.size() - 1; i >= 0; i--) {
-								r.passengers_in_route[int_removed[i]].route_before = index;
-								passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-								vector<Passenger>::iterator it;
-								it = r.passengers_in_route.begin();
-								r.passengers_in_route.erase(it + int_removed[i]);
+								r.get_passenger(int_removed[i]).route_before = index;
+								passenger_removed.push_back(r.get_passengers()[int_removed[i]]);
+								r.erase_passenger(int_removed[i]);
 							}
 
 							int index_min_from = 0;
@@ -164,25 +162,23 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 								vector<int> int_removed;
 								int Min_From_Pass = node_destroy;
 								int Max_To_Pass = node_destroy;
-								for (int p = 0; p < (int)r.passengers_in_route.size(); p++) {
-									if (r.passengers_in_route[p].solution_to == node_destroy || r.passengers_in_route[p].solution_from == node_destroy) { // ho cambiato questa condizione
-										if (r.passengers_in_route[p].solution_from < Min_From_Pass) Min_From_Pass = r.passengers_in_route[p].solution_from;
-										if (r.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = r.passengers_in_route[p].solution_to;
+								for (int p = 0; p < (int)r.get_passengers().size(); p++) {
+									if (r.get_passengers()[p].solution_to == node_destroy || r.get_passengers()[p].solution_from == node_destroy) { // ho cambiato questa condizione
+										if (r.get_passengers()[p].solution_from < Min_From_Pass) Min_From_Pass = r.get_passengers()[p].solution_from;
+										if (r.get_passengers()[p].solution_to > Max_To_Pass) Max_To_Pass = r.get_passengers()[p].solution_to;
 										int_removed.push_back(p);
-										for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-											r.addCapacityAt(t, -1.0*r.passengers_in_route[p].capacity);
-											r.weights[t] += r.passengers_in_route[p].weight;
+										for (int t = r.get_passengers()[p].solution_from; t < r.get_passengers()[p].solution_to; t++) {
+											r.addCapacityAt(t, -1.0*r.get_passengers()[p].capacity);
+											r.weights[t] += r.get_passengers()[p].weight;
 										}
 
 									}
 								}
 
 								for (int i = int_removed.size() - 1; i >= 0; i--) {
-									r.passengers_in_route[int_removed[i]].route_before = index;
-									passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-									vector<Passenger>::iterator it;
-									it = r.passengers_in_route.begin();
-									r.passengers_in_route.erase(it + int_removed[i]);
+									r.get_passenger(int_removed[i]).route_before = index;
+									passenger_removed.push_back(r.get_passengers()[int_removed[i]]);
+									r.erase_passenger(int_removed[i]);
 								}
 
 								int nodi_mancanti = (int)r.airstrips.size();
@@ -275,25 +271,24 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 
 					int Min_From_Pass = node_destroy;
 					int Max_To_Pass = node_destroy;
-					for (int p = 0; p < (int)r.passengers_in_route.size(); p++) {
-						if (r.passengers_in_route[p].solution_to == node_destroy) {  // ho cambiato questa condizione
-							if (r.passengers_in_route[p].solution_from < Min_From_Pass) Min_From_Pass = r.passengers_in_route[p].solution_from;
+					for (int p = 0; p < (int)r.get_passengers().size(); p++) {
+						if (r.get_passengers()[p].solution_to == node_destroy) {  // ho cambiato questa condizione
+							if (r.get_passengers()[p].solution_from < Min_From_Pass) Min_From_Pass = r.get_passengers()[p].solution_from;
 							int_removed.push_back(p);
 
-							for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-								r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
-								r.weights[t] += r.passengers_in_route[p].weight;
+							for (int t = r.get_passengers()[p].solution_from; t < r.get_passengers()[p].solution_to; t++) {
+								r.addCapacityAt(t, -1*r.get_passengers()[p].capacity);
+								r.weights[t] += r.get_passengers()[p].weight;
 							}
 						}
 					}
 					for (int i = int_removed.size() - 1; i >= 0; i--) {
 					
-						r.passengers_in_route[int_removed[i]].route_before = index;
+						r.get_passenger(int_removed[i]).route_before = index;
 
-						passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
+						passenger_removed.push_back(r.get_passengers()[int_removed[i]]);
 						vector<Passenger>::iterator it;
-						it = r.passengers_in_route.begin();
-						r.passengers_in_route.erase(it + int_removed[i]);
+						r.erase_passenger(int_removed[i]);
 					}
 
 					int index_min_from = 0;
@@ -379,14 +374,14 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 						vector<int> int_removed;
 						int Min_From_Pass = node_destroy;
 						int Max_To_Pass = node_destroy;
-						for (int p = 0; p < (int)r.passengers_in_route.size(); p++) {
-							if (r.passengers_in_route[p].solution_to == node_destroy || r.passengers_in_route[p].solution_from == node_destroy) { // ho cambiato questa condizione
-								if (r.passengers_in_route[p].solution_from < Min_From_Pass) Min_From_Pass = r.passengers_in_route[p].solution_from;
-								if (r.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = r.passengers_in_route[p].solution_to;
+						for (int p = 0; p < (int)r.get_passengers().size(); p++) {
+							if (r.get_passengers()[p].solution_to == node_destroy || r.get_passengers()[p].solution_from == node_destroy) { // ho cambiato questa condizione
+								if (r.get_passengers()[p].solution_from < Min_From_Pass) Min_From_Pass = r.get_passengers()[p].solution_from;
+								if (r.get_passengers()[p].solution_to > Max_To_Pass) Max_To_Pass = r.get_passengers()[p].solution_to;
 								int_removed.push_back(p);
-								for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-									r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
-									r.weights[t] += r.passengers_in_route[p].weight;
+								for (int t = r.get_passengers()[p].solution_from; t < r.get_passengers()[p].solution_to; t++) {
+									r.addCapacityAt(t, -1*r.get_passengers()[p].capacity);
+									r.weights[t] += r.get_passengers()[p].weight;
 								}
 
 							}
@@ -394,12 +389,10 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 
 						for (int i = int_removed.size() - 1; i >= 0; i--) {
 							// code for repair forbidden***********************************************************
-							r.passengers_in_route[int_removed[i]].route_before = index;
+							r.get_passenger(int_removed[i]).route_before = index;
 							//*************************************************************************************
-							passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-							vector<Passenger>::iterator it;
-							it = r.passengers_in_route.begin();
-							r.passengers_in_route.erase(it + int_removed[i]);
+							passenger_removed.push_back(r.get_passengers()[int_removed[i]]);
+							r.erase_passenger(int_removed[i]);
 						}
 						r.update_route_destroy(input, node_destroy, Min_From_Pass, Max_To_Pass); //update of the time
 
@@ -488,24 +481,22 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 
 					int Min_From_Pass = node_destroy;
 					int Max_To_Pass = node_destroy;
-					for (int p = 0; p < (int)r.passengers_in_route.size(); p++) {
-						if (r.passengers_in_route[p].solution_to == node_destroy) {  // ho cambiato questa condizione
-							if (r.passengers_in_route[p].solution_from < Min_From_Pass) Min_From_Pass = r.passengers_in_route[p].solution_from;
+					for (int p = 0; p < (int)r.get_passengers().size(); p++) {
+						if (r.get_passengers()[p].solution_to == node_destroy) {  // ho cambiato questa condizione
+							if (r.get_passengers()[p].solution_from < Min_From_Pass) Min_From_Pass = r.get_passengers()[p].solution_from;
 							int_removed.push_back(p);
 
-							for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-								r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
-								r.weights[t] += r.passengers_in_route[p].weight;
+							for (int t = r.get_passengers()[p].solution_from; t < r.get_passengers()[p].solution_to; t++) {
+								r.addCapacityAt(t, -1*r.get_passengers()[p].capacity);
+								r.weights[t] += r.get_passengers()[p].weight;
 							}
 						}
 					}
 					for (int i = int_removed.size() - 1; i >= 0; i--) {
-						r.passengers_in_route[int_removed[i]].route_before = index;
+						r.get_passenger(int_removed[i]).route_before = index;
 
-						passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-						vector<Passenger>::iterator it;
-						it = r.passengers_in_route.begin();
-						r.passengers_in_route.erase(it + int_removed[i]);
+						passenger_removed.push_back(r.get_passengers()[int_removed[i]]);
+						r.erase_passenger(int_removed[i]);
 					}
 
 					int index_min_from = 0;
@@ -564,26 +555,24 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 						
 						int Min_From_Pass = node_destroy;
 						int Max_To_Pass = node_destroy;
-						for (int p = 0; p < (int)r.passengers_in_route.size(); p++) {
-							if (r.passengers_in_route[p].solution_to == node_destroy || r.passengers_in_route[p].solution_from == node_destroy) { // ho cambiato questa condizione
-								if (r.passengers_in_route[p].solution_from < Min_From_Pass) Min_From_Pass = r.passengers_in_route[p].solution_from;
-								if (r.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = r.passengers_in_route[p].solution_to;
+						for (int p = 0; p < (int)r.get_passengers().size(); p++) {
+							if (r.get_passengers()[p].solution_to == node_destroy || r.get_passengers()[p].solution_from == node_destroy) { // ho cambiato questa condizione
+								if (r.get_passengers()[p].solution_from < Min_From_Pass) Min_From_Pass = r.get_passengers()[p].solution_from;
+								if (r.get_passengers()[p].solution_to > Max_To_Pass) Max_To_Pass = r.get_passengers()[p].solution_to;
 								int_removed.push_back(p);
-								for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-									r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
-									r.weights[t] += r.passengers_in_route[p].weight;
+								for (int t = r.get_passengers()[p].solution_from; t < r.get_passengers()[p].solution_to; t++) {
+									r.addCapacityAt(t, -1*r.get_passengers()[p].capacity);
+									r.weights[t] += r.get_passengers()[p].weight;
 								}
 
 							}
 						}
 
 						for (int i = int_removed.size() - 1; i >= 0; i--) {
-							r.passengers_in_route[int_removed[i]].route_before = index;
+							r.get_passenger(int_removed[i]).route_before = index;
 
-							passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-							vector<Passenger>::iterator it;
-							it = r.passengers_in_route.begin();
-							r.passengers_in_route.erase(it + int_removed[i]);
+							passenger_removed.push_back(r.get_passengers()[int_removed[i]]);
+							r.erase_passenger(int_removed[i]);
 						}
 						r.update_route_destroy(input, node_destroy, Min_From_Pass, Max_To_Pass); //update of the time
 
@@ -666,7 +655,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 
 	for (Passenger& p : passengers) CostTWPass.insert(make_pair(p.pnr, 0));
 	for (Route& s : route_destroyed) {
-		for (Passenger& pass : s.passengers_in_route) {
+		for (const Passenger& pass : s.get_passengers()) {
 			int Codpass = pass.pnr;
 			CostTWPass[Codpass] += cost_for_route_passenger_destroyCluster(s, pass, peso_itermediate_stop, peso_TW);
 			Myset.insert(cost_for_route_passenger_destroyCluster(s, pass, peso_itermediate_stop, peso_TW));
@@ -729,18 +718,18 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 		bool Update = false;
 		int Min_From_Pass = s.index;
 		int Max_To_Pass = -1;
-		for (int p = 0; p < (int)s.passengers_in_route.size(); p++) {
+		for (int p = 0; p < (int)s.get_passengers().size(); p++) {
 			for (Passenger& pass : passenger_removed) {
-				if (s.passengers_in_route[p].pnr == pass.pnr) {
+				if (s.get_passengers()[p].pnr == pass.pnr) {
 					Update = true;
 					pass.route_before = Nroute;
-					if (s.passengers_in_route[p].solution_from < Min_From_Pass) Min_From_Pass = s.passengers_in_route[p].solution_from;
-					if (s.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = s.passengers_in_route[p].solution_to;
+					if (s.get_passengers()[p].solution_from < Min_From_Pass) Min_From_Pass = s.get_passengers()[p].solution_from;
+					if (s.get_passengers()[p].solution_to > Max_To_Pass) Max_To_Pass = s.get_passengers()[p].solution_to;
 
 					int_removed.push_back(p);
-					for (int t = s.passengers_in_route[p].solution_from; t < s.passengers_in_route[p].solution_to; t++) {
-						s.addCapacityAt(t, -1*s.passengers_in_route[p].capacity);
-						s.weights[t] += s.passengers_in_route[p].weight;
+					for (int t = s.get_passengers()[p].solution_from; t < s.get_passengers()[p].solution_to; t++) {
+						s.addCapacityAt(t, -1*s.get_passengers()[p].capacity);
+						s.weights[t] += s.get_passengers()[p].weight;
 					}
 
 				}
@@ -748,9 +737,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 		}
 
 		for (int i = int_removed.size() - 1; i >= 0; i--) {
-			vector<Passenger>::iterator it;
-			it = s.passengers_in_route.begin();
-			s.passengers_in_route.erase(it + int_removed[i]);
+			s.erase_passenger(int_removed[i]);
 		}
 
 		if (Update) {
@@ -828,8 +815,8 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 
 	Npass = 0;
 	for (Route& s : route_destroyed) {
-		Npass += (int)(s.passengers_in_route.size());
-		if (s.passengers_in_route.size() == 0) s.primo_pass = false;
+		Npass += (int)(s.get_passengers().size());
+		if (s.get_passengers().size() == 0) s.primo_pass = false;
 	}
 
 	return route_destroyed;
@@ -868,26 +855,24 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 				vector<int> int_removed;
 				int Min_From_Pass = node_destroy;
 				int Max_To_Pass = node_destroy;
-				for (int p = 0; p < r.passengers_in_route.size(); p++) {
-					if (r.passengers_in_route[p].solution_to == node_destroy || r.passengers_in_route[p].solution_from == node_destroy) { // ho cambiato questa condizione
-						if (r.passengers_in_route[p].solution_from < Min_From_Pass) Min_From_Pass = r.passengers_in_route[p].solution_from;
-						if (r.passengers_in_route[p].solution_to > Max_To_Pass) Max_To_Pass = r.passengers_in_route[p].solution_to;
+				for (int p = 0; p < r.get_passengers().size(); p++) {
+					if (r.get_passengers()[p].solution_to == node_destroy || r.get_passengers()[p].solution_from == node_destroy) { // ho cambiato questa condizione
+						if (r.get_passengers()[p].solution_from < Min_From_Pass) Min_From_Pass = r.get_passengers()[p].solution_from;
+						if (r.get_passengers()[p].solution_to > Max_To_Pass) Max_To_Pass = r.get_passengers()[p].solution_to;
 
 						int_removed.push_back(p);
-						for (int t = r.passengers_in_route[p].solution_from; t < r.passengers_in_route[p].solution_to; t++) {
-							r.addCapacityAt(t, -1*r.passengers_in_route[p].capacity);
-							r.weights[t] += r.passengers_in_route[p].weight;
+						for (int t = r.get_passengers()[p].solution_from; t < r.get_passengers()[p].solution_to; t++) {
+							r.addCapacityAt(t, -1*r.get_passengers()[p].capacity);
+							r.weights[t] += r.get_passengers()[p].weight;
 						}
 
 					}
 				}
 
 				for (int i = int_removed.size() - 1; i >= 0; i--) {
-					r.passengers_in_route[int_removed[i]].route_before = index;
-					passenger_removed.push_back(r.passengers_in_route[int_removed[i]]);
-					vector<Passenger>::iterator it;
-					it = r.passengers_in_route.begin();
-					r.passengers_in_route.erase(it + int_removed[i]);
+					r.get_passenger(int_removed[i]).route_before = index;
+					passenger_removed.push_back(r.get_passengers()[int_removed[i]]);
+					r.erase_passenger(int_removed[i]);
 				}
 
 				r.update_route_destroy(input, node_destroy, Min_From_Pass, Max_To_Pass); //update of the time
