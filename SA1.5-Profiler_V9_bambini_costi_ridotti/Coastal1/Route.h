@@ -53,30 +53,20 @@ public:
 	Route(int, const vector<Passenger>& passengers_in_route);
 	~Route();
 
-	const vector<int> getCapacities() { return capacities;  }
-	void setCapacityAt(int position, int value) { if (position >= 0 && position < static_cast<int>(capacities.size())) capacities[position] = value; }
-	void addCapacityAt(int position, int value) { if (position >= 0 && position < static_cast<int>(capacities.size())) capacities[position] += value; }
+	const vector<int> get_capacities();
+	void set_capacity_at(int position, int value);
+	void add_capacity_at(int position, int value);
 
-	vector<string> get_places_company() { return places_company;  }
-	vector<string> setPlacesCompanyAt(int position, string value) { if (position >= 0 && position < static_cast<int>(places_company.size()))  places_company[position] = value;  }
+	vector<string> get_places_company();
+	vector<string> set_places_company_at(int position, string value);
 
-	const vector<Passenger> &get_passengers() const { return passengers_in_route;  };
-	Passenger& get_passenger(int position) { return passengers_in_route[position]; }
-	void add_passenger(const Passenger& p) { passengers_in_route.push_back(p);  }
-	void erase_passenger(int position) { passengers_in_route.erase(passengers_in_route.begin()+ position);  }
-	
-	void remove_at(int position)
-	{		
-		airstrips.erase(airstrips.begin() + position);
-		refueling.erase(refueling.begin() + position);
-		fuel.erase(fuel.begin() + position);
-		arrival.erase(arrival.begin() + position);
-		departure.erase(departure.begin() + position);
-		capacities.erase(capacities.begin() + position);
-		weights.erase(weights.begin() + position);
-		index--;
-	}
-	
+	const vector<Passenger>& get_passengers() const;;
+	Passenger& get_passenger(int position);
+	void add_passenger(const Passenger& p);
+	void erase_passenger(int position);
+
+	void remove_at(int position);
+
 	void print();
 	void printCompany();
 	void addPlace_companySolution(string, int);

@@ -96,7 +96,7 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 		r_new.add_passenger(p);
 
 		for (int t = p.solution_from; t < p.solution_to; t++) {
-			r_new.addCapacityAt(t, p.capacity);
+			r_new.add_capacity_at(t, p.capacity);
 			r_new.weights[t] -= p.weight;
 		}
 	}

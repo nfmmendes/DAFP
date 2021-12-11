@@ -33,6 +33,21 @@ Route::Route(int aircraft_code, const vector<Passenger>& pass)
 	cost = 0.0;
 }
 
+Passenger& Route::get_passenger(int position)
+{
+	return passengers_in_route[position];
+}
+
+void Route::add_passenger(const Passenger& p)
+{
+	passengers_in_route.push_back(p);
+}
+
+void Route::erase_passenger(int position)
+{
+	passengers_in_route.erase(passengers_in_route.begin() + position);
+}
+
 void Route::print() {
 	cout << "-" << to_string(aircraft_code) << "ha passeggeri: " << primo_pass << endl;
 	cout << "\t";
@@ -96,6 +111,11 @@ void Route::addPlace_companySolution(string place, int minute) {
 	places_company.push_back(place);
 	arrival.push_back(minute);
 	index++;
+}
+
+vector<string> Route::set_places_company_at(int position, string value)
+{
+	if (position >= 0 && position < static_cast<int>(places_company.size())) places_company[position] = value;
 }
 
 void Route::addPlace(int place, bool has_refueling, double quantity_fuel, double weight, int capacity, double minute_arr, double minute_dep) {
@@ -1019,6 +1039,29 @@ void Route::update_rebuilt_one_first_fase(ProcessedInput * input, int& caso, int
 	}
 }
 
+void Route::remove_at(int position)
+{
+	airstrips.erase(airstrips.begin() + position);
+	refueling.erase(refueling.begin() + position);
+	fuel.erase(fuel.begin() + position);
+	arrival.erase(arrival.begin() + position);
+	departure.erase(departure.begin() + position);
+	capacities.erase(capacities.begin() + position);
+	weights.erase(weights.begin() + position);
+	index--;
+}
+
+vector<string> Route::get_places_company()
+{
+	return places_company;
+}
+
+const vector<Passenger>& Route::get_passengers() const
+{
+	return passengers_in_route;
+}
+
+
 void Route::update_a_b(const int& node_add_from, const int& node_add_to, bool& non_to, int& A, int& B)
 {
 	if (node_add_to == node_add_from + 1 && non_to) {
@@ -1274,4 +1317,19 @@ void Route::update_rebuilt_one_second_fase(ProcessedInput* input, int& caso, int
 
 Route::~Route()
 {
+}
+
+const vector<int> Route::get_capacities()
+{
+	return capacities;
+}
+
+void Route::set_capacity_at(int position, int value)
+{
+	if (position >= 0 && position < static_cast<int>(capacities.size())) capacities[position] = value;
+}
+
+void Route::add_capacity_at(int position, int value)
+{
+	if (position >= 0 && position < static_cast<int>(capacities.size())) capacities[position] += value;
 }

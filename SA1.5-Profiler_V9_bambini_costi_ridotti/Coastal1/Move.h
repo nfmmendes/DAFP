@@ -191,7 +191,7 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, Route& r) {
 		r_new.add_passenger(p);
 
 		for (int t = p.solution_from; t < p.solution_to; t++) {
-			r_new.addCapacityAt(t, p.capacity);
+			r_new.add_capacity_at(t, p.capacity);
 			r_new.weights[t] -= p.weight;
 		}
 	}
