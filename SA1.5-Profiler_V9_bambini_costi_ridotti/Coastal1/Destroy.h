@@ -106,20 +106,20 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 
 							int index_min_from = 0;
 							for (int i = Min_From_Pass; i >= 0; i--) {
-								if (r.refueling[i] && i != node_destroy) {
+								if (r.get_refueling()[i] && i != node_destroy) {
 									index_min_from = i;
 									break;
 								}
 							}
 
 							for (int k = index_min_from; k < Max_To_Pass; k++) {
-								if (r.refueling[k] && r.fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
+								if (r.get_refueling()[k] && r.fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
 									int Node_min = k;
 									double min_weight = r.weights[k];
 									int index_updating_from = k;
 									int index_updating_to = r.index;  //qua prima c'era -1
 									for (int i = k + 1; i <= Max_To_Pass; i++) {
-										if (r.refueling[i]) break;
+										if (r.get_refueling()[i]) break;
 										if (r.weights[i] < min_weight && i != node_destroy) {
 											min_weight = r.weights[i];
 											Node_min = i;
@@ -128,7 +128,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 									}
 									if (Node_min >= 0) {
 										for (int i = k + 1; i < r.index; i++) {
-											if (r.refueling[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'? ne erano altri di fuell non trovavo un to
+											if (r.get_refueling()[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'? ne erano altri di fuell non trovavo un to
 												index_updating_to = i;
 												break;
 											}
@@ -189,7 +189,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 
 								for (int i = node_destroy + 1; i < r.index; i++) {
 
-									if (r.refueling[i]) break;
+									if (r.get_refueling()[i]) break;
 									if (index_before == (node_destroy - 1)) {
 
 										diff = r.fuel[i];
@@ -200,7 +200,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 										r.fuel[i] = r.fuel[i] - diff;
 									}
 
-									if (r.refueling[node_destroy]) {
+									if (r.get_refueling()[node_destroy]) {
 										r.weights[i] = r.weights[i] + diff;
 									}
 									else {
@@ -222,14 +222,14 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 										index_weight_neg = j;
 										int index_refueling = index_weight_neg;
 										for (int i = index_weight_neg; i >= 0; i--) {
-											if (r.refueling[i]) { //&& i != node_destroy
+											if (r.get_refueling()[i]) { //&& i != node_destroy
 												index_refueling = i;
 												break;
 											}
 										}
 
 										for (int t = index_refueling; t < r.index; t++) {
-											if (r.refueling[t] && t != index_refueling) break;
+											if (r.get_refueling()[t] && t != index_refueling) break;
 											r.fuel[t] += add_fuel;
 											r.weights[t] -= add_fuel;
 										}
@@ -293,7 +293,7 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 
 					int index_min_from = 0;
 					for (int i = Min_From_Pass; i >= 0; i--) {
-						if (r.refueling[i] && i != node_destroy) {
+						if (r.get_refueling()[i] && i != node_destroy) {
 							index_min_from = i;
 							break;
 						}
@@ -301,7 +301,7 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 					
 					// Codice che serve per cercare il minimo nel range
 					for (int k = index_min_from; k < Max_To_Pass; k++) {
-						if (r.refueling[k] && r.fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
+						if (r.get_refueling()[k] && r.fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
 						//cout << " Sto valutando il caso del nodo " << k << endl;
 							int Node_min = k;
 							double min_weight = r.weights[k];
@@ -309,7 +309,7 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 							int index_updating_to = r.index;  //qua prima c'era -1
 							for (int i = k + 1; i <= Max_To_Pass; i++) {
 								//cout << " Sto guardando il nodo " << i << endl;
-								if (r.refueling[i]) break;
+								if (r.get_refueling()[i]) break;
 
 								if (r.weights[i] < min_weight && i != node_destroy) {
 									min_weight = r.weights[i];
@@ -319,7 +319,7 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 
 							if (Node_min >= 0) {
 								for (int i = k + 1; i < r.index; i++) {
-									if (r.refueling[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'? ne erano altri di fuell non trovavo un to
+									if (r.get_refueling()[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'? ne erano altri di fuell non trovavo un to
 										index_updating_to = i;
 										break;
 									}
@@ -349,7 +349,7 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 							index_weight_neg = j;
 							int index_refueling = index_weight_neg;
 							for (int i = index_weight_neg; i >= 0; i--) {
-								if (r.refueling[i]) { //&& i != node_destroy
+								if (r.get_refueling()[i]) { //&& i != node_destroy
 									index_refueling = i;
 									break;
 								}
@@ -357,7 +357,7 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 
 							for (int t = index_refueling; t < r.index; t++) {
 
-								if (r.refueling[t] && t != index_refueling) break;
+								if (r.get_refueling()[t] && t != index_refueling) break;
 								r.fuel[t] += add_fuel;
 								r.weights[t] -= add_fuel;
 
@@ -400,7 +400,7 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 						double diff = 0;
 
 						for (int i = node_destroy + 1; i < r.index; i++) {
-							if (r.refueling[i])
+							if (r.get_refueling()[i])
 								break;
 							if (index_before == (node_destroy - 1)) {
 								diff = r.fuel[i];
@@ -427,14 +427,14 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 								index_weight_neg = j;
 								int index_refueling = index_weight_neg;
 								for (int i = index_weight_neg; i >= 0; i--) {
-									if (r.refueling[i]) { //&& i != node_destroy
+									if (r.get_refueling()[i]) { //&& i != node_destroy
 										index_refueling = i;
 										break;
 									}
 								}
 
 								for (int t = index_refueling; t < r.index; t++) {
-									if (r.refueling[t] && t != index_refueling) break;
+									if (r.get_refueling()[t] && t != index_refueling) break;
 									r.fuel[t] += add_fuel;
 									r.weights[t] -= add_fuel;
 								}
@@ -501,20 +501,20 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 
 					int index_min_from = 0;
 					for (int i = Min_From_Pass; i >= 0; i--) {
-						if (r.refueling[i] && i != node_destroy) {
+						if (r.get_refueling()[i] && i != node_destroy) {
 							index_min_from = i;
 							break;
 						}
 					}
 
 					for (int k = index_min_from; k < Max_To_Pass; k++) {
-						if (r.refueling[k] && r.fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
+						if (r.get_refueling()[k] && r.fuel[k] < map_airplane[r.aircraft_code].max_fuel) { //&& k!= node_destroy
 							int Node_min = k;
 							double min_weight = r.weights[k];
 							int index_updating_from = k;
 							int index_updating_to = r.index;  //qua prima c'era -1
 							for (int i = k + 1; i <= Max_To_Pass; i++) {
-								if (r.refueling[i])
+								if (r.get_refueling()[i])
 									break;
 								if (r.weights[i] < min_weight && i != node_destroy) {
 									min_weight = r.weights[i];
@@ -524,7 +524,7 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 
 							if (Node_min >= 0) {
 								for (int i = k + 1; i < r.index; i++) {
-									if (r.refueling[i]) {  
+									if (r.get_refueling()[i]) {
 										index_updating_to = i;
 										break;
 									}
@@ -580,7 +580,7 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 						int index_before = node_destroy - 1;
 						double diff = 0;
 						for (int i = node_destroy + 1; i < r.index; i++) {
-							if (r.refueling[i]) break;
+							if (r.get_refueling()[i]) break;
 							
 							if (index_before == (node_destroy - 1)) {
 								diff = r.fuel[i];
@@ -592,7 +592,7 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 								r.fuel[i] = r.fuel[i] - diff;
 							}
 
-							if (r.refueling[node_destroy]) {
+							if (r.get_refueling()[node_destroy]) {
 								r.weights[i] = r.weights[i] + diff;
 							}
 							else {
@@ -611,14 +611,14 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 								index_weight_neg = j;
 								int index_refueling = index_weight_neg;
 								for (int i = index_weight_neg; i >= 0; i--) {
-									if (r.refueling[i]) { //&& i != node_destroy
+									if (r.get_refueling()[i]) { //&& i != node_destroy
 										index_refueling = i;
 										break;
 									}
 								}
 
 								for (int t = index_refueling; t < r.index; t++) {
-									if (r.refueling[t] && t != index_refueling) break;
+									if (r.get_refueling()[t] && t != index_refueling) break;
 									r.fuel[t] += add_fuel;
 									r.weights[t] -= add_fuel;
 								}
@@ -743,25 +743,25 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 		if (Update) {
 			int index_min_from = Min_From_Pass;
 			for (int i = Min_From_Pass; i >= 0; i--) {
-				if (s.refueling[i]) {
+				if (s.get_refueling()[i]) {
 					index_min_from = i;
 					break;
 				}
 			}
 			for (int k = index_min_from; k < Max_To_Pass; k++) {
-				if (s.refueling[k] && s.fuel[k] < map_airplane[s.aircraft_code].max_fuel) { //&& k!= node_destroy
+				if (s.get_refueling()[k] && s.fuel[k] < map_airplane[s.aircraft_code].max_fuel) { //&& k!= node_destroy
 					int index_updating_from = k;
 					int index_updating_to = s.index;
 					int Node_min = k;
 					double min_weight = s.weights[k];
 					//appena aggiunto
 					for (int i = Max_To_Pass; i < s.index; i++) {
-						if (s.refueling[i]) break;
+						if (s.get_refueling()[i]) break;
 						Max_To_Pass = i;
 					}
 
 					for (int i = k + 1; i <= Max_To_Pass; i++) {
-						if (s.refueling[i]) break;
+						if (s.get_refueling()[i]) break;
 
 						if (s.weights[i] < min_weight) {
 							min_weight = s.weights[i];
@@ -770,7 +770,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 					}
 					if (Node_min >= 0) {
 						for (int i = k + 1; i < s.index; i++) {
-							if (s.refueling[i]) {
+							if (s.get_refueling()[i]) {
 								index_updating_to = i;
 								break;
 							}
@@ -881,7 +881,7 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 
 				for (int i = node_destroy + 1; i < r.index; i++) {
 
-					if (r.refueling[i]) break;
+					if (r.get_refueling()[i]) break;
 
 					if (index_before == (node_destroy - 1)) {
 						diff = r.fuel[i];
@@ -907,14 +907,14 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 						index_weight_neg = j;
 						int index_refueling = index_weight_neg;
 						for (int i = index_weight_neg; i >= 0; i--) {
-							if (r.refueling[i]) { //&& i != node_destroy
+							if (r.get_refueling()[i]) { //&& i != node_destroy
 								index_refueling = i;
 								break;
 							}
 						}
 						for (int t = index_refueling; t < r.index; t++) {
 
-							if (r.refueling[t] && t != index_refueling) break;
+							if (r.get_refueling()[t] && t != index_refueling) break;
 							r.fuel[t] += add_fuel;
 							r.weights[t] -= add_fuel;
 						}

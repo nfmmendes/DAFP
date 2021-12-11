@@ -40,7 +40,6 @@ public:
 	int aircraft_code;  //questo dovrebbe diventare un interoper un accesso più veloce 
 	string aircraft_code_company_comparison;
 	vector<int> airstrips;
-	vector<bool> refueling;
 	vector<double> fuel;
 	vector<double> weights;
 	int index;
@@ -53,6 +52,8 @@ public:
 	Route(int, const vector<Passenger>& passengers_in_route);
 	~Route();
 
+	const vector<bool> get_refueling() const { return refueling; }
+	
 	const vector<int> get_capacities();
 	void set_capacity_at(int position, int value);
 	void add_capacity_at(int position, int value);
@@ -90,6 +91,7 @@ private:
 	vector<int> capacities;
 	vector<string> places_company;
 	vector<Passenger> passengers_in_route;
+	vector<bool> refueling;
 };
 
 #endif // Route_h

@@ -47,19 +47,19 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 	r_new.primo_pass = r.primo_pass;
 
 	//cout << "sto inserendo i vari posti nella nuova route" << endl;
-	r_new.addPlace(r.airstrips[0], r.refueling[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.arrival[0], r.departure[0]);
+	r_new.addPlace(r.airstrips[0], r.get_refueling()[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.arrival[0], r.departure[0]);
 	for (int i = 1; i < r.index; i++) {
 		if (i == A) {
 			//in questo posto ci devo mettere B
-			r_new.addPlace(r.airstrips[B], r.refueling[B], r.fuel[B], 0.0, 0, r.arrival[B], r.departure[B]);
+			r_new.addPlace(r.airstrips[B], r.get_refueling()[B], r.fuel[B], 0.0, 0, r.arrival[B], r.departure[B]);
 		}
 		else if (i == B) {
 			//in questo posto ci devo mettere A
-			r_new.addPlace(r.airstrips[A], r.refueling[A], r.fuel[A], 0.0, 0, r.arrival[A], r.departure[A]);
+			r_new.addPlace(r.airstrips[A], r.get_refueling()[A], r.fuel[A], 0.0, 0, r.arrival[A], r.departure[A]);
 		}
 		else {
 			//in questo posto ci devo mettere normalmente i
-			r_new.addPlace(r.airstrips[i], r.refueling[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
+			r_new.addPlace(r.airstrips[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
 		}
 	}
 
@@ -71,7 +71,7 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 
 			double fuel_consumed = from_to_FuelConsumed[r_new.aircraft_code][r_new.airstrips[i - 1]][r_new.airstrips[i]];
 
-			if (r_new.refueling[i]) {
+			if (r_new.get_refueling()[i]) {
 				r_new.fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
 			}
 			else {
@@ -106,7 +106,7 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 		if (r_new.weights[i] < 0) {
 			int index_refueling = i;
 			for (int t = i; t >= 0; t--) {
-				if (r_new.refueling[t]) {
+				if (r_new.get_refueling()[t]) {
 					index_refueling = t;
 					break;
 				}
@@ -116,7 +116,7 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 			r_new.weights[index_refueling] -= r_new.weights[i];
 
 			for (int j = index_refueling + 1; j < r_new.index; j++) {
-				if (r_new.refueling[j]) break;
+				if (r_new.get_refueling()[j]) break;
 				else {
 					r_new.fuel[j] += Update_value;
 					r_new.weights[j] -= Update_value;
@@ -181,7 +181,7 @@ vector <Route> swap(ProcessedInput* input, const PenaltyWeights& penalty_weights
 		}
 		//Modifico Fuel quando non massimo
 		for (int k = 0; k < r_support.index; k++) {
-			if (r_support.refueling[k] && r_support.fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
+			if (r_support.get_refueling()[k] && r_support.fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
 			//cout << " Sto valutando il caso del nodo " << k << endl;
 				int Node_min = k;
 				double min_weight = r_support.weights[k];
@@ -189,7 +189,7 @@ vector <Route> swap(ProcessedInput* input, const PenaltyWeights& penalty_weights
 				int index_updating_to = r_support.index;  //qua prima c'era -1
 				for (int i = k + 1; i < r_support.index; i++) {
 
-					if (r_support.refueling[i]) break;
+					if (r_support.get_refueling()[i]) break;
 					if (r_support.weights[i] < min_weight) {
 						min_weight = r_support.weights[i];
 						Node_min = i;
@@ -200,7 +200,7 @@ vector <Route> swap(ProcessedInput* input, const PenaltyWeights& penalty_weights
 				if (Node_min >= 0) {
 
 					for (int i = k + 1; i < r_support.index; i++) {
-						if (r_support.refueling[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'? ne erano altri di fuell non trovavo un to
+						if (r_support.get_refueling()[i]) { 
 							index_updating_to = i;
 							break;
 						}

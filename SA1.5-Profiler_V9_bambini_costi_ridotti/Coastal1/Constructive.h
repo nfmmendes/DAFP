@@ -294,14 +294,14 @@ namespace heuristic_costructive_first_fase_namespace {
 				index_weight_neg = j;
 				int index_refueling = index_weight_neg;
 				for (int i = index_weight_neg; i >= 0; i--) {
-					if (route->refueling[i]) {
+					if (route->get_refueling()[i]) {
 						index_refueling = i;
 						break;
 					}
 				}
 
 				for (int t = index_refueling; t < route->index; t++) {
-					if (route->refueling[t] && t != index_refueling) break;
+					if (route->get_refueling()[t] && t != index_refueling) break;
 					route->fuel[t] += add_fuel;
 					route->weights[t] -= add_fuel;
 				}
@@ -337,14 +337,14 @@ namespace heuristic_costructive_first_fase_namespace {
 				index_weight_neg = j;
 				int index_refueling = index_weight_neg;
 				for (int i = index_weight_neg; i >= 0; i--) {
-					if (route->refueling[i]) {
+					if (route->get_refueling()[i]) {
 						index_refueling = i;
 						break;
 					}
 				}
 
 				for (int t = index_refueling; t < route->index; t++) {
-					if (route->refueling[t] && t != index_refueling) break;
+					if (route->get_refueling()[t] && t != index_refueling) break;
 					route->fuel[t] += add_fuel;
 					route->weights[t] -= add_fuel;
 				}
@@ -495,7 +495,7 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 
 										//aggiunto questa parte per l'ultimo tratto che deve prevedere l'andare da almeno un'altra parte con il fuel QUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 										if (c == to - 1) fuel_i_j += location_fuel[r.aircraft_code][p.destination];
-										if (!r.refueling[c] && r.weights[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0) 
+										if (!r.get_refueling()[c] && r.weights[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0)
 											capacity_satisfy = false;
 									}
 									
@@ -540,7 +540,7 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 									double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[c]][r.airstrips[c + 1]];
 									double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
-									if (!r.refueling[c] && r.weights[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0) 
+									if (!r.get_refueling()[c] && r.weights[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0)
 										capacity_satisfy = false;
 								}
 							}
@@ -557,7 +557,7 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 								cost += fuel_consumed;
 
 								bool fuel_ok = true;
-								if (!r.refueling[r.index - 1]) {
+								if (!r.get_refueling()[r.index - 1]) {
 									double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 									if (r.weights[r.index - 1] - p.weight + (r.fuel[r.index - 1] - fuel_i_j) < 0) fuel_ok = false;
 								}
@@ -847,14 +847,14 @@ void run_situation_4(ProcessedInput* input, vector<Passenger> &passengers, Route
 			index_weight_neg = j;
 			int index_refueling = index_weight_neg;
 			for (int i = index_weight_neg; i >= 0; i--) {
-				if (r.refueling[i]) {
+				if (r.get_refueling()[i]) {
 					index_refueling = i;
 					break;
 				}
 			}
 
 			for (int t = index_refueling; t < r.index; t++) {
-				if (r.refueling[t] && t != index_refueling)
+				if (r.get_refueling()[t] && t != index_refueling)
 					break;
 				r.fuel[t] += add_fuel;
 				r.weights[t] -= add_fuel;
@@ -890,14 +890,14 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 			index_weight_neg = j;
 			int index_refueling = index_weight_neg;
 			for (int i = index_weight_neg; i >= 0; i--) {
-				if (r.refueling[i]) {
+				if (r.get_refueling()[i]) {
 					index_refueling = i;
 					break;
 				}
 			}
 
 			for (int t = index_refueling; t < r.index; t++) {
-				if (r.refueling[t] && t != index_refueling)
+				if (r.get_refueling()[t] && t != index_refueling)
 					break;
 				r.fuel[t] += add_fuel;
 				r.weights[t] -= add_fuel;
@@ -1050,7 +1050,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 
 											if (c == to - 1) fuel_i_j += location_fuel[r.aircraft_code][passengers[p].destination];
 
-											if (!r.refueling[c] && r.weights[c] - passengers[p].weight + (r.fuel[c] - fuel_i_j) < 0) capacity_satisfy = false;
+											if (!r.get_refueling()[c] && r.weights[c] - passengers[p].weight + (r.fuel[c] - fuel_i_j) < 0) capacity_satisfy = false;
 
 										}
 										//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
@@ -1098,7 +1098,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 
 										double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
-										if (!r.refueling[c] && r.weights[c] - passengers[p].weight + (r.fuel[c] - fuel_i_j) < 0) capacity_satisfy = false;
+										if (!r.get_refueling()[c] && r.weights[c] - passengers[p].weight + (r.fuel[c] - fuel_i_j) < 0) capacity_satisfy = false;
 									}
 								}
 								//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
@@ -1118,7 +1118,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 									cost += fuel_consumed;
 
 									bool fuel_ok = true;
-									if (!r.refueling[r.index - 1]) {
+									if (!r.get_refueling()[r.index - 1]) {
 										double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 										if (r.weights[r.index - 1] - passengers[p].weight + (r.fuel[r.index - 1] - fuel_i_j) < 0) fuel_ok = false;
 									}
@@ -1481,14 +1481,14 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 				index_weight_neg = j;
 				int index_refueling = index_weight_neg;
 				for (int i = index_weight_neg; i >= 0; i--) {
-					if (route->refueling[i]) {
+					if (route->get_refueling()[i]) {
 						index_refueling = i;
 						break;
 					}
 				}
 
 				for (int t = index_refueling; t < route->index; t++) {
-					if (route->refueling[t] && t != index_refueling) break;
+					if (route->get_refueling()[t] && t != index_refueling) break;
 					route->fuel[t] += add_fuel;
 					route->weights[t] -= add_fuel;
 				}
@@ -1523,14 +1523,14 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 				index_weight_neg = j;
 				int index_refueling = index_weight_neg;
 				for (int i = index_weight_neg; i >= 0; i--) {
-					if (route->refueling[i]) {
+					if (route->get_refueling()[i]) {
 						index_refueling = i;
 						break;
 					}
 				}
 
 				for (int t = index_refueling; t < route->index; t++) {
-					if (route->refueling[t] && t != index_refueling) break;
+					if (route->get_refueling()[t] && t != index_refueling) break;
 					route->fuel[t] += add_fuel;
 					route->weights[t] -= add_fuel;
 				}
@@ -1689,7 +1689,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, double peso
 
 										//aggiunto questa parte per l'ultimo tratto che deve prevedere l'andare da almeno un'altra parte con il fuel QUAAA
 										if (c == to - 1) fuel_i_j += location_fuel[r.aircraft_code][p.destination];
-										if (!r.refueling[c] && r.weights[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0)
+										if (!r.get_refueling()[c] && r.weights[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0)
 											capacity_satisfy = false;
 									}
 									//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
@@ -1725,7 +1725,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, double peso
 									double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[c]][r.airstrips[c + 1]];
 									double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
-									if (!r.refueling[c] && r.weights[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0) 
+									if (!r.get_refueling()[c] && r.weights[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0)
 										capacity_satisfy = false;
 								}
 							}
@@ -1740,7 +1740,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, double peso
 
 								bool fuel_ok = true;
 								double remaining_fuel = r.weights[r.index - 1] - p.weight + r.fuel[r.index - 1] - (fuel_consumed + airplane->min_fuel);
-							    fuel_ok = r.refueling[r.index - 1] || remaining_fuel>= 0;
+							    fuel_ok = r.get_refueling()[r.index - 1] || remaining_fuel>= 0;
 
 								double time_to_go = (((from_to[previous_airstrip][p.destination]) / airplane->speed) * 60);
 								double t_arr_arrival = r.arrival[r.index - 1] + time_to_go + map_airstrip[previous_airstrip].ground_time;

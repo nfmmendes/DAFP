@@ -98,17 +98,17 @@ vector <Route> aggrezione_simple_after_model(vector<Route>& solution_model, map<
 				for (int i = 0; i < solution_model[r].index - 1; i++) {
 					double travel_time = (((from_to[solution_model[r].airstrips[i]][solution_model[r1].airstrips[0]]) / map_airplane[solution_model[r].aircraft_code].speed) * 60);
 					if (i == solution_model[r].index - 2) {
-						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
+						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].get_refueling()[i], solution_model[r].fuel[i], solution_model[r].weights[i],
 							solution_model[r].get_capacities()[i], solution_model[r].arrival[i], (solution_model[r1].arrival[0] - travel_time));
 					}
 					else {
-						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
+						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].get_refueling()[i], solution_model[r].fuel[i], solution_model[r].weights[i],
 							solution_model[r].get_capacities()[i], solution_model[r].arrival[i], solution_model[r].departure[i]);
 					}
 				}
 
 				for (int i = 0; i < solution_model[r1].index; i++) {
-					r_add.addPlace(solution_model[r1].airstrips[i], solution_model[r1].refueling[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
+					r_add.addPlace(solution_model[r1].airstrips[i], solution_model[r1].get_refueling()[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
 						solution_model[r1].get_capacities()[i], solution_model[r1].arrival[i], solution_model[r1].departure[i]);
 				}
 				for (auto& p : solution_model[r1].get_passengers()) {
@@ -168,16 +168,16 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 				for (int i = 0; i <= solution_model[r].index - 1; i++) {
 					double time_to_go = (((from_to[route->airstrips[i]][solution_model[r1].airstrips[0]]) / map_airplane[route->aircraft_code].speed) * 60);
 					if (i == solution_model[r].index - 1) {
-						r_add.addPlace(route->airstrips[i], route->refueling[i], route->fuel[i], route->weights[i],route->get_capacities()[i], route->arrival[i], (solution_model[r1].arrival[0] - time_to_go));
+						r_add.addPlace(route->airstrips[i], route->get_refueling()[i], route->fuel[i], route->weights[i],route->get_capacities()[i], route->arrival[i], (solution_model[r1].arrival[0] - time_to_go));
 					}
 					else {
-						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].refueling[i], solution_model[r].fuel[i], solution_model[r].weights[i],
+						r_add.addPlace(solution_model[r].airstrips[i], solution_model[r].get_refueling()[i], solution_model[r].fuel[i], solution_model[r].weights[i],
 							solution_model[r].get_capacities()[i], solution_model[r].arrival[i], solution_model[r].departure[i]);
 					}
 				}
 
 				for (int i = 0; i < solution_model[r1].index; i++) {
-					r_add.addPlace(solution_model[r1].airstrips[i], solution_model[r1].refueling[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
+					r_add.addPlace(solution_model[r1].airstrips[i], solution_model[r1].get_refueling()[i], solution_model[r1].fuel[i], solution_model[r1].weights[i],
 						solution_model[r1].get_capacities()[i], solution_model[r1].arrival[i], solution_model[r1].departure[i]);
 				}
 				for (const Passenger& p : solution_model[r1].get_passengers()) {
