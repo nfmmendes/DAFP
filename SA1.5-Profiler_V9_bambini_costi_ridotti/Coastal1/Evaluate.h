@@ -189,18 +189,18 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 		final_cost_fissi += airplane->fixed_cost;
 		string places = ";";
 		
-		for (int i = 0; i < (int)route->places_company.size(); i++) {
-			places += route->places_company[i] + ";";
+		for (int i = 0; i < (int)route->get_places_company().size(); i++) {
+			places += route->get_places_company()[i] + ";";
 
 			if (i >= 1) {
 				//ho messo che parto da uno in modo tale da non considerare il leading cost del primo aereoporto
-				c += airstrips_map[route->places_company[i]].landing_cost; //aggiungo il leading cost
-				final_cost_landing += airstrips_map[route->places_company[i]].landing_cost;
+				c += airstrips_map[route->get_places_company()[i]].landing_cost; //aggiungo il leading cost
+				final_cost_landing += airstrips_map[route->get_places_company()[i]].landing_cost;
 			}
 
 			//aggiungo il costo dei kilometri e del fuel
-			if (i < (int)route->places_company.size() - 1) {
-				string key = route->places_company[i] + ";" + route->places_company[i + 1];
+			if (i < (int)route->get_places_company().size() - 1) {
+				string key = route->get_places_company()[i] + ";" + route->get_places_company()[i + 1];
 				c += from_to_company[key];
 				final_cost_km += from_to_company[key];
 
@@ -280,10 +280,10 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 			//scorro tutte le localit? della route
 			for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
 				//salvo tutti i from e tutti i to che trovo
-				if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == passengers[p].departure_location_company) {
+				if (codice_routeAzienda[pass_trovato[0].code_flight].get_places_company()[i] == passengers[p].departure_location_company) {
 					int_from.push_back(i);
 				}
-				if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == passengers[p].arrival_location_company) {
+				if (codice_routeAzienda[pass_trovato[0].code_flight].get_places_company()[i] == passengers[p].arrival_location_company) {
 					int_to.push_back(i);
 				}
 			}
@@ -295,7 +295,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 				//devo cercare tutti i from partendo dal from sulla soluzione
 				vector<int> int_from_soluz;
 				for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
-					if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == pass_trovato[0].departure_location_company) {
+					if (codice_routeAzienda[pass_trovato[0].code_flight].get_places_company()[i] == pass_trovato[0].departure_location_company) {
 						int_from_soluz.push_back(i);
 					}
 				}
@@ -308,7 +308,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 				//devo cercare tutti i to partendo dal from sulla soluzione
 				vector<int> int_to_soluz;
 				for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
-					if (codice_routeAzienda[pass_trovato[0].code_flight].places_company[i] == pass_trovato[0].arrival_location_company) {
+					if (codice_routeAzienda[pass_trovato[0].code_flight].get_places_company()[i] == pass_trovato[0].arrival_location_company) {
 						int_to_soluz.push_back(i);
 					}
 				}
@@ -331,10 +331,10 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 			for (int i = 0; i < route_pass_trovato_zero->index; i++) {
 				//salvo tutti i from e tutti i to che trovo
 				
-				if (route_pass_trovato_zero->places_company[i] == pass_trovato[0].departure_location_company) {
+				if (route_pass_trovato_zero->get_places_company()[i] == pass_trovato[0].departure_location_company) {
 					int_from1.push_back(i);
 				}
-				if (route_pass_trovato_zero->places_company[i] == pass_trovato[0].arrival_location_company) {
+				if (route_pass_trovato_zero->get_places_company()[i] == pass_trovato[0].arrival_location_company) {
 					int_to1.push_back(i);
 				}
 			}
@@ -348,10 +348,10 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 			//scorro tutte le localit? della route
 			for (int i = 0; i < route_pass_trovato_one->index; i++) {
 				//salvo tutti i from e tutti i to che trovo
-				if (route_pass_trovato_one->places_company[i] == pass_trovato[1].departure_location_company) 
+				if (route_pass_trovato_one->get_places_company()[i] == pass_trovato[1].departure_location_company)
 					int_from2.push_back(i);
 				
-				if (route_pass_trovato_one->places_company[i] == pass_trovato[1].arrival_location_company) 
+				if (route_pass_trovato_one->get_places_company()[i] == pass_trovato[1].arrival_location_company)
 					int_to2.push_back(i);
 				
 			}

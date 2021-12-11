@@ -35,7 +35,7 @@ class Route
 public:
 
 	vector<Place> places; 
-	vector<string> places_company;
+	
 	double cost;
 	int aircraft_code;  //questo dovrebbe diventare un interoper un accesso più veloce 
 	string aircraft_code_company_comparison;
@@ -56,9 +56,11 @@ public:
 	~Route();
 
 	vector<int> getCapacities() { return capacities;  }
-	void setCapacityAt(int index, int value) { if (index >= 0 && index < static_cast<int>(capacities.size())) capacities[index] = value; }
-	void addCapacityAt(int index, int value) { if (index >= 0 && index < static_cast<int>(capacities.size())) capacities[index] += value; }
+	void setCapacityAt(int position, int value) { if (position >= 0 && position < static_cast<int>(capacities.size())) capacities[position] = value; }
+	void addCapacityAt(int position, int value) { if (position >= 0 && position < static_cast<int>(capacities.size())) capacities[position] += value; }
 
+	vector<string> get_places_company() { return places_company;  }
+	vector<string> setPlacesCompanyAt(int position, string value) { if (position >= 0 && position < static_cast<int>(places_company.size()))  places_company[position] = value;  }
 
 	void remove_at(int position)
 	{		
@@ -95,6 +97,7 @@ public:
 
 private:
 	vector<int> capacities;
+	vector<string> places_company;
 };
 
 #endif // Route_h
