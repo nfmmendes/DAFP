@@ -16,7 +16,7 @@ bool route_feasible(ProcessedInput* input, Route& r, double end_day) {
 	bool feasible = true;
 	
 	//check and day
-	if (r.arrival[r.index - 1] > end_day) {
+	if (r.get_arrivals()[r.index - 1] > end_day) {
 		return false;
 		feasible = false;
 	}

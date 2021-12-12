@@ -47,27 +47,27 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 	r_new.primo_pass = r.primo_pass;
 
 	//cout << "sto inserendo i vari posti nella nuova route" << endl;
-	r_new.addPlace(r.airstrips[0], r.get_refueling()[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.arrival[0], r.departure[0]);
+	r_new.addPlace(r.airstrips[0], r.get_refueling()[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.get_arrivals()[0], r.get_departures()[0]);
 	for (int i = 1; i < r.index; i++) {
 		if (i == A) {
 			//in questo posto ci devo mettere B
-			r_new.addPlace(r.airstrips[B], r.get_refueling()[B], r.fuel[B], 0.0, 0, r.arrival[B], r.departure[B]);
+			r_new.addPlace(r.airstrips[B], r.get_refueling()[B], r.fuel[B], 0.0, 0, r.get_arrivals()[B], r.get_departures()[B]);
 		}
 		else if (i == B) {
 			//in questo posto ci devo mettere A
-			r_new.addPlace(r.airstrips[A], r.get_refueling()[A], r.fuel[A], 0.0, 0, r.arrival[A], r.departure[A]);
+			r_new.addPlace(r.airstrips[A], r.get_refueling()[A], r.fuel[A], 0.0, 0, r.get_arrivals()[A], r.get_departures()[A]);
 		}
 		else {
 			//in questo posto ci devo mettere normalmente i
-			r_new.addPlace(r.airstrips[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.arrival[i], r.departure[i]);
+			r_new.addPlace(r.airstrips[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.get_arrivals()[i], r.get_departures()[i]);
 		}
 	}
 
 	//aggiorno i tempi e fuel senza aver considerato il probabile peso negativo, il paso qua ? come se lo inizializzassi
 	for (int i = 0; i < r_new.index; i++) {
 		if (i > 0) {
-			r_new.arrival[i] = r_new.departure[i - 1] + (((from_to[r_new.airstrips[i - 1]][r_new.airstrips[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
-			r_new.departure[i] = r_new.arrival[i] + map_airstrip[r_new.airstrips[i]].ground_time;
+			r_new.get_arrival_at(i) = r_new.get_departures()[i - 1] + (((from_to[r_new.airstrips[i - 1]][r_new.airstrips[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
+			r_new.get_departure_at(i) = r_new.get_departures()[i] + map_airstrip[r_new.airstrips[i]].ground_time;
 
 			double fuel_consumed = from_to_FuelConsumed[r_new.aircraft_code][r_new.airstrips[i - 1]][r_new.airstrips[i]];
 

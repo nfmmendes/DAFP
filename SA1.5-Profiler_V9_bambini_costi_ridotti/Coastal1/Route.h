@@ -45,13 +45,21 @@ public:
 	int index;
 	
 	bool primo_pass;
-	vector<double> arrival;
-	vector<double> departure;
+
 
 	Route();
 	Route(int, const vector<Passenger>& passengers_in_route);
 	~Route();
 
+	double& get_departure_at(int position) { return departure[position];  };
+	double& get_arrival_at(int position) { return arrival[position];  };
+
+	void set_departure_at(int position, double value) { if (position < 0 || position >= departure.size()) return; departure[position] = value; };
+	void set_arrival_at(int position, double value) { if (position < 0 || position >= arrival.size()) return;  arrival[position] = value;  };
+
+	const vector<double>& get_departures() const { return departure;  }
+	const vector<double>& get_arrivals() const { return arrival;  }
+	
 	const vector<bool> get_refueling() const { return refueling; }
 	
 	const vector<int> get_capacities();
@@ -92,6 +100,8 @@ private:
 	vector<string> places_company;
 	vector<Passenger> passengers_in_route;
 	vector<bool> refueling;
+	vector<double> arrival;
+	vector<double> departure;
 };
 
 #endif // Route_h

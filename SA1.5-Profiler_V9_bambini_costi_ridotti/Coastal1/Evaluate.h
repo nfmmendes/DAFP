@@ -441,8 +441,8 @@ void calculate_ObjectiveFunction_final(ProcessedInput*input, double costo_compan
 			cost_route += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			costo_Intermediate += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;
 
-			const auto departure = r.departure[p.solution_from];
-			const auto arrival = r.arrival[p.solution_to];
+			const auto departure = r.get_departure_at(p.solution_from);
+			const auto arrival = r.get_arrival_at(p.solution_to);
 			const auto TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
 			const auto TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival- p.late_arrival);
 
@@ -488,7 +488,7 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 			int depot = airplane->depot;
 			int maxFuel = airplane->max_fuel;
 			int groundTime = map_airstrip[depot].ground_time;
-			double arrivalTime = r.departure[r.index - 1] + (from_to[origin][depot] / airplane->speed);
+			double arrivalTime = r.get_departures()[r.index - 1] + (from_to[origin][depot] / airplane->speed);
 
 			r.addPlace(depot, 1, maxFuel, airplane->max_weight - maxFuel, 0, arrivalTime, arrivalTime + groundTime);
 		}
@@ -538,8 +538,8 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 			cost_route += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			costo_Intermediate += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;
 
-			const auto departure = r.departure[p.solution_from];
-			const auto arrival = r.arrival[p.solution_to];
+			const auto departure = r.get_departures()[p.solution_from];
+			const auto arrival = r.get_arrival_at(p.solution_to);
 			const auto TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
 			const auto TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
 
@@ -585,8 +585,8 @@ double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_we
 	for (const auto& p : r.get_passengers()) {
 		cost += ((p.solution_to - p.solution_from - 1) * penalty_weights.intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 
-		double departure = r.departure[p.solution_from];
-		double arrival = r.arrival[p.solution_to];
+		double departure = r.get_departures()[p.solution_from];
+		double arrival = r.get_arrivals()[p.solution_to];
 		double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
 		double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
 		
@@ -641,8 +641,8 @@ double calculate_ObjectiveFunction(ProcessedInput* input, const  PenaltyWeights&
 			cost += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 			cost_route += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  //riga aggiunta per le intermediate stop
 
-			double departure = r.departure[p.solution_from];
-			double arrival = r.arrival[p.solution_to];
+			double departure = r.get_departures()[p.solution_from];
+			double arrival = r.get_arrivals()[p.solution_to];
 			double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
 			double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
 
@@ -661,8 +661,8 @@ double cost_time_windows_for_route(Route& r, double peso_TW) {
 
 	for (const Passenger& p : r.get_passengers()) {
 
-		double departure = r.departure[p.solution_from];
-		double arrival = r.arrival[p.solution_to];
+		double departure = r.get_departures()[p.solution_from];
+		double arrival = r.get_arrivals()[p.solution_to];
 		double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
 		double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
 
@@ -676,8 +676,8 @@ double cost_time_windows_for_route(Route& r, double peso_TW) {
 
 double cost_for_route_passenger_destroyCluster(Route& r, const Passenger& p, int inter_stop_factor, double peso_TW) {
 
-	double departure = r.departure[p.solution_from];
-	double arrival = r.arrival[p.solution_to]; 
+	double departure = r.get_departures()[p.solution_from];
+	double arrival = r.get_arrivals()[p.solution_to];
 	double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
 	double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
 
@@ -687,8 +687,8 @@ double cost_for_route_passenger_destroyCluster(Route& r, const Passenger& p, int
 double cost_time_windows_for_node(Route& r, vector<Passenger>& pass, double peso_TW) {
 	double cost = 0.0;
 	for (const Passenger& p : pass) {
-		double departure = r.departure[p.solution_from];
-		double arrival = r.arrival[p.solution_to];
+		double departure = r.get_departures()[p.solution_from];
+		double arrival = r.get_arrivals()[p.solution_to];
 		
 		double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
 		double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
@@ -702,8 +702,8 @@ double cost_time_windows_for_node(Route& r, vector<Passenger>& pass, double peso
 double cost_time_windows_for_route_passenger(Route& r, Passenger& p, double peso_TW) {
 	double cost = 0.0;
 
-	double departure = r.departure[p.solution_from];
-	double arrival = r.arrival[p.solution_to];
+	double departure = r.get_departures()[p.solution_from];
+	double arrival = r.get_arrivals()[p.solution_to];
 	double TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
 	double TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
 
@@ -760,8 +760,8 @@ double costo_time_windows_and_intermediate_stop(const PenaltyWeights& penalty_we
 	for (auto& r : solution) {
 
 		for (const auto& p : r.get_passengers()) {
-			double time_departure = r.arrival[p.solution_from];
-			double time_arrival = r.arrival[p.solution_to];
+			double time_departure = r.get_arrivals()[p.solution_from];
+			double time_arrival = r.get_arrivals()[p.solution_to];
 
 			double TW_departure = max(0.0, p.early_departure - time_departure) + max(0.0, time_departure - p.late_departure);
 			double TW_arrival = max(0.0, p.early_arrival - time_arrival) + max(0.0, time_arrival - p.late_arrival);
