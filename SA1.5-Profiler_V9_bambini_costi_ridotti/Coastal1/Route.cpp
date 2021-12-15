@@ -24,7 +24,6 @@ Route::Route(int aircraft_code, const vector<Passenger>& pass)
 	index = 0;
 	aircraft_code_company_comparison = "";
 
-
 	//weights;
 	//capacities;
 	primo_pass = false;
@@ -143,15 +142,8 @@ void Route::eraseAt(int i)
 }
 
 void Route::removePlace(int position, map<int, Airplane>& map_airplane) {
-	index = index - 1;
 
-	airstrips.erase(airstrips.begin() + position);
-	arrival.erase(arrival.begin() + position);
-	departure.erase(departure.begin() + position);
-	refueling.erase(refueling.begin() + position);
-	fuel.erase(fuel.begin() + position);
-	weights.erase(weights.begin() + position);
-	capacities.erase(capacities.begin() + position);
+	eraseAt(position);
 
 	int cont = 0;
 	for (int i = 0; i < index; i++) {
@@ -171,7 +163,6 @@ void Route::removePlace(int position, map<int, Airplane>& map_airplane) {
 		if (capacities[i - 1] == 0) 
 			eraseAt(i);
 	}
-
 
 	if (index == 2 && capacities[0] == 0) 
 		eraseAt(1);
@@ -236,7 +227,8 @@ void Route::update_route_destroy(ProcessedInput* input, int node_destroy, int mi
 			int Node_min = k;
 			double min_weight = weights[k];
 			for (int i = k + 1; i <= max_to_pass; i++) {
-				if (refueling[i]) break;
+				if (refueling[i]) 
+					break;
 				if (weights[i] < min_weight && i != node_destroy) {
 					min_weight = weights[i];
 					Node_min = i;
@@ -244,7 +236,7 @@ void Route::update_route_destroy(ProcessedInput* input, int node_destroy, int mi
 			}
 			if (Node_min >= 0) {
 				for (int i = k + 1; i < index; i++) {
-					if (refueling[i]) {  // && i != node_destroy ho tolto questo perch� se no se oltre quel nodo non c'� ne erano altri di fuell non trovavo un to
+					if (refueling[i]) { 
 						index_updating_to = i;
 						break;
 					}
@@ -487,7 +479,7 @@ void Route::update_route_rebuilt_one(ProcessedInput* input, int node_add_from, i
 			}
 		}
 		else {
-			//caso bastardo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			//rebuilt_case bastardo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			for (int i = node_add_from + 2; i < index; i++) {
 				if (refueling[i])
 					break;
@@ -552,7 +544,7 @@ void Route::update_route_rebuilt_one(ProcessedInput* input, int node_add_from, i
 			fuel_consumed5 = from_to_fuelConsumed[aircraft_code][airstrips[node_add_to - 1]][airstrips[node_add_to + 1]];
 		}
 
-		//qua devo considerare il fottuto caso bastardo
+		//qua devo considerare il fottuto rebuilt_case bastardo
 		if (!refueling[node_add_to]) {
 			for (int i = node_add_to + 1; i < index; i++) {
 				if (refueling[i])
@@ -617,21 +609,23 @@ void Route::add_update_only_one_node_first_passanger(ProcessedInput* input, Pass
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double3DVector from_to_fuelConsumed = input->get_from_to_fuel_consumed();
 	double2DVector from_to = input->get_from_to();
+
+	Airplane* airplane = &map_airplane[aircraft_code];
 	
 	if (airstrips[0] == p.origin) {
 		arrival[0] = p.early_departure;
 		departure[0] = p.early_departure + map_airstrip[p.origin].ground_time;
 		capacities[0] = p.capacity;
-		fuel[0] = map_airplane[aircraft_code].max_fuel;
-		weights[0] = map_airplane[aircraft_code].load_weight - fuel[0] - p.weight;
+		fuel[0] = airplane->max_fuel;
+		weights[0] = airplane->load_weight - fuel[0] - p.weight;
 
 		double time = (from_to[p.origin][p.destination] / map_airplane[aircraft_code].speed) * 60;
 		double fuel_consumed = from_to_fuelConsumed[aircraft_code][p.origin][p.destination];
 
 		addPlace(p.destination, map_airstrip[p.destination].fuel, 0.0, 0.0, 0, departure[0] + time, departure[0] + time + map_airstrip[p.destination].ground_time);
 		if (refueling[1] == true) {
-			fuel[1] = map_airplane[aircraft_code].max_fuel;
-			weights[1] = map_airplane[aircraft_code].load_weight - fuel[1];
+			fuel[1] = airplane->max_fuel;
+			weights[1] = airplane->load_weight - fuel[1];
 		}
 		else {
 			fuel[1] = fuel[0] - fuel_consumed;
@@ -888,7 +882,7 @@ void Route::update_time_for_check_repair(ProcessedInput* input, int node_add_fro
 }
 
 //for updating in order to improve the computational time
-void Route::update_rebuilt_one_first_fase(ProcessedInput * input, int& caso, int& node_add_from, int& node_add_to, int location_from, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals) {
+void Route::update_rebuilt_one_first_fase(ProcessedInput * input, int& node_add_from, int& node_add_to, int location_from, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals) {
 
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
@@ -897,9 +891,10 @@ void Route::update_rebuilt_one_first_fase(ProcessedInput * input, int& caso, int
 	
 	num_equals |= (node_add_from == node_add_to);
 	non_to_final |= (node_add_from == node_add_to);
-
+	
+	rebuilt_case = -1;
 	if (airstrips[node_add_from] == location_from) {
-		caso = 1; //impongo che questo � il caso 1
+		rebuilt_case = 1; //impongo che questo � il rebuilt_case 1
 		//il nodo prima al from � uguale devo quindi aggiornare le capacit� e basta, non i tempi
 		//li aggiorno fino a node_add_to
 		int node_support_to = node_add_to;
@@ -926,7 +921,7 @@ void Route::update_rebuilt_one_first_fase(ProcessedInput * input, int& caso, int
 	}
 	else if (airstrips[node_add_from + 1] == location_from) {
 		//il nodo dopo il from � uguale quindi devo aggiornare le capacit� e basta, non i tempi
-		caso = 2;
+		rebuilt_case = 2;
 		int node_support_to = node_add_to;
 
 		if (non_to_final) {
@@ -958,7 +953,7 @@ void Route::update_rebuilt_one_first_fase(ProcessedInput * input, int& caso, int
 		}
 	}
 	else {
-		caso = 3;
+		rebuilt_case = 3;
 		airstrips.insert(airstrips.begin() + node_add_from + 1, location_from);
 		node_add_to++;
 
@@ -1078,7 +1073,7 @@ void Route::update_a_b(const int& node_add_from, const int& node_add_to, bool& n
 	}
 }
 
-void Route::update_rebuilt_one_second_fase(ProcessedInput* input, int& caso, int& node_add_from, int& node_add_to, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals) {
+void Route::update_rebuilt_one_second_fase(ProcessedInput* input, int& node_add_from, int& node_add_to, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals) {
 
 	Airplane* airplane = & map<int,Airplane>(input->get_map_airplane())[aircraft_code];
 	
@@ -1086,11 +1081,11 @@ void Route::update_rebuilt_one_second_fase(ProcessedInput* input, int& caso, int
 	double3DVector from_to_fuelConsumed = input->get_from_to_fuel_consumed();
 	double2DVector from_to = input->get_from_to();
 	
-	if (caso == -1) {
-		cout << "problema in route.cpp con la variabile caso" << endl;
+	if (rebuilt_case == -1) {
+		cout << "problema in route.cpp con la variabile rebuilt_case" << endl;
 		cin.get();
 	}
-	else if (caso == 1) {
+	else if (rebuilt_case == 1) {
 		p.solution_from = node_add_from;
 		for (int i = node_add_from; i < node_add_to; i++) {
 			capacities[i] += p.capacity;
@@ -1110,7 +1105,7 @@ void Route::update_rebuilt_one_second_fase(ProcessedInput* input, int& caso, int
 
 		}
 	}
-	else if (caso == 2) {
+	else if (rebuilt_case == 2) {
 		p.solution_from = node_add_from + 1;
 		for (int i = node_add_from + 1; i < node_add_to; i++) {
 			capacities[i] += p.capacity;
@@ -1130,7 +1125,7 @@ void Route::update_rebuilt_one_second_fase(ProcessedInput* input, int& caso, int
 			}
 		}
 	}
-	else if (caso == 3) {
+	else if (rebuilt_case == 3) {
 
 		p.solution_from = node_add_from + 1;
 
@@ -1249,7 +1244,7 @@ void Route::update_rebuilt_one_second_fase(ProcessedInput* input, int& caso, int
 			fuel_consumed5 = from_to_fuelConsumed[aircraft_code][airstrips[node_add_to - 1]][airstrips[node_add_to + 1]];
 		}
 
-		//qua devo considerare il fottuto caso bastardo
+		//qua devo considerare il fottuto rebuilt_case bastardo
 		if (!refueling[node_add_to]) {
 			for (int i = node_add_to + 1; i < index; i++) {
 				if (refueling[i])
