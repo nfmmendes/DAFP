@@ -41,7 +41,6 @@ public:
 	string aircraft_code_company_comparison;
 	vector<int> airstrips;
 	vector<double> fuel;
-	vector<double> weights;
 	int index;
 	
 	bool primo_pass;
@@ -51,6 +50,11 @@ public:
 	Route(int, const vector<Passenger>& passengers_in_route);
 	~Route();
 
+
+	double& get_weight_at(int position) { return weights[position];  }
+	vector<double> get_weights() { return weights;  }
+	void set_weights(const vector<double>& p_weights) { weights = p_weights; }
+	
 	double& get_departure_at(int position) { return departure[position];  };
 	double& get_arrival_at(int position) { return arrival[position];  };
 
@@ -114,6 +118,7 @@ private:
 	vector<bool> refueling;
 	vector<double> arrival;
 	vector<double> departure;
+	vector<double> weights;
 	int rebuilt_case; 
 };
 

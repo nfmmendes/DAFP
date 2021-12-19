@@ -77,11 +77,11 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 			else {
 				r_new.fuel[i] = r_new.fuel[i - 1] - fuel_consumed;
 			}
-			r_new.weights[i] = map_airplane[r_new.aircraft_code].load_weight - r_new.fuel[i];
+			r_new.get_weight_at(i) = map_airplane[r_new.aircraft_code].load_weight - r_new.fuel[i];
 		}
 		else {
 			r_new.fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
-			r_new.weights[i] = map_airplane[r_new.aircraft_code].load_weight - r_new.fuel[i];
+			r_new.get_weight_at(i) = map_airplane[r_new.aircraft_code].load_weight - r_new.fuel[i];
 		}
 	}
 
@@ -97,13 +97,13 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 
 		for (int t = p.solution_from; t < p.solution_to; t++) {
 			r_new.add_capacity_at(t, p.capacity);
-			r_new.weights[t] -= p.weight;
+			r_new.get_weight_at(t) -= p.weight;
 		}
 	}
 
 	//aggiorno fuel se il peso ? negatico
 	for (int i = 0; i < r_new.index; i++) {
-		if (r_new.weights[i] < 0) {
+		if (r_new.get_weight_at(i) < 0) {
 			int index_refueling = i;
 			for (int t = i; t >= 0; t--) {
 				if (r_new.get_refueling()[t]) {
@@ -111,15 +111,15 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 					break;
 				}
 			}
-			double Update_value = r_new.weights[i];
-			r_new.fuel[index_refueling] += r_new.weights[i];
-			r_new.weights[index_refueling] -= r_new.weights[i];
+			double Update_value = r_new.get_weights()[i];
+			r_new.fuel[index_refueling] += r_new.get_weights()[i];
+			r_new.get_weight_at(index_refueling) -= r_new.get_weights()[i];
 
 			for (int j = index_refueling + 1; j < r_new.index; j++) {
 				if (r_new.get_refueling()[j]) break;
 				else {
 					r_new.fuel[j] += Update_value;
-					r_new.weights[j] -= Update_value;
+					r_new.get_weight_at(j) -= Update_value;
 				}
 			}
 		}
@@ -184,14 +184,14 @@ vector <Route> swap(ProcessedInput* input, const PenaltyWeights& penalty_weights
 			if (r_support.get_refueling()[k] && r_support.fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
 			//cout << " Sto valutando il caso del nodo " << k << endl;
 				int Node_min = k;
-				double min_weight = r_support.weights[k];
+				double min_weight = r_support.get_weights()[k];
 				int index_updating_from = k;
 				int index_updating_to = r_support.index;  //qua prima c'era -1
 				for (int i = k + 1; i < r_support.index; i++) {
 
 					if (r_support.get_refueling()[i]) break;
-					if (r_support.weights[i] < min_weight) {
-						min_weight = r_support.weights[i];
+					if (r_support.get_weights()[i] < min_weight) {
+						min_weight = r_support.get_weights()[i];
 						Node_min = i;
 					}
 					//}
@@ -208,11 +208,11 @@ vector <Route> swap(ProcessedInput* input, const PenaltyWeights& penalty_weights
 
 					double Fuel_before = r_support.fuel[index_updating_from];
 					r_support.fuel[index_updating_from] = min(map_airplane[r_support.aircraft_code].max_fuel, r_support.fuel[index_updating_from] + min_weight);
-					r_support.weights[index_updating_from] -= (r_support.fuel[index_updating_from] - Fuel_before);
+					r_support.get_weight_at(index_updating_from) -= (r_support.fuel[index_updating_from] - Fuel_before);
 
 					for (int i = index_updating_from + 1; i < index_updating_to; i++) {
 						r_support.fuel[i] += (r_support.fuel[index_updating_from] - Fuel_before);
-						r_support.weights[i] -= (r_support.fuel[index_updating_from] - Fuel_before);
+						r_support.get_weight_at(i) -= (r_support.fuel[index_updating_from] - Fuel_before);
 					}
 				}
 			}
