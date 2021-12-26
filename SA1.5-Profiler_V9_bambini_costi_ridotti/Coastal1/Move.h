@@ -399,8 +399,8 @@ vector <Route> inter_move(ProcessedInput* input, const PenaltyWeights& penalty_w
 
 						if (solution_rebuilt.size() != 0) {
 							solution_rebuilt.push_back(r_new);
-							double before = calculate_ObjectiveFunction(input, penalty_weights, routes); // Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
-							double after = calculate_ObjectiveFunction(input, penalty_weights, solution_rebuilt);
+							double before = calculate_objective_function(input, penalty_weights, routes); // Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
+							double after = calculate_objective_function(input, penalty_weights, solution_rebuilt);
 							if (before > after) {
 								// Qui sto usando tutto solution_rebuilt.back() ma in realta potrei usare r_new e poi un volta che la ho istemanta switcharla con solution_rebuilt.back()
 								int node = sequential_same_node(solution_rebuilt.back());
@@ -411,7 +411,7 @@ vector <Route> inter_move(ProcessedInput* input, const PenaltyWeights& penalty_w
 									if (A > node) 
 										num_aggregazioni++;
 
-									after = calculate_ObjectiveFunction(input, penalty_weights, solution_rebuilt);
+									after = calculate_objective_function(input, penalty_weights, solution_rebuilt);
 									
 									node = sequential_same_node(solution_rebuilt.back());
 									fatto = true;
@@ -457,8 +457,8 @@ vector <Route> inter_move(ProcessedInput* input, const PenaltyWeights& penalty_w
 	if (routes_after_move.empty()) 
 		return routes;
 	else {
-		double before = calculate_ObjectiveFunction(input, penalty_weights, routes);
-		double after = calculate_ObjectiveFunction(input,penalty_weights, routes_after_move); 
+		double before = calculate_objective_function(input, penalty_weights, routes);
+		double after = calculate_objective_function(input,penalty_weights, routes_after_move); 
 		if (before != after) {
 			cout << " Costo Routes: " << before << endl;
 			cout << " Costo routes_after_move: " << after << endl;

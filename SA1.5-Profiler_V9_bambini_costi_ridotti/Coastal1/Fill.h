@@ -213,19 +213,7 @@ void fill_from_to_fuel_consumed(double3DVector& from_to_fuel_consumed, vector<ve
 				from_to_fuel_consumed[airplane.code][i][j] = fuel_consumed;
 			}
 		}
-
 	}
-
-}
-
-map <int, Passenger> fillMapPassenger(vector<Passenger> passengers) {
-	map <int, Passenger> map_pass;
-	for (Passenger p : passengers)
-	{
-		map_pass.insert(make_pair(p.pnr, p));
-	}
-
-	return  map_pass;
 }
 
 void fillMatrix(vector<vector<double>>& from_to, string file_input, const vector<Airstrip>& airstrips) {

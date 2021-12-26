@@ -558,7 +558,7 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 	cout << costo_fisso << ";" << costo_landing << ";" << costo_fuel << ";" << costo_km << ";" << costo_Intermediate << ";" << costo_Time_Window << ";" << minuti_TW << ";" << n_intermediate << ";" << gap_perc << ";";
 }
 
-double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_weights, Route& r) {
+double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_weights, const Route& r) {
 	
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
@@ -596,7 +596,7 @@ double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_we
 	return cost;
 }
 
-double calculate_ObjectiveFunction(ProcessedInput* input, const  PenaltyWeights&penalty_weights, vector<Route>& solution) {
+double calculate_objective_function(ProcessedInput* input, const  PenaltyWeights&penalty_weights, vector<Route>& solution) {
 	double peso_TW = penalty_weights.time_window;
 	double peso_intermediate_stop = penalty_weights.intermediate_stop;
 
@@ -699,7 +699,7 @@ double cost_time_windows_for_node(Route& r, vector<Passenger>& pass, double peso
 	return cost;
 }
 
-double cost_time_windows_for_route_passenger(Route& r, Passenger& p, double peso_TW) {
+double cost_time_windows_for_route_passenger(const Route& r, const Passenger& p, double peso_TW) {
 	double cost = 0.0;
 
 	double departure = r.get_departures()[p.solution_from];

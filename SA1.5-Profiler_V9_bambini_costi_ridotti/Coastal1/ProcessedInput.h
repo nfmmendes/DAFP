@@ -5,6 +5,7 @@
 
 #include "Airplane.h"
 #include "Airstrip.h"
+#include "Passenger.h"
 #include "Util.h"
 
 struct PenaltyWeights
@@ -18,7 +19,7 @@ struct PenaltyWeights
 class ProcessedInput
 {
 public:
-	ProcessedInput(std::map <int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double2DVector& location_fuel, double3DVector& from_to_fuel_consumed);
+	ProcessedInput(std::map <int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, double2DVector& from_to, double2DVector& location_fuel, double3DVector& fuel_consumption);
 
 	map<int, Airplane>& get_map_airplane();
 	const map<int, Airstrip>& get_map_airstrip() const;

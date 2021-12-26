@@ -127,7 +127,6 @@ int main(int argc, char* argv[]) {
 	unione_children_INTELLIGENTE(passengers, passengers_for_company_solution);
 
 	fix_key_passenger_for_regret(passengers);
-	map<int, Passenger> map_id_passenger = fillMapPassenger(passengers);
 	map<string, double> from_to_company = fillMatrixCompany("Network/Matrix.csv", airstrips);
 
 	//bulding of hashmap from_to reading the file Matrix.txt
@@ -151,14 +150,13 @@ int main(int argc, char* argv[]) {
 
 	ProcessedInput input(map_airplane, map_airstrip, from_to, location_fuel, from_to_FuelConsumed);
 	
-	vector <Passenger> passengers_per_casostrano = passengers;
 	vector<Passenger> passengers_solution = passengers;
 	string company_routes = argv[2];
 	string company_passengers = argv[3];
-	double Company_Solution = calculationCostCompany(penalty_weights, company_routes, company_passengers, airstrips, airplanes, passengers_for_company_solution, from_to_company);
+	double company_solution = calculationCostCompany(penalty_weights, company_routes, company_passengers, airstrips, airplanes, passengers_for_company_solution, from_to_company);
 	
-	cout << " Costo della soluzione della compagnia = " << Company_Solution << endl;
-	cout << " Costo della soluzione della compagnia = " << Company_Solution << endl;
+	cout << " Costo della soluzione della compagnia = " << company_solution << endl;
+	cout << " Costo della soluzione della compagnia = " << company_solution << endl;
 	cout << "now passengers has this number of passengers: " << passengers.size() << endl;
 	int num_true = 0;
 	for (Passenger p : passengers) num_true += p.capacity;
@@ -168,10 +166,10 @@ int main(int argc, char* argv[]) {
 
 	cout << "***********************End reading input quindi comincio a contare il tempo***********************" << endl;
 
-	//******************************************************************************************************************************************************************
-	//*******************************************************DA QUA INCOMINCIA IL CODICE DEL MAIN, PRIMA CI SONO SOLO STRUTTURE DATI***********************************
-	//******************************************************************************************************************************************************************
-	ofstream outfile; //per il file di input grafico.txt++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	//********************************************************************************************************************
+	//********************************DA QUA INCOMINCIA IL CODICE DEL MAIN, PRIMA CI SONO SOLO STRUTTURE DATI*************
+	//********************************************************************************************************************
+	ofstream outfile; //per il file di input grafico.txt++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	vector<string> data = split(argv[1], '.');
 	string Nome_grafico = data[0] + "grafico.txt";
 	cout << " Nome del Grafico: " << Nome_grafico << endl;
@@ -210,7 +208,6 @@ int main(int argc, char* argv[]) {
 	srand(time(NULL));
 	int NumeroSA = 0;
 	int iterazioni_fallite = 0;
-	//double start_day = 360.0;    //ATTENTION, MAY BE YOU WILL HAVE TO USE IT
 	double end_day = 1110.0;
 	int number_of_aircraft = 20;
 	vector<Route> start_solution_route;
@@ -220,9 +217,12 @@ int main(int argc, char* argv[]) {
 	int best_iteration = 0;
 	double time_incumbent = 0.0;
 
-
+	const int INITIAL_TEMPERATURE = 25000;
+	const int MINIMAL_TEMPERATURE = 150;
+	const int MAX_ITERATION = 30;
+	
 	do {
-		cout << " ************************************************************ Inizio un altro giro nel ciclo grande ************************************************************ " << endl;
+		cout << " ******************************* Inizio un altro giro nel ciclo grande ********************************* " << endl;
 		double r;
 		double best_solution = DBL_MAX;
 		int iteration = 0;
@@ -230,8 +230,8 @@ int main(int argc, char* argv[]) {
 		int T = 25000;
 		int Tmin = 150;    //50 un solo giro 
 		int k = 0;
-		double MinLevel = 2;
-		double MaxLevel = 6;
+		const double MinLevel = 2;
+		const double MaxLevel = 6;
 		// Valore che puo variare 0.8 a 0.99
 		double alpha = 0.87; // 0.98 un solo giro
 		int DeltaK = 55;      // 25 prima
@@ -253,13 +253,11 @@ int main(int argc, char* argv[]) {
 
 				npass = 0;
 				if (heuristic_choice < Accumulated(0, Weigth_heuristic)) {
-					//cout << "*************** I am using the Parallel Heuristic ************" << endl;
 					start_solution_route = heuristic_costructive_first_fase(&input, penalty_weights, airplanes, end_day, passengers, number_of_aircraft);
 					choosen_heuristic = 0;
 				}
 				else {
-					//cout << "*************** I am using the Sequential Heuristic ************" << endl;
-					start_solution_route = heuristic_costructive_first_fase_sequential(&input, penalty_weights, airplanes, end_day, passengers, number_of_aircraft);
+					start_solution_route = heuristic_costructive_first_fase_sequential(&input, penalty_weights, end_day, passengers, number_of_aircraft);
 					choosen_heuristic = 1;
 				}
 				for (Route& r : start_solution_route) 
@@ -271,12 +269,11 @@ int main(int argc, char* argv[]) {
 			} while ((int)passengers.size() > npass);
 		}
 
-		start_solution = calculate_ObjectiveFunction(&input, penalty_weights, start_solution_route);
+		start_solution = calculate_objective_function(&input, penalty_weights, start_solution_route);
 		solutionAll.push_back(start_solution_route);
-		
-		//*************************************************************per scrittura su .txt per grafico**************************************************************************************************************************************************
+	
+		//***********************************per scrittura su .txt per grafico*******************************************************
 		outfile << "soluzione euristica di partenza:;0;" << start_solution << endl;
-		//*********************************************************************************************************************************************************************************************************************
 
 		vector<Route> best_solution_route = start_solution_route;
 		best_solution = start_solution;
@@ -285,7 +282,7 @@ int main(int argc, char* argv[]) {
 		do {
 			auto start = chrono::high_resolution_clock::now();
 			NumeroSA++;
-			//*************************************heuristic costructive***************************************************************************************
+			//*************************************heuristic costructive*************************************************************
 			double random = (double)rand() / RAND_MAX;
 			double percentage_route_destroy = (MinLevel + (random * (MaxLevel - MinLevel)));
 			int choosen_destroy = -1;
@@ -293,28 +290,23 @@ int main(int argc, char* argv[]) {
 			vector<Passenger> passenger_removed;
 			// REMOVING OF A RANDOM NODE
 			vector<Route> Input_destroy = start_solution_route;
-			//cout << "***************************DISTRUCTION*******************" << endl;
 			double destroy_choice = (double)rand() / RAND_MAX;
 			vector<Route> route_destroy;
 
 			if (destroy_choice < Accumulated(0, Weigth_destroy)) {
-				//cout << "*************** I am using the Cluster Destroy ************" << endl;
-				int num_passenger_cluster = (int)((passengers.size() * 0.14) + (random * ((passengers.size() * 0.24) - (passengers.size() * 0.14)))); //era 0.24 prima
-				route_destroy = destroy_cluster_aggr2(&input, penalty_weights, num_passenger_cluster, passenger_removed, Input_destroy, passengers, map_id_passenger);
+				int num_passenger_cluster = (int)((passengers.size() * 0.14) + (random * passengers.size() * 0.10)); 
+				route_destroy = destroy_cluster_aggr2(&input, penalty_weights, num_passenger_cluster, passenger_removed, Input_destroy, passengers);
 				choosen_destroy = 0;
 			}
 			else if (destroy_choice < Accumulated(1, Weigth_destroy)) {
-				//cout << "*************** I am using the Worst Destroy ************" << endl;
 				route_destroy = destroy_worst(&input, penalty_weights, percentage_route_destroy, passenger_removed, Input_destroy);
 				choosen_destroy = 1;
 			}
 			else if (destroy_choice < Accumulated(2, Weigth_destroy)) {
-				//cout << "*************** I am using the Casual Destroy ************" << endl;
 				route_destroy = destroy_casual(&input, percentage_route_destroy, passenger_removed, Input_destroy);
 				choosen_destroy = 2;
 			}
 			else {
-				//cout << "*************** I am using the Thanos Destroy ************" << endl;
 				route_destroy = destroy_thanos(&input, percentage_route_destroy, passenger_removed, Input_destroy);
 				choosen_destroy = 3;
 			}
@@ -332,11 +324,11 @@ int main(int argc, char* argv[]) {
 				choosen_repair = 0;
 			}
 			else if (repair_choice < Accumulated(1, Weigth_repair)) {
-				solution_rebuilt = repairSP(&input, penalty_weights, route_destroy, passenger_removed, airplanes, end_day, passengers, number_of_aircraft);
+				solution_rebuilt = repairSP(&input, penalty_weights, route_destroy, passenger_removed, end_day, passengers, number_of_aircraft);
 				choosen_repair = 1;
 			}
 			else if (repair_choice < Accumulated(2, Weigth_repair)) {
-				solution_rebuilt = two_regret_repair_aggragati(&input, penalty_weights, end_day, route_destroy, passenger_removed);
+				solution_rebuilt = two_regret_repair_agregate(&input, penalty_weights, end_day, route_destroy, passenger_removed);
 				choosen_repair = 2;
 			}
 			else if (repair_choice < Accumulated(3, Weigth_repair)) {
@@ -353,17 +345,17 @@ int main(int argc, char* argv[]) {
 			double time_spent_r = Time_Spend((double)duration_r.count());		
 
 			if (solution_rebuilt.size() > 0) {
-				double initial_cost = calculate_ObjectiveFunction(&input, penalty_weights, solution_rebuilt);
+				double initial_cost = calculate_objective_function(&input, penalty_weights, solution_rebuilt);
 				solution_rebuilt = move(&input, penalty_weights, solution_rebuilt, end_day);
 				solution_rebuilt = swap(&input, penalty_weights, solution_rebuilt, end_day);
 				
-				if (initial_cost == calculate_ObjectiveFunction(&input, penalty_weights, solution_rebuilt)) {
+				if (initial_cost == calculate_objective_function(&input, penalty_weights, solution_rebuilt)) {
 					solution_rebuilt = inter_move(&input, penalty_weights, solution_rebuilt, end_day);
 				}
 
 				solution_rebuilt = heuristic_costructive_second_fase(solution_rebuilt, end_day, penalty_weights.time_window);
-				double cost_objectiveFunction_second_fase_after_rebuilt = calculate_ObjectiveFunction(&input, penalty_weights, solution_rebuilt);
-				//*************************************************************per scrittura su .txt per grafico**************************************************************************************************************************************************
+				double cost_objectiveFunction_second_fase_after_rebuilt = calculate_objective_function(&input, penalty_weights, solution_rebuilt);
+				//*************************************per scrittura su .txt per grafico**************************************
 				if (NumeroSA%1000 == 0 && NumeroSA >= 1000 && NumeroSA <= 60000){
 					tempo_finale = difftime(time(NULL), time_now);
 					outfile << "NumeroSA:;" << NumeroSA << ";" << best_solution << ";tempo:;" << to_string(tempo_finale) << endl;
@@ -382,7 +374,8 @@ int main(int argc, char* argv[]) {
 					if (cost_objectiveFunction_second_fase_after_rebuilt < best_solution) {
 						best_solution_route.clear();
 						
-						for (Route& s : solution_rebuilt) best_solution_route.push_back(s);
+						for (Route& s : solution_rebuilt) 
+							best_solution_route.push_back(s);
 						best_solution = cost_objectiveFunction_second_fase_after_rebuilt;
 						best_iteration = iteration;
 						start_route_bs = (int)solutionAll.size();
@@ -432,6 +425,7 @@ int main(int argc, char* argv[]) {
 		for (const auto& k : map_airplane) {
 			airplanes_model.push_back(k.second);
 		}
+		
 		map<int, vector<Route>> airplane_routes;
 		map<int, int> solution_warm_up;
 		for (const Airplane& a : airplanes_model) {
@@ -468,7 +462,6 @@ int main(int argc, char* argv[]) {
 
 		int n = 0;
 		for (Route& path : Prova) {
-			//path.print();
 			n += (int)path.get_passengers().size();
 		}
 		cout << " Soluzione contiene numero di passeggieri pari a " << n << endl;
@@ -503,7 +496,7 @@ int main(int argc, char* argv[]) {
 		}
 		//Creating model with Cplex
 		//Create new Model object
-		cout << "********************************************************	0	*********************************************************************************" << endl;
+		cout << "*************************************	0	****************************************************************" << endl;
 		vector<Route> solution_modello;
 		solutionAll.clear();
 		cout << " Size del Pool di Routes Prima di chimare modello " << solutionAll.size() << endl;
@@ -523,7 +516,7 @@ int main(int argc, char* argv[]) {
 			for (Route& s : best_solution_route) 
 				start_solution_route.push_back(s);
 		}
-		start_solution = calculate_ObjectiveFunction(&input, penalty_weights, start_solution_route);
+		start_solution = calculate_objective_function(&input, penalty_weights, start_solution_route);
 		cout << " Costo del Modello che sara nuovo costo di partenza = " << start_solution << endl;
 
 		cout << " Best: " << best_solution << " start: " << start_solution << endl;
@@ -540,9 +533,9 @@ int main(int argc, char* argv[]) {
 		size_route_bs = (int)start_solution_route.size();
 		solutionAll.push_back(start_solution_route);
 		Iter_FirstDo++;
-		cout << "*******************************************************************************************************************************************************" << endl;
-		cout << " ********************************************** ITERATION WHILE: " << Iter_FirstDo << " OF: " << iterMAX_FirstDo << "**********************************" << endl;
-		cout << "*******************************************************************************************************************************************************" << endl;
+		cout << "*********************************************************************************************************************************" << endl;
+		cout << " ************************ ITERATION WHILE: " << Iter_FirstDo << " OF: " << iterMAX_FirstDo << "**********************************" << endl;
+		cout << "*********************************************************************************************************************************" << endl;
 		auto stop_model = chrono::high_resolution_clock::now();
 		auto duration_model = chrono::duration_cast<chrono::seconds>(stop_model - start_model);
 		time_spent_model += (double)duration_model.count();
@@ -555,23 +548,24 @@ int main(int argc, char* argv[]) {
 	cout << "costo time windows: " << costo_time_windows_and_intermediate_stop(penalty_weights, start_solution_route) << endl;
 	cout << " Alla iterazione numero: " << best_iteration << endl;
 	for (Route s : start_solution_route) cout << s.cost << " -- " << endl;
-	//*********************************************************************************AGGREGAZIONE SEMPLICE***************************************************************
+	//*****************************************************AGGREGAZIONE SEMPLICE***************************************************************
 	cout << "ora faccio l'aggregazione semplice" << endl;
 	start_solution_route = aggrezione_simple_after_model(start_solution_route, map_airplane, from_to);
-	cout << calculate_ObjectiveFunction(&input, penalty_weights, start_solution_route) << endl;
+	cout << calculate_objective_function(&input, penalty_weights, start_solution_route) << endl;
 	cout << " Routing cost : " << costo_senza_time_windows(&input, start_solution_route) << endl;
 	cout << " Time windows cost: " << costo_time_windows_and_intermediate_stop(penalty_weights, start_solution_route) << endl;
-	//*********************************************************************************AGGREGAZIONE COMPLESSA***************************************************************
+	//******************************************************AGGREGAZIONE COMPLESSA***************************************************************
 	cout << "ora faccio l'aggregazione complessa" << endl;
 	start_solution_route = aggrezione_complex_after_model(start_solution_route, map_airplane, from_to, from_to_FuelConsumed);
-	cout << calculate_ObjectiveFunction(&input, penalty_weights, start_solution_route) << endl;
+	cout << calculate_objective_function(&input, penalty_weights, start_solution_route) << endl;
 	cout << "************************************************************************************************************************************" << endl;
 	cout << "LE SOLUZIONI" << endl;
 
-	cout << "costo fisso; costo landing; costo fuel; costo km; costo intermediate; costo tw; Total; Numero Aerei; Fuel; KM; IS; min TW;";
-	cout << "costo fisso; costo landing; costo fuel; costo km; costo intermediate; costo tw; minuti TW; N_intermediate; gap_perc; time_ALNS; time_model; time_incumbent; numeroSA" << endl;
-	Company_Solution = calculationCostCompany( penalty_weights, argv[2], argv[3], airstrips, airplanes, passengers_for_company_solution, from_to_company);
-	calculate_ObjectiveFunction_final(&input, Company_Solution, penalty_weights, start_solution_route);
+	const string basic_columns = "costo fisso; costo landing; costo fuel; costo km; costo intermediate; costo tw;";
+	cout << basic_columns<<" Total; Numero Aerei; Fuel; KM; IS; min TW;";
+	cout << basic_columns<<" minuti TW; N_intermediate; gap_perc; time_ALNS; time_model; time_incumbent; numeroSA" << endl;
+	company_solution = calculationCostCompany( penalty_weights, argv[2], argv[3], airstrips, airplanes, passengers_for_company_solution, from_to_company);
+	calculate_ObjectiveFunction_final(&input, company_solution, penalty_weights, start_solution_route);
 	
 	tempo_finale = difftime(time(NULL), time_now);
 	int tempo_Alns, h, m, s;
@@ -598,8 +592,8 @@ int main(int argc, char* argv[]) {
 	cout << "number of iteration in the heuristic: " << number_iteration_in_heuristic << endl;
 
 	//SCOMMENTARE QUESTE PER AVERE IL COSTO CON L'ULTIMO ARCO
-	cout << "//////////////////////////////////////////// ora vengono stampate le route con l'aggiunta dell'ultimo arco, e il relativo costo////////////////////////////////////////" << endl;
-	calculate_ObjectiveFunction_final_arc_iori(&input, Company_Solution, penalty_weights, start_solution_route);
+	cout << "///////////// ora vengono stampate le route con l'aggiunta dell'ultimo arco, e il relativo costo////////////////////////" << endl;
+	calculate_ObjectiveFunction_final_arc_iori(&input, company_solution, penalty_weights, start_solution_route);
 	
 	outfile.close(); // per il grafico+++++++++
 	return 0;

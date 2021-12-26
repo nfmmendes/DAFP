@@ -924,7 +924,7 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 	r.add_passenger(passengers[best_passenger]);
 }
 
-vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input, const PenaltyWeights& penalty_weights, vector<Airplane>& airplanes, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
+vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input, const PenaltyWeights& penalty_weights, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
 	double peso_TW{ penalty_weights.time_window };
 	double peso_intermediate_stop {penalty_weights.intermediate_stop };
 	
@@ -933,6 +933,9 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+
+	vector<Airplane> airplanes;
+	for_each(map_airplane.begin(), map_airplane.end(), [&airplanes](auto entry) { airplanes.push_back(entry.second); });
 
 	//creo i punti di partenza
 	vector<Route> solution;
@@ -1555,7 +1558,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 	}
 }
 
-void heuristic_costructive_first_fase_secIter(ProcessedInput* input, double peso_TW, double inter_stop_weight, vector<Route>& solution, vector<Airplane>& airplanes, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
+void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const PenaltyWeights& penalty_weights, vector<Route>& solution, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
 
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
@@ -1563,6 +1566,12 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, double peso
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
+	double peso_TW = penalty_weights.time_window;
+	double inter_stop_weight = penalty_weights.intermediate_stop;
+
+	vector<Airplane> airplanes; 
+	for_each(map_airplane.begin(), map_airplane.end(), [&airplanes](auto& entry) { airplanes.push_back(entry.second); });
+	
 	int situation = -1;
 	int cont = 0;
 	vector<int> AereiUsati;
@@ -1593,8 +1602,6 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, double peso
 			Airplane* airplane = &map_airplane[r.aircraft_code];
 			
 			if (r.primo_pass == false) {
-				
-				
 				if (r.airstrips[r.index - 1] == p.origin) {
 					//in questo caso c'? solo lui nella route, il costo ? dato dalla sua inserzione, quindi, chilometri, costo fisso per uso aereo e fuel
 					double cost = airplane->fixed_cost + from_to[p.origin][p.destination];

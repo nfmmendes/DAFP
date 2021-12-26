@@ -676,10 +676,12 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 	return solution;
 }
 
-vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights& penalty_weights, int num_passenger, vector<Passenger>& passenger_removed, vector<Route>& solution,  vector<Passenger> all_passenegr, map<int, Passenger>& map_id_passenger) {
+vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights& penalty_weights, int num_passenger, vector<Passenger>& passenger_removed, vector<Route>& solution,  vector<Passenger> all_passengers) {
+
 	double peso_TW = penalty_weights.time_window;
 	double peso_itermediate_stop = penalty_weights.intermediate_stop;
-	
+
+	map<int, Passenger> map_id_passenger; 
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector from_to = input->get_from_to();
 
@@ -692,10 +694,12 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 	set<double, MyCOMP<double>> my_set;
 
 	route_destroyed.insert(route_destroyed.end(), solution.begin(), solution.end());
-	passengers.insert(passengers.end(), all_passenegr.begin(), all_passenegr.end());
+	passengers.insert(passengers.end(), all_passengers.begin(), all_passengers.end());
 
-	for (Passenger& p : passengers) 
+	for (Passenger& p : passengers) {
+		map_id_passenger[p.pnr] = p;
 		cost_tw_pass.insert(make_pair(p.pnr, 0));
+	}
 	
 	for (Route& s : route_destroyed) {
 		for (const Passenger& pass : s.get_passengers()) {
