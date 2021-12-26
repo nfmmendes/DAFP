@@ -177,15 +177,15 @@ namespace heuristic_costructive_first_fase_namespace {
 		double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 		
 		route->primo_pass = true;
-		route->get_arrival_at(route->index - 1) = p.early_departure - (from_to[route->airstrips[route->index - 1]][p.origin] / map_airplane[route->aircraft_code].speed) * 60 -
-			map_airstrip[route->airstrips[route->index - 1]].ground_time;
-		route->get_departure_at(route->index - 1) = p.early_departure - (from_to[route->airstrips[route->index - 1]][p.origin] / map_airplane[route->aircraft_code].speed) * 60;
+		route->get_arrival_at(route->index - 1) = p.early_departure - (from_to[route->get_airstrips()[route->index - 1]][p.origin] / map_airplane[route->aircraft_code].speed) * 60 -
+			map_airstrip[route->get_airstrips()[route->index - 1]].ground_time;
+		route->get_departure_at(route->index - 1) = p.early_departure - (from_to[route->get_airstrips()[route->index - 1]][p.origin] / map_airplane[route->aircraft_code].speed) * 60;
 
 		//for the weights
 		route->get_weight_at(route->index - 1) = map_airplane[route->aircraft_code].load_weight - route->fuel[route->index - 1];  
 		//end for weights
 
-		double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->airstrips[route->index - 1]][p.origin];
+		double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][p.origin];
 
 		if (map_airstrip[p.origin].fuel) {
 			route->addPlace(p.origin, map_airstrip[p.origin].fuel, map_airplane[route->aircraft_code].max_fuel, 0.0, 1, p.early_departure, p.early_departure + map_airstrip[p.origin].ground_time);
@@ -210,7 +210,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		}
 		else {
 			double fuel_before = route->fuel[route->index - 1];
-			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->airstrips[route->index - 1]][p.destination];
+			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][p.destination];
 
 			route->addPlace(p.destination, map_airstrip[p.destination].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[p.destination].ground_time);
 			route->get_weight_at(route->index - 1) = route->get_weights()[route->index - 2] + p.weight + fuel_consumed;
@@ -231,8 +231,8 @@ namespace heuristic_costructive_first_fase_namespace {
 		Airplane* airplane = &map_airplane[route->aircraft_code];
 		
 		if (map_airstrip[p.origin].fuel) {
-			const double travel_time_1 = 60 * (from_to[route->airstrips[route->index - 1]][p.origin] / airplane->speed);
-			const double travel_time_2 = 60*(from_to[route->airstrips[route->index - 1]][p.origin] / airplane->speed);
+			const double travel_time_1 = 60 * (from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed);
+			const double travel_time_2 = 60*(from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed);
 			
 			route->addPlace(p.origin, map_airstrip[p.origin].fuel, airplane->max_fuel, 0.0, p.capacity,
 				route->get_departures()[route->index - 1] + travel_time_1,
@@ -241,11 +241,11 @@ namespace heuristic_costructive_first_fase_namespace {
 			route->get_weight_at(route->index - 1) = airplane->load_weight - airplane->max_fuel - p.weight;
 		}
 		else {
-			const double travel_time_1 = 60*(from_to[route->airstrips[route->index - 1]][p.origin] / airplane->speed);
-			const double travel_time_2 = 60*(from_to[route->airstrips[route->index - 1]][p.origin] / airplane->speed);
+			const double travel_time_1 = 60*(from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed);
+			const double travel_time_2 = 60*(from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed);
 			
 			const double fuel_before = route->fuel[route->index - 1];
-			const double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->airstrips[route->index - 1]][p.origin];
+			const double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][p.origin];
 
 			route->addPlace(p.origin, map_airstrip[p.origin].fuel, fuel_before - fuel_consumed, 0.0, p.capacity, route->get_departures()[route->index - 1] +
 				travel_time_1, route->get_departures()[route->index - 1] + travel_time_2  + map_airstrip[p.origin].ground_time);
@@ -262,7 +262,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		}
 		else {
 			double fuel_before = route->fuel[route->index - 1];
-			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->airstrips[route->index - 1]][p.destination];
+			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][p.destination];
 			route->addPlace(p.destination, map_airstrip[p.destination].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[p.destination].ground_time);
 			route->get_weight_at(route->index - 1) = route->get_weights()[route->index - 2] + fuel_consumed + p.weight;
 		}
@@ -353,7 +353,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		//******************************************************************************
 
 		p.solution_from = best_from;
-		int place_1 = route->airstrips[route->index - 1];
+		int place_1 = route->get_airstrips()[route->index - 1];
 		double aircraft_speed = map_airplane[route->aircraft_code].speed;
 		double time = route->get_departures()[route->index - 1] + ((from_to[place_1][p.destination] / aircraft_speed) * 60);
 		
@@ -364,7 +364,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		}
 		else {
 			double fuel_before = route->fuel[route->index - 1];
-			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->airstrips[route->index - 1]][p.destination];
+			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][p.destination];
 
 			route->addPlace(p.destination, map_airstrip[p.destination].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[p.destination].ground_time);
 			route->get_weight_at(route->index - 1) = route->get_weights()[route->index - 2] + fuel_consumed + p.weight;
@@ -411,7 +411,7 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 			Airplane *airplane= &map_airplane[r.aircraft_code];
 			
 			if (r.primo_pass == false) {
-				if (r.airstrips[r.index - 1] == p.origin) {
+				if (r.get_airstrips()[r.index - 1] == p.origin) {
 					//in questo caso c'? solo lui nella route, il costo ? dato dalla sua
 					//inserzione, quindi, chilometri, costo fisso per uso aereo e fuel
 					double cost = airplane->fixed_cost + from_to[p.origin][p.destination];
@@ -433,14 +433,14 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 					//qui c'? solo lui nell'aereo ma deve fare un pezzo vuoto all'inizio dal deposito alla
 					// partenza per il cliente, devo aggiungere pi? kilometri e un landing stop
 					//non considero le time windows, faccio una partenza mirata per loro visto che sono i primi
-					double cost = airplane->fixed_cost + from_to[p.origin][p.destination] + from_to[r.airstrips[r.index - 1]][p.origin];
+					double cost = airplane->fixed_cost + from_to[p.origin][p.destination] + from_to[r.get_airstrips()[r.index - 1]][p.origin];
 					auto airplane_consumption = from_to_FuelConsumed[r.aircraft_code];
-					double fuel_consumed = airplane_consumption[p.origin][p.destination] + airplane_consumption[r.airstrips[r.index - 1]][p.origin];
+					double fuel_consumed = airplane_consumption[p.origin][p.destination] + airplane_consumption[r.get_airstrips()[r.index - 1]][p.origin];
 
 					cost += fuel_consumed;
 
 					//per il check sul fuel
-					double fuel_consumed_primo_tratto = airplane_consumption[r.airstrips[r.index - 1]][p.origin];
+					double fuel_consumed_primo_tratto = airplane_consumption[r.get_airstrips()[r.index - 1]][p.origin];
 					double fuel_consumed_secondo_tratto = airplane_consumption[p.origin][p.destination];
 
 					//ora fisso le vairabili che mi servono, questo lo faccio perch? nella departure per il
@@ -471,13 +471,13 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 				vector<int> FROM;
 				vector<int> TO;
 				for (int t = 0; t < r.index; t++) {
-					if (r.airstrips[t] == p.origin) FROM.push_back(t);
+					if (r.get_airstrips()[t] == p.origin) FROM.push_back(t);
 				}
 
 				if (FROM.size() != 0) {
 					//dentro questo abbiamo trovato dei FROM 
 					for (int t = FROM[0]; t < r.index; t++) {
-						if (r.airstrips[t] == p.destination) TO.push_back(t);
+						if (r.get_airstrips()[t] == p.destination) TO.push_back(t);
 					}
 
 					if (TO.size() != 0) {
@@ -491,7 +491,7 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 										if ((r.get_capacities()[c] + p.capacity) > map_airplane[r.aircraft_code].capacity) 
 											capacity_satisfy = false;
 										
-										double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[c]][r.airstrips[c + 1]];
+										double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
 										double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
 										//aggiunto questa parte per l'ultimo tratto che deve prevedere l'andare da almeno un'altra parte con il fuel QUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -523,15 +523,15 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 					}
 					//da qui in giu considero il caso in cui non ci sono TO ma anche se ci sono ma non mi conviene farlo fermare li 
 					//quindi il for per tutti i from ma al di fuori della route e poi considero anche il costo di aggiungerlo a parte il pezzetto che manca
-					if (r.airstrips[r.index - 1] != p.destination) {
+					if (r.get_airstrips()[r.index - 1] != p.destination) {
 						for (auto from : FROM) {
 							bool capacity_satisfy = true;
 							for (int c = from; c < r.index; c++) {
 								if ((r.get_capacities()[c] + p.capacity) > map_airplane[r.aircraft_code].capacity) capacity_satisfy = false;
 
 								if (c < r.index - 1) {
-									//double travel_time = (from_to[r.airstrips[c] + ";" + r.airstrips[c + 1]]) / map_airplane[r.aircraft_code].speed;
-									double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[c]][r.airstrips[c + 1]];
+									//double travel_time = (from_to[r.get_airstrips()[c] + ";" + r.get_airstrips()[c + 1]]) / map_airplane[r.aircraft_code].speed;
+									double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
 									double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
 									if (!r.get_refueling()[c] && r.get_weights()[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0)
@@ -545,8 +545,8 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 
 								double cost = (TW_departure * peso_TW);
 								// ora ci metto chilometri e fuel dell'ultimo pezzo;
-								cost += from_to[r.airstrips[r.index - 1]][p.destination];
-								double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][p.destination];
+								cost += from_to[r.get_airstrips()[r.index - 1]][p.destination];
+								double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][p.destination];
 
 								cost += fuel_consumed;
 
@@ -557,8 +557,8 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 										fuel_ok = false;
 								}
 
-								double travel_time = (from_to[r.airstrips[r.index - 1]][p.destination] / airplane->speed) * 60;
-								double t_arr_arrival = r.get_arrivals()[r.index - 1] + travel_time + map_airstrip[r.airstrips[r.index - 1]].ground_time;
+								double travel_time = (from_to[r.get_airstrips()[r.index - 1]][p.destination] / airplane->speed) * 60;
+								double t_arr_arrival = r.get_arrivals()[r.index - 1] + travel_time + map_airstrip[r.get_airstrips()[r.index - 1]].ground_time;
 
 								double TW_arrival = max(0.0, p.early_arrival - t_arr_arrival) + max(0.0, t_arr_arrival - p.late_arrival);
 								cost += (TW_arrival * peso_TW) * p.capacity + (peso_intermediate_stop * (r.index - from - 1)) * p.capacity;
@@ -576,16 +576,16 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 						}
 					}
 				}
-				if (r.airstrips[r.index - 1] != p.origin) {
+				if (r.get_airstrips()[r.index - 1] != p.origin) {
 					//guardo il costo di aggiungere un pezzo alla fine
 					auto airplane_consumption = from_to_FuelConsumed[r.aircraft_code];
-					double fuel_consumed = airplane_consumption[r.airstrips[r.index - 1]][p.origin] + 
+					double fuel_consumed = airplane_consumption[r.get_airstrips()[r.index - 1]][p.origin] + 
 										   airplane_consumption[p.origin][p.destination];
 
-					double cost = fuel_consumed + from_to[r.airstrips[r.index - 1]][p.origin] + from_to[p.origin][p.destination];
+					double cost = fuel_consumed + from_to[r.get_airstrips()[r.index - 1]][p.origin] + from_to[p.origin][p.destination];
 
-					double travel_time = (from_to[r.airstrips[r.index - 1]][p.origin]/ map_airplane[r.aircraft_code].speed * 60);
-					double t_arr_departure = r.get_arrivals()[r.index - 1] + map_airstrip[r.airstrips[r.index - 1]].ground_time + travel_time;
+					double travel_time = (from_to[r.get_airstrips()[r.index - 1]][p.origin]/ map_airplane[r.aircraft_code].speed * 60);
+					double t_arr_departure = r.get_arrivals()[r.index - 1] + map_airstrip[r.get_airstrips()[r.index - 1]].ground_time + travel_time;
 					double TW_departure = max(0.0, p.early_departure - t_arr_departure) + max(0.0, t_arr_departure - p.late_departure);
 
 					travel_time = (from_to[p.origin][p.destination] / map_airplane[r.aircraft_code].speed) * 60;
@@ -595,9 +595,9 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 					cost += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
 
 					//per il check sul fuel:
-					//double travel_primo_tratto = (from_to[r.airstrips[r.index - 1] + ";" + p.origin]) / map_airplane[r.aircraft_code].speed;
-					double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][p.origin];
-					double fuel_consumed_secondo_tratto = from_to_FuelConsumed[r.aircraft_code][p.origin][p.destination];
+					//double travel_primo_tratto = (from_to[r.get_airstrips()[r.index - 1] + ";" + p.origin]) / map_airplane[r.aircraft_code].speed;
+					double fuel_consumed_primo_tratto = airplane_consumption[r.get_airstrips()[r.index - 1]][p.origin];
+					double fuel_consumed_secondo_tratto = airplane_consumption[p.origin][p.destination];
 
 					//ora fisso le vairabili che mi servono, questo lo faccio perch? nella departure per il passeggero potrebbe esserci
 					//il caso in cui l'aero possa fare 
@@ -608,7 +608,7 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 						f_after_secondo_tratto = airplane->max_fuel - fuel_consumed_secondo_tratto;
 					}
 					else {
-						f_after_secondo_tratto = r.fuel[r.index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
+						f_after_secondo_tratto = f_after_primo_tratto - fuel_consumed_secondo_tratto;
 					}
 
 					if (best_cost > cost && t_arr_arrival <= end_day && f_after_primo_tratto >= map_airplane[r.aircraft_code].min_fuel) {
@@ -712,10 +712,10 @@ void run_situation_2(ProcessedInput* input, vector<Passenger>& passengers, Route
 	r.primo_pass = true;
 	Airplane* airplane = &map_airplane[r.aircraft_code];
 
-	double travel_time = (from_to[r.airstrips[r.index - 1]][passengers[best_passenger].origin] / airplane->speed) * 60;
-	r.get_arrival_at(r.index - 1) = passengers[best_passenger].early_departure - travel_time - map_airstrip[r.airstrips[r.index - 1]].ground_time;
+	double travel_time = (from_to[r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin] / airplane->speed) * 60;
+	r.get_arrival_at(r.index - 1) = passengers[best_passenger].early_departure - travel_time - map_airstrip[r.get_airstrips()[r.index - 1]].ground_time;
 
-	travel_time = (from_to[r.airstrips[r.index - 1]][passengers[best_passenger].origin] / airplane->speed) * 60;
+	travel_time = (from_to[r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin] / airplane->speed) * 60;
 	r.get_departure_at(r.index - 1) = passengers[best_passenger].early_departure - travel_time;
 
 	//for the weights
@@ -723,7 +723,7 @@ void run_situation_2(ProcessedInput* input, vector<Passenger>& passengers, Route
 		r.fuel[r.index - 1];  //here i put max_fuel because at the beginnig in the depot all the airplane have full fuel
 	//end for weights
 
-	double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][passengers[best_passenger].origin];
+	double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin];
 	if (map_airstrip[passengers[best_passenger].origin].fuel) {
 		r.addPlace(passengers[best_passenger].origin, map_airstrip[passengers[best_passenger].origin].fuel, 
 				   map_airplane[r.aircraft_code].max_fuel, 0.0, passengers[best_passenger].capacity, passengers[best_passenger].early_departure, 
@@ -755,7 +755,7 @@ void run_situation_2(ProcessedInput* input, vector<Passenger>& passengers, Route
 	}
 	else {
 		double fuel_before = r.fuel[r.index - 1];
-		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][passengers[best_passenger].destination];
+		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[best_passenger].destination];
 
 		r.addPlace(passengers[best_passenger].destination, map_airstrip[passengers[best_passenger].destination].fuel, fuel_before - fuel_consumed, 
 			      0.0, 0, time, time + map_airstrip[passengers[best_passenger].destination].ground_time);
@@ -777,8 +777,8 @@ void run_situation_3(ProcessedInput* input, vector<Passenger>& passengers, Route
 	Airplane* airplane = &map_airplane[r.aircraft_code]; 
 	
 	if (map_airstrip[passengers[best_passenger].origin].fuel) {
-		const double travel_time_1 = 60*(from_to[r.airstrips[r.index - 1]][passengers[best_passenger].origin] / airplane->speed);
-		const double travel_time_2 = 60*(from_to[r.airstrips[r.index - 1]][passengers[best_passenger].origin] / airplane->speed);
+		const double travel_time_1 = 60*(from_to[r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin] / airplane->speed);
+		const double travel_time_2 = 60*(from_to[r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin] / airplane->speed);
 		
 		r.addPlace(passengers[best_passenger].origin, map_airstrip[passengers[best_passenger].origin].fuel, airplane->max_fuel,
 				   0.0, passengers[best_passenger].capacity, r.get_departures()[r.index - 1] +
@@ -790,9 +790,9 @@ void run_situation_3(ProcessedInput* input, vector<Passenger>& passengers, Route
 	}
 	else {
 		double fuel_before = r.fuel[r.index - 1];
-		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][passengers[best_passenger].origin];
-		double travel_time_1 = ((from_to[r.airstrips[r.index - 1]][passengers[best_passenger].origin] / airplane->speed) * 60);
-		double travel_time_2 = ((from_to[r.airstrips[r.index - 1]][passengers[best_passenger].origin] / airplane->speed) * 60);
+		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin];
+		double travel_time_1 = ((from_to[r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin] / airplane->speed) * 60);
+		double travel_time_2 = ((from_to[r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin] / airplane->speed) * 60);
 		r.addPlace(passengers[best_passenger].origin, map_airstrip[passengers[best_passenger].origin].fuel, fuel_before - fuel_consumed, 0.0, passengers[best_passenger].capacity, r.get_departures()[r.index - 1] +
 				   travel_time_1,
 				   r.get_departures()[r.index - 1] + travel_time_2  + map_airstrip[passengers[best_passenger].origin].ground_time);
@@ -811,7 +811,7 @@ void run_situation_3(ProcessedInput* input, vector<Passenger>& passengers, Route
 	}
 	else {
 		double fuel_before = r.fuel[r.index - 1];
-		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][passengers[best_passenger].destination];
+		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[best_passenger].destination];
 
 		r.addPlace(passengers[best_passenger].destination, map_airstrip[passengers[best_passenger].destination].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[passengers[best_passenger].destination].ground_time);
 		r.get_weight_at(r.index - 1) = r.get_weights()[r.index - 2] + fuel_consumed + passengers[best_passenger].weight;
@@ -902,7 +902,7 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 	}
 
 	passengers[best_passenger].solution_from = best_from;
-	int place_1 = r.airstrips[r.index - 1];
+	int place_1 = r.get_airstrips()[r.index - 1];
 	double aircraft_speed = map_airplane[r.aircraft_code].speed;
 	double time = r.get_departures()[r.index - 1] + ((from_to[place_1][passengers[best_passenger].destination] / aircraft_speed) * 60);
 
@@ -914,7 +914,7 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 	}
 	else {
 		double fuel_before = r.fuel[r.index - 1];
-		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][passengers[best_passenger].destination];
+		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[best_passenger].destination];
 		r.addPlace(passengers[best_passenger].destination, map_airstrip[passengers[best_passenger].destination].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[passengers[best_passenger].destination].ground_time);
 		r.get_weight_at(r.index - 1) = r.get_weights()[r.index - 2] + fuel_consumed + passengers[best_passenger].weight;
 
@@ -961,7 +961,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 			for (int p = 0; p < (int)passengers.size(); p++) {
 
 				if (r.primo_pass == false) {
-					if (r.airstrips[r.index - 1] == passengers[p].origin) {
+					if (r.get_airstrips()[r.index - 1] == passengers[p].origin) {
 						//in questo caso c'? solo lui nella route, il costo ? dato dalla sua inserzione, quindi, chilometri, costo fisso per uso aereo e fuel
 						double cost = map_airplane[r.aircraft_code].fixed_cost + from_to[passengers[p].origin][passengers[p].destination];
 						double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][passengers[p].origin][passengers[p].destination];
@@ -982,14 +982,14 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 					else {
 						//qui c'? solo lui nell'aereo ma deve fare un pezzo vuoto all'inizio dal deposito alla partenza per il cliente, devo aggiungere pi? kilometri e un landing stop
 						//non considero le time windows, faccio una partenza mirata per loro visto che sono i primi
-						double cost = map_airplane[r.aircraft_code].fixed_cost + from_to[passengers[p].origin][passengers[p].destination] + from_to[r.airstrips[r.index - 1]][passengers[p].origin];
-						double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][passengers[p].origin][passengers[p].destination] + from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][passengers[p].origin];
+						double cost = map_airplane[r.aircraft_code].fixed_cost + from_to[passengers[p].origin][passengers[p].destination] + from_to[r.get_airstrips()[r.index - 1]][passengers[p].origin];
+						double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][passengers[p].origin][passengers[p].destination] + from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[p].origin];
 
 						cost += fuel_consumed;
 
 						//per il check sul fuel
-						//double travel_primo_tratto = (from_to[r.airstrips[r.index - 1] + ";" + passengers[p].origin]) / map_airplane[r.aircraft_code].speed;
-						double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][passengers[p].origin];
+						//double travel_primo_tratto = (from_to[r.get_airstrips()[r.index - 1] + ";" + passengers[p].origin]) / map_airplane[r.aircraft_code].speed;
+						double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[p].origin];
 
 						//****
 						//double travel_secondo_tratto = (from_to[passengers[p].origin + ";" + passengers[p].destination]) / map_airplane[r.aircraft_code].speed;
@@ -1023,13 +1023,13 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 					std::vector<int> FROM;
 					std::vector<int> TO;
 					for (int t = 0; t < r.index; t++) {
-						if (r.airstrips[t] == passengers[p].origin) FROM.push_back(t);
+						if (r.get_airstrips()[t] == passengers[p].origin) FROM.push_back(t);
 					}
 
 					if (FROM.size() != 0) {
 						//dentro questo abbiamo trovato dei FROM 
 						for (int t = FROM[0]; t < r.index; t++) {
-							if (r.airstrips[t] == passengers[p].destination) TO.push_back(t);
+							if (r.get_airstrips()[t] == passengers[p].destination) TO.push_back(t);
 						}
 
 						if (TO.size() != 0) {
@@ -1042,8 +1042,8 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 										for (int c = from; c < to; c++) {
 											if ((r.get_capacities()[c] + passengers[p].capacity) > map_airplane[r.aircraft_code].capacity) capacity_satisfy = false;
 
-											//double travel_time = (from_to[r.airstrips[c] + ";" + r.airstrips[c + 1]]) / map_airplane[r.aircraft_code].speed;
-											double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[c]][r.airstrips[c + 1]];
+											//double travel_time = (from_to[r.get_airstrips()[c] + ";" + r.get_airstrips()[c + 1]]) / map_airplane[r.aircraft_code].speed;
+											double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
 
 											double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
@@ -1085,15 +1085,15 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 						}
 						//da qui in giu considero il caso in cui non ci sono TO ma anche se ci sono ma non mi conviene farlo fermare li 
 						//quindi il for per tutti i from ma al di fuori della route e poi considero anche il costo di aggiungerlo a parte il pezzetto che manca
-						if (r.airstrips[r.index - 1] != passengers[p].destination) {
+						if (r.get_airstrips()[r.index - 1] != passengers[p].destination) {
 							for (auto from : FROM) {
 								bool capacity_satisfy = true;
 								for (int c = from; c < r.index; c++) {
 									if ((r.get_capacities()[c] + passengers[p].capacity) > map_airplane[r.aircraft_code].capacity) capacity_satisfy = false;
 
 									if (c < r.index - 1) {
-										//double travel_time = (from_to[r.airstrips[c] + ";" + r.airstrips[c + 1]]) / map_airplane[r.aircraft_code].speed;
-										double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[c]][r.airstrips[c + 1]];
+										//double travel_time = (from_to[r.get_airstrips()[c] + ";" + r.get_airstrips()[c + 1]]) / map_airplane[r.aircraft_code].speed;
+										double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
 
 										double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
@@ -1110,9 +1110,9 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 
 									double cost = (TW_departure * peso_TW);
 									// ora ci metto chilometri e fuel dell'ultimo pezzo;
-									cost += from_to[r.airstrips[r.index - 1]][passengers[p].destination];
-									double travel_time = (from_to[r.airstrips[r.index - 1]][passengers[p].destination]) / map_airplane[r.aircraft_code].speed;
-									double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][passengers[p].destination];
+									cost += from_to[r.get_airstrips()[r.index - 1]][passengers[p].destination];
+									double travel_time = (from_to[r.get_airstrips()[r.index - 1]][passengers[p].destination]) / map_airplane[r.aircraft_code].speed;
+									double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[p].destination];
 
 									cost += fuel_consumed;
 
@@ -1124,7 +1124,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 
 									double TW_arrival = 0.0;
 									double t_arr_arrival = 0.0;
-									t_arr_arrival = r.get_arrivals()[r.index - 1] + (travel_time * 60) + map_airstrip[r.airstrips[r.index - 1]].ground_time;
+									t_arr_arrival = r.get_arrivals()[r.index - 1] + (travel_time * 60) + map_airstrip[r.get_airstrips()[r.index - 1]].ground_time;
 									if (t_arr_arrival < passengers[p].early_arrival) TW_arrival = passengers[p].early_arrival - t_arr_arrival;
 									else if (t_arr_arrival > passengers[p].late_arrival) TW_arrival = t_arr_arrival - passengers[p].late_arrival;
 									cost += ((TW_arrival * peso_TW)) * passengers[p].capacity;
@@ -1147,15 +1147,15 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 						}
 
 					}
-					if (r.airstrips[r.index - 1] != passengers[p].origin) {
+					if (r.get_airstrips()[r.index - 1] != passengers[p].origin) {
 						//guardo il costo di aggiungere un pezzo alla fine
 						
-						double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][passengers[p].origin] + from_to_FuelConsumed[r.aircraft_code][passengers[p].origin][passengers[p].destination];
-						double cost = fuel_consumed + from_to[r.airstrips[r.index - 1]][passengers[p].origin] + from_to[passengers[p].origin][passengers[p].destination];
+						double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[p].origin] + from_to_FuelConsumed[r.aircraft_code][passengers[p].origin][passengers[p].destination];
+						double cost = fuel_consumed + from_to[r.get_airstrips()[r.index - 1]][passengers[p].origin] + from_to[passengers[p].origin][passengers[p].destination];
 
 						double TW_departure = 0.0;
-						//double t_arr_departure = r.arrival[r.index - 1] + (map_airstrip[r.airstrips[r.index - 1]].ground_time + (from_to[r.airstrips[r.index - 1] + ";" + passengers[p].origin]) / map_airplane[r.aircraft_code].speed) * 60;
-						double t_arr_departure = r.get_departures()[r.index - 1] + map_airstrip[r.airstrips[r.index - 1]].ground_time + (((from_to[r.airstrips[r.index - 1]][passengers[p].origin]) / map_airplane[r.aircraft_code].speed) * 60);
+						//double t_arr_departure = r.arrival[r.index - 1] + (map_airstrip[r.get_airstrips()[r.index - 1]].ground_time + (from_to[r.get_airstrips()[r.index - 1] + ";" + passengers[p].origin]) / map_airplane[r.aircraft_code].speed) * 60;
+						double t_arr_departure = r.get_departures()[r.index - 1] + map_airstrip[r.get_airstrips()[r.index - 1]].ground_time + (((from_to[r.get_airstrips()[r.index - 1]][passengers[p].origin]) / map_airplane[r.aircraft_code].speed) * 60);
 						if (t_arr_departure < passengers[p].early_departure) TW_departure = passengers[p].early_departure - t_arr_departure;
 						else if (t_arr_departure > passengers[p].late_departure) TW_departure = t_arr_departure - passengers[p].late_departure;
 
@@ -1166,8 +1166,8 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 						cost += ((TW_departure + TW_arrival) * peso_TW) * passengers[p].capacity;
 
 						//per il check sul fuel:
-						//double travel_primo_tratto = (from_to[r.airstrips[r.index - 1] + ";" + passengers[p].origin]) / map_airplane[r.aircraft_code].speed;
-						double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][passengers[p].origin];
+						//double travel_primo_tratto = (from_to[r.get_airstrips()[r.index - 1] + ";" + passengers[p].origin]) / map_airplane[r.aircraft_code].speed;
+						double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[p].origin];
 						double fuel_consumed_secondo_tratto = from_to_FuelConsumed[r.aircraft_code][passengers[p].origin][passengers[p].destination];
 						double f_after_primo_tratto = r.fuel[r.index - 1] - fuel_consumed_primo_tratto;
 						double f_after_secondo_tratto = 0.0;
@@ -1249,8 +1249,8 @@ map<int, int> Compute_WorstNode(double peso_TW, double peso_intermediate_stop, R
 			vector<Passenger> PassengerNodo;
 			if (n != (route.index - 1)) {
 				//cout << " Calcolo per nodo n mezzo " << endl;
-				dist += map_airstrip[route.airstrips[n]].landing_cost;
-				dist += from_to[route.airstrips[n - 1]][route.airstrips[n]] + from_to[route.airstrips[n]][route.airstrips[n + 1]] - from_to[route.airstrips[n - 1]][route.airstrips[n + 1]];
+				dist += map_airstrip[route.get_airstrips()[n]].landing_cost;
+				dist += from_to[route.get_airstrips()[n - 1]][route.get_airstrips()[n]] + from_to[route.get_airstrips()[n]][route.get_airstrips()[n + 1]] - from_to[route.get_airstrips()[n - 1]][route.get_airstrips()[n + 1]];
 				for (int p = 0; p < (int)route.get_passengers().size(); p++) {
 					if (route.get_passengers()[p].solution_to == n || route.get_passengers()[p].solution_from == n) {
 						PassengerNodo.push_back(route.get_passengers()[p]);
@@ -1266,8 +1266,8 @@ map<int, int> Compute_WorstNode(double peso_TW, double peso_intermediate_stop, R
 			}
 			else {
 				//cout << " Calcolo per ultimo nodo " << endl;
-				dist += map_airstrip[route.airstrips[n]].landing_cost;
-				dist += from_to[route.airstrips[n - 1]][route.airstrips[n]];
+				dist += map_airstrip[route.get_airstrips()[n]].landing_cost;
+				dist += from_to[route.get_airstrips()[n - 1]][route.get_airstrips()[n]];
 				for (int p = 0; p < (int)route.get_passengers().size(); p++) {
 					if (route.get_passengers()[p].solution_to == n) {
 						PassengerNodo.push_back(route.get_passengers()[p]);
@@ -1357,14 +1357,14 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		Airstrip* origin = &map_airstrip[p.origin];
 		Airstrip* destination = &map_airstrip[p.destination];
 		
-		double travel_time = 60*(from_to[route->airstrips[route->index - 1]][p.origin] / airplane->speed); 
+		double travel_time = 60*(from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed); 
 		route->primo_pass = true;
-		route->get_arrival_at(route->index - 1) = p.early_departure -  travel_time - map_airstrip[route->airstrips[route->index - 1]].ground_time;
-		route->get_departure_at(route->index - 1) = p.early_departure - (from_to[route->airstrips[route->index - 1]][p.origin] / airplane->speed) * 60;
+		route->get_arrival_at(route->index - 1) = p.early_departure -  travel_time - map_airstrip[route->get_airstrips()[route->index - 1]].ground_time;
+		route->get_departure_at(route->index - 1) = p.early_departure - (from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed) * 60;
 
 		route->get_weight_at(route->index - 1) = map_airplane[route->aircraft_code].load_weight - route->fuel[route->index - 1];
 
-		double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->airstrips[route->index - 1]][p.origin];
+		double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][p.origin];
 
 		if (map_airstrip[p.origin].fuel) {
 			route->addPlace(p.origin, origin->fuel, airplane->max_fuel, 0.0, p.capacity, 
@@ -1391,7 +1391,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		}
 		else {
 			double fuel_before = route->fuel[route->index - 1];
-			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->airstrips[route->index - 1]][p.destination];
+			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][p.destination];
 			route->addPlace(p.destination, destination->fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + destination->ground_time);
 			route->get_weight_at(route->index - 1) = route->get_weights()[route->index - 2] + p.weight + fuel_consumed;
 
@@ -1416,8 +1416,8 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		if (map_airstrip[p.origin].fuel) {
 			route->addPlace(p.origin, map_airstrip[p.origin].fuel, airplane->max_fuel, 0.0, p.capacity,
 				route->get_departures()[route->index - 1] +
-				((from_to[route->airstrips[route->index - 1]][p.origin] / airplane->speed) * 60),
-				route->get_departures()[route->index - 1] + ((from_to[route->airstrips[route->index - 1]][p.origin] / airplane->speed) * 60) + map_airstrip[p.origin].ground_time);
+				((from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed) * 60),
+				route->get_departures()[route->index - 1] + ((from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed) * 60) + map_airstrip[p.origin].ground_time);
 
 			route->get_weight_at(route->index - 1) = map_airplane[route->aircraft_code].load_weight -
 				map_airplane[route->aircraft_code].max_fuel - p.weight;
@@ -1426,11 +1426,11 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		}
 		else {
 			double fuel_before = route->fuel[route->index - 1];
-			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->airstrips[route->index - 1]][p.origin];
+			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][p.origin];
 
 			route->addPlace(p.origin, origin->fuel, fuel_before - fuel_consumed, 0.0, p.capacity, route->get_departures()[route->index - 1] +
-				((from_to[route->airstrips[route->index - 1]][p.origin] / airplane->speed) * 60),
-				route->get_departures()[route->index - 1] + ((from_to[route->airstrips[route->index - 1]][p.origin] / airplane->speed) * 60) + origin->ground_time);
+				((from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed) * 60),
+				route->get_departures()[route->index - 1] + ((from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed) * 60) + origin->ground_time);
 
 			route->get_weight_at(route->index - 1) = route->get_weights()[route->index - 2] - p.weight + fuel_consumed;
 		}
@@ -1444,7 +1444,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		}
 		else {
 			const double fuel_before = route->fuel[route->index - 1];
-			const double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->airstrips[route->index - 1]][p.destination];
+			const double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][p.destination];
 			
 			route->addPlace(p.destination, destination->fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + destination->ground_time);
 			route->get_weight_at(route->index - 1) = route->get_weights()[route->index - 2] + fuel_consumed + p.weight;
@@ -1535,7 +1535,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		//******************************************************************************
 
 		p.solution_from = best_from;
-		int place_1 = route->airstrips[route->index - 1];
+		int place_1 = route->get_airstrips()[route->index - 1];
 		double aircraft_speed = map_airplane[route->aircraft_code].speed;
 		double time = route->get_departures()[route->index - 1] + ((from_to[place_1][p.destination] / aircraft_speed) * 60);
 
@@ -1547,7 +1547,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		}
 		else {
 			double fuel_before = route->fuel[route->index - 1];
-			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->airstrips[route->index - 1]][p.destination];
+			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][p.destination];
 
 			route->addPlace(p.destination, map_airstrip[p.destination].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[p.destination].ground_time);
 			route->get_weight_at(route->index - 1) = route->get_weights()[route->index - 2] + fuel_consumed + p.weight;
@@ -1602,7 +1602,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 			Airplane* airplane = &map_airplane[r.aircraft_code];
 			
 			if (r.primo_pass == false) {
-				if (r.airstrips[r.index - 1] == p.origin) {
+				if (r.get_airstrips()[r.index - 1] == p.origin) {
 					//in questo caso c'? solo lui nella route, il costo ? dato dalla sua inserzione, quindi, chilometri, costo fisso per uso aereo e fuel
 					double cost = airplane->fixed_cost + from_to[p.origin][p.destination];
 					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][p.origin][p.destination];
@@ -1621,9 +1621,9 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 					}
 				}
 				else {
-					const double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][p.origin];
+					const double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][p.origin];
 					const double fuel_consumed_secondo_tratto = from_to_FuelConsumed[r.aircraft_code][p.origin][p.destination];
-					const double distance_first_leg = from_to[r.airstrips[r.index - 1]][p.origin];
+					const double distance_first_leg = from_to[r.get_airstrips()[r.index - 1]][p.origin];
 					const double distance_second_leg = from_to[p.origin][p.destination];
 					
 					//qui c'? solo lui nell'aereo ma deve fare un pezzo vuoto all'inizio dal deposito alla partenza per il cliente,
@@ -1663,14 +1663,14 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 				vector<int> FROM;
 				vector<int> TO;
 				for (int t = 0; t < r.index; t++) {
-					if (r.airstrips[t] == p.origin) 
+					if (r.get_airstrips()[t] == p.origin) 
 						FROM.push_back(t);
 				}
 
 				if (FROM.size() != 0) {
 					//dentro questo abbiamo trovato dei FROM 
 					for (int t = FROM[0]; t < r.index; t++) {
-						if (r.airstrips[t] == p.destination) 
+						if (r.get_airstrips()[t] == p.destination) 
 							TO.push_back(t);
 					}
 
@@ -1686,7 +1686,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 										if ((r.get_capacities()[c] + p.capacity) > airplane->capacity) 
 											capacity_satisfy = false;
 
-										double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[c]][r.airstrips[c + 1]];
+										double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
 										double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
 										//aggiunto questa parte per l'ultimo tratto che deve prevedere l'andare da almeno un'altra parte con il fuel QUAAA
@@ -1716,7 +1716,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 					}
 					//da qui in giu considero il caso in cui non ci sono TO ma anche se ci sono ma non mi conviene farlo fermare li 
 					//quindi il for per tutti i from ma al di fuori della route e poi considero anche il costo di aggiungerlo a parte il pezzetto che manca
-					if (r.airstrips[r.index - 1] != p.destination) {
+					if (r.get_airstrips()[r.index - 1] != p.destination) {
 						for (auto from : FROM) {
 							bool capacity_satisfy = true;
 							for (int c = from; c < r.index; c++) {
@@ -1724,7 +1724,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 									capacity_satisfy = false;
 
 								if (c < r.index - 1) {
-									double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[c]][r.airstrips[c + 1]];
+									double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
 									double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
 									if (!r.get_refueling()[c] && r.get_weights()[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0)
@@ -1733,12 +1733,12 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 							}
 							//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
 							if (capacity_satisfy && (r.index - from) <= p.stop) {
-								int previous_airstrip = r.airstrips[r.index - 1];
+								int previous_airstrip = r.get_airstrips()[r.index - 1];
 
 								double TW_departure = max(0.0, p.early_departure - r.get_arrivals()[from]) + max(0.0, r.get_arrivals()[from] - p.late_departure);
 
 								const double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][previous_airstrip][p.destination];
-								double cost = (TW_departure * peso_TW) + fuel_consumed + from_to[r.airstrips[r.index - 1]][p.destination];
+								double cost = (TW_departure * peso_TW) + fuel_consumed + from_to[r.get_airstrips()[r.index - 1]][p.destination];
 
 								bool fuel_ok = true;
 								double remaining_fuel = r.get_weights()[r.index - 1] - p.weight + r.fuel[r.index - 1] - (fuel_consumed + airplane->min_fuel);
@@ -1763,13 +1763,13 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 					}
 
 				}
-				if (r.airstrips[r.index - 1] != p.origin) {
+				if (r.get_airstrips()[r.index - 1] != p.origin) {
 					//guardo il costo di aggiungere un pezzo alla fine
-					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][p.origin] + from_to_FuelConsumed[r.aircraft_code][p.origin][p.destination];
-					double cost = fuel_consumed + from_to[r.airstrips[r.index - 1]][p.origin] + from_to[p.origin][p.destination];
+					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][p.origin] + from_to_FuelConsumed[r.aircraft_code][p.origin][p.destination];
+					double cost = fuel_consumed + from_to[r.get_airstrips()[r.index - 1]][p.origin] + from_to[p.origin][p.destination];
 
-					double time_to_go = 60*(from_to[r.airstrips[r.index - 1]][p.origin] / map_airplane[r.aircraft_code].speed); 
-					double t_arr_departure = r.get_arrivals()[r.index - 1] + map_airstrip[r.airstrips[r.index - 1]].ground_time + time_to_go;
+					double time_to_go = 60*(from_to[r.get_airstrips()[r.index - 1]][p.origin] / map_airplane[r.aircraft_code].speed); 
+					double t_arr_departure = r.get_arrivals()[r.index - 1] + map_airstrip[r.get_airstrips()[r.index - 1]].ground_time + time_to_go;
 					double TW_departure = max(0.0,  p.early_departure - t_arr_departure) + max(0.0, t_arr_departure - p.late_departure);
 					
 					time_to_go = 60*(from_to[p.origin][p.destination] / map_airplane[r.aircraft_code].speed);
@@ -1778,7 +1778,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 					cost += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
 
 					//per il check sul fuel:
-					double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.airstrips[r.index - 1]][p.origin];
+					double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][p.origin];
 
 					//****
 					double fuel_consumed_secondo_tratto = from_to_FuelConsumed[r.aircraft_code][p.origin][p.destination];

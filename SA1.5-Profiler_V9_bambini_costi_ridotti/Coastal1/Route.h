@@ -5,7 +5,6 @@
 
 #include <string>
 #include <vector>
-#include <algorithm>
 #include "Passenger.h"
 #include <map>
 #include "Airplane.h"
@@ -39,7 +38,6 @@ public:
 	double cost;
 	int aircraft_code;  //questo dovrebbe diventare un interoper un accesso più veloce 
 	string aircraft_code_company_comparison;
-	vector<int> airstrips;
 	vector<double> fuel;
 	int index;
 	
@@ -50,6 +48,9 @@ public:
 	Route(int, const vector<Passenger>& passengers_in_route);
 	~Route();
 
+	void set_airstrip(vector<int>& value) { airstrips = value;  }
+	void set_airstrip_at(int index, int value) { airstrips[index] = value;  }
+	vector<int> get_airstrips() const { return airstrips;  }
 
 	double& get_weight_at(int position) { return weights[position];  }
 	vector<double> get_weights() { return weights;  }
@@ -112,6 +113,7 @@ public:
 	void update_rebuilt_one_second_fase(ProcessedInput*, int& node_add_from, int& node_add_to, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
 
 private:
+	vector<int> airstrips;
 	vector<int> capacities;
 	vector<string> places_company;
 	vector<Passenger> passengers_in_route;

@@ -41,16 +41,16 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 
 			//genero il numero random di nodi da distruggere da 2 a place.size()-1;
 			double numero_random = (double)rand() / RAND_MAX;
-			if (r.airstrips.size() == 2) {
-				numero_random = round(1 + (numero_random * (r.airstrips.size() - 2)));
+			if (r.get_airstrips().size() == 2) {
+				numero_random = round(1 + (numero_random * (r.get_airstrips().size() - 2)));
 			}
 			else {
-				numero_random = round(2 + (numero_random * (r.airstrips.size() - 3)));
+				numero_random = round(2 + (numero_random * (r.get_airstrips().size() - 3)));
 			}
 
-			if (numero_random == r.airstrips.size() - 1) {
+			if (numero_random == r.get_airstrips().size() - 1) {
 				// qua devo distruggere tutta la route e lasciare solo il depot
-				for (int i = (int)(r.airstrips.size()) - 1; i >= 1; i--)
+				for (int i = (int)(r.get_airstrips().size()) - 1; i >= 1; i--)
 					r.remove_at(i);
 					
 				//qua ci dovrebbe essere solo il deposito
@@ -145,16 +145,16 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 
 							}
 
-							int nodi_mancanti = (int)(r.airstrips.size());
+							int nodi_mancanti = (int)(r.get_airstrips().size());
 							r.removePlace(node_destroy, map_airplane);
-							nodi_mancanti -= (int)r.airstrips.size();
+							nodi_mancanti -= (int)r.get_airstrips().size();
 							nodi_rimossi += nodi_mancanti;
 						}
 						else {
 
-							double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[node_destroy - 1]][r.airstrips[node_destroy + 1]];
+							double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[node_destroy - 1]][r.get_airstrips()[node_destroy + 1]];
 
-							if (fuel_consumed <= r.fuel[node_destroy - 1] && r.airstrips[node_destroy - 1] != r.airstrips[node_destroy + 1]) {
+							if (fuel_consumed <= r.fuel[node_destroy - 1] && r.get_airstrips()[node_destroy - 1] != r.get_airstrips()[node_destroy + 1]) {
 								check = false;
 								vector<int> int_removed;
 								int Min_From_Pass = node_destroy;
@@ -178,7 +178,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 									r.erase_passenger(int_removed[i]);
 								}
 
-								int nodi_mancanti = (int)r.airstrips.size();
+								int nodi_mancanti = (int)r.get_airstrips().size();
 								r.update_route_destroy(input, node_destroy, Min_From_Pass, Max_To_Pass); //update of the time
 
 								int index_before = node_destroy - 1;
@@ -208,7 +208,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 								}
 								//******************************************************************
 								r.removePlace(node_destroy, map_airplane);
-								nodi_mancanti -= (int)(r.airstrips.size());
+								nodi_mancanti -= (int)(r.get_airstrips().size());
 								nodi_rimossi += (int)(nodi_mancanti);
 
 								double add_fuel = 0;
@@ -427,9 +427,9 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 				}
 				else {
 
-					double fuel_consumed = airplane_consumptions[r.airstrips[node_destroy - 1]][r.airstrips[node_destroy + 1]];
+					double fuel_consumed = airplane_consumptions[r.get_airstrips()[node_destroy - 1]][r.get_airstrips()[node_destroy + 1]];
 					
-					if ((fuel_consumed + airplane->min_fuel) <= r.fuel[node_destroy - 1] && r.airstrips[node_destroy - 1] != r.airstrips[node_destroy + 1]) {
+					if ((fuel_consumed + airplane->min_fuel) <= r.fuel[node_destroy - 1] && r.get_airstrips()[node_destroy - 1] != r.get_airstrips()[node_destroy + 1]) {
 						check = false;
 						vector<int> int_removed;
 						int Min_From_Pass = node_destroy;
@@ -637,10 +637,10 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 					r.removePlace(node_destroy, map_airplane);
 				}
 				else {
-					double fuel_consumed = airplane_consume[r.airstrips[node_destroy - 1]][r.airstrips[node_destroy + 1]];
+					double fuel_consumed = airplane_consume[r.get_airstrips()[node_destroy - 1]][r.get_airstrips()[node_destroy + 1]];
 
 					if ((fuel_consumed + airplane->min_fuel) <= r.fuel[node_destroy - 1] && 
-						r.airstrips[node_destroy - 1] != r.airstrips[node_destroy + 1]) {
+						r.get_airstrips()[node_destroy - 1] != r.get_airstrips()[node_destroy + 1]) {
 						check = false;
 						vector<int> int_removed;
 						
@@ -859,7 +859,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 
 			// Questa parte qua forse si puo togliere
 			//qua ? la parte che ho aggiunto io (NELLI) per il problema del nodo al deposito che non si aggiorna
-			if ((int)s.airstrips.size() == 1 && s.get_capacities()[0] == 0) {
+			if ((int)s.get_airstrips().size() == 1 && s.get_capacities()[0] == 0) {
 				s.fuel[0] = airplane->max_fuel;
 				s.get_weight_at(0) = airplane->load_weight - airplane->max_fuel;
 			}
@@ -908,7 +908,7 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 		bool check = true;
 		double fuel_consumed_check = 0.0;
 		if ((node_destroy + 2) < r.index) {
-			double time_travel = from_to[r.airstrips[node_destroy - 1]][r.airstrips[node_destroy + 2]] / airplane->speed;
+			double time_travel = from_to[r.get_airstrips()[node_destroy - 1]][r.get_airstrips()[node_destroy + 2]] / airplane->speed;
 			fuel_consumed_check = airplane->fuel_burn_first * min(1.0, time_travel) + max(0.0, time_travel-1)* airplane->fuel_burn_second;
 		}
 		
@@ -919,7 +919,7 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 				if (i == 1 && (number_initial_node - r.index) > 1) 
 					break;
 				double fuel_consumed = 0.0;
-				double time_travel = from_to[r.airstrips[node_destroy - 1]][r.airstrips[node_destroy + 1]] / airplane->speed;
+				double time_travel = from_to[r.get_airstrips()[node_destroy - 1]][r.get_airstrips()[node_destroy + 1]] / airplane->speed;
 				
 				fuel_consumed = airplane->fuel_burn_first * min(1.0, time_travel) + max(0.0, time_travel - 1)* airplane->fuel_burn_second;
 

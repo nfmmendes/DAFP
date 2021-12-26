@@ -9,8 +9,8 @@
 
 int sequential_same_node(const Route& r) {
 	int node = -1;
-	for (int i = 0; i < ((int)r.airstrips.size()) - 1; i++) {
-		if (r.airstrips[i] == r.airstrips[i + 1]) {
+	for (int i = 0; i < ((int)r.get_airstrips().size()) - 1; i++) {
+		if (r.get_airstrips()[i] == r.get_airstrips()[i + 1]) {
 			node = i;
 			break;
 		}
@@ -117,13 +117,13 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 		for (int i = 1; i < r.index; i++) {
 			if ((i < A) || (i > B)) {
 				// Caso in cui rimane come prima
-				r_new.addPlace(r.airstrips[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.get_arrivals()[i], r.get_departures()[i]);
+				r_new.addPlace(r.get_airstrips()[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.get_arrivals()[i], r.get_departures()[i]);
 			}
 			else if ((i >= A) && (i < B)) {
-				r_new.addPlace(r.airstrips[i + 1], r.get_refueling()[i + 1], r.fuel[i + 1], 0.0, 0, r.get_arrivals()[i + 1], r.get_departures()[i + 1]);
+				r_new.addPlace(r.get_airstrips()[i + 1], r.get_refueling()[i + 1], r.fuel[i + 1], 0.0, 0, r.get_arrivals()[i + 1], r.get_departures()[i + 1]);
 			}
 			else if (i == B) {
-				r_new.addPlace(r.airstrips[A], r.get_refueling()[A], r.fuel[A], 0.0, 0, r.get_arrivals()[A], r.get_departures()[A]);
+				r_new.addPlace(r.get_airstrips()[A], r.get_refueling()[A], r.fuel[A], 0.0, 0, r.get_arrivals()[A], r.get_departures()[A]);
 			}
 		}
 	}
@@ -132,18 +132,18 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 			if (i < (B + 1)) {
 
 				//in questo posto ci devo mettere normalmente i
-				r_new.addPlace(r.airstrips[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.get_arrivals()[i], r.get_departures()[i]);
+				r_new.addPlace(r.get_airstrips()[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.get_arrivals()[i], r.get_departures()[i]);
 			}
 			else if (i == (B + 1)) {
 				//in questo posto ci devo mettere A
-				r_new.addPlace(r.airstrips[A], r.get_refueling()[A], r.fuel[A], 0.0, 0, r.get_arrivals()[A], r.get_departures()[A]);
+				r_new.addPlace(r.get_airstrips()[A], r.get_refueling()[A], r.fuel[A], 0.0, 0, r.get_arrivals()[A], r.get_departures()[A]);
 			}
 			else if (i >= A + 1) {
 				//in questo posto ci devo mettere normalmente i-1
-				r_new.addPlace(r.airstrips[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.get_arrivals()[i], r.get_departures()[i]);
+				r_new.addPlace(r.get_airstrips()[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.get_arrivals()[i], r.get_departures()[i]);
 			}
 			else {
-				r_new.addPlace(r.airstrips[i - 1], r.get_refueling()[i - 1], r.fuel[i - 1], 0.0, 0, r.get_arrivals()[i - 1], r.get_departures()[i - 1]);
+				r_new.addPlace(r.get_airstrips()[i - 1], r.get_refueling()[i - 1], r.fuel[i - 1], 0.0, 0, r.get_arrivals()[i - 1], r.get_departures()[i - 1]);
 			}
 		}
 	}
@@ -159,17 +159,18 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, Route& r) {
 	r_new.aircraft_code = r.aircraft_code;
 	r_new.primo_pass = r.primo_pass;
 
-	r_new.addPlace(r.airstrips[0], r.get_refueling()[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.get_arrivals()[0], r.get_departures()[0]);
+	r_new.addPlace(r.get_airstrips()[0], r.get_refueling()[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.get_arrivals()[0], r.get_departures()[0]);
 	add_new_place(A, B, r, r_new);
 
 	//aggiorno i tempi e fuel senza aver considerato il probabile peso negativo, il paso qua ? come se lo inizializzassi
 	for (int i = 0; i < r_new.index; i++) {
 		if (i > 0) {
 
-			r_new.get_arrival_at(i) = r_new.get_departures()[i - 1] + (((from_to[r_new.airstrips[i - 1]][r_new.airstrips[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
-			r_new.get_departure_at(i) = r_new.get_arrivals()[i] + map_airstrip[r_new.airstrips[i]].ground_time;
+			double travel_time = 60*from_to[r_new.get_airstrips()[i - 1]][r_new.get_airstrips()[i]] / map_airplane[r_new.aircraft_code].speed;
+			r_new.get_arrival_at(i) = r_new.get_departures()[i - 1] + travel_time;
+			r_new.get_departure_at(i) = r_new.get_arrivals()[i] + map_airstrip[r_new.get_airstrips()[i]].ground_time;
 
-			double fuel_consumed = from_to_FuelConsumed[r_new.aircraft_code][r_new.airstrips[i - 1]][r_new.airstrips[i]];
+			double fuel_consumed = from_to_FuelConsumed[r_new.aircraft_code][r_new.get_airstrips()[i - 1]][r_new.get_airstrips()[i]];
 
 			if (r_new.get_refueling()[i]) {
 				r_new.fuel[i] = map_airplane[r_new.aircraft_code].max_fuel;
@@ -242,7 +243,8 @@ void modify_fuel_when_non_max(map<int, Airplane>& map_airplane, Route &r_support
 			if (Node_min >= 0) {
 
 				for (int i = k + 1; i < r_support.index; i++) {
-					if (r_support.get_refueling()[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'? ne erano altri di fuell non trovavo un to
+					if (r_support.get_refueling()[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'?
+															// ne erano altri di fuell non trovavo un to
 						index_updating_to = i;
 						break;
 					}
@@ -344,7 +346,8 @@ void update_fuel_when_no_max_2(map<int, Airplane>& map_airplane, Route r_support
 				
 			if (Node_min >= 0) {
 				for (int i = k + 1; i < r_support.index; i++) {
-					if (r_support.get_refueling()[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'? ne erano altri di fuell non trovavo un to
+					if (r_support.get_refueling()[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'?
+														  // ne erano altri di fuell non trovavo un to
 						index_updating_to = i;
 						break;
 					}
@@ -390,7 +393,7 @@ vector <Route> inter_move(ProcessedInput* input, const PenaltyWeights& penalty_w
 			// Ora devo eliminare i nodi solo se sono allowed
 			if (move_flightleg_is_allowed(A, r_support)) {
 				Route r_new = r_support;
-				int NomeA1 = r_new.airstrips[A + 1];
+				int NomeA1 = r_new.get_airstrips()[A + 1];
 
 				destroy_ls(input, n_route, A, passenger_removed, r_new);
 				if (r_new.index != -1) {
@@ -399,10 +402,12 @@ vector <Route> inter_move(ProcessedInput* input, const PenaltyWeights& penalty_w
 
 						if (solution_rebuilt.size() != 0) {
 							solution_rebuilt.push_back(r_new);
-							double before = calculate_objective_function(input, penalty_weights, routes); // Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
+							// Qui non va bene devi considerare che dopo un primo miglioramneto cambi la route
+							double before = calculate_objective_function(input, penalty_weights, routes); 
 							double after = calculate_objective_function(input, penalty_weights, solution_rebuilt);
 							if (before > after) {
-								// Qui sto usando tutto solution_rebuilt.back() ma in realta potrei usare r_new e poi un volta che la ho istemanta switcharla con solution_rebuilt.back()
+								// Qui sto usando tutto solution_rebuilt.back() ma in realta potrei usare r_new e poi un volta che la
+								// ho istemanta switcharla con solution_rebuilt.back()
 								int node = sequential_same_node(solution_rebuilt.back());
 								bool fatto = false;
 								int num_aggregazioni = 0;

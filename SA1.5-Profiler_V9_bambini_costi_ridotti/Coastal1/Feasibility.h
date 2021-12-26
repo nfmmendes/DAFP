@@ -21,7 +21,7 @@ bool route_feasible(ProcessedInput* input, Route& r, double end_day) {
 		feasible = false;
 	}
 	//for the last-trip
-	if (r.fuel[r.index - 1] < (location_fuel[r.aircraft_code][r.airstrips[r.index - 1]] + map_airplane[r.aircraft_code].min_fuel)) {
+	if (r.fuel[r.index - 1] < (location_fuel[r.aircraft_code][r.get_airstrips()[r.index - 1]] + map_airplane[r.aircraft_code].min_fuel)) {
 		return false;
 		feasible = false;
 	}
@@ -35,7 +35,7 @@ bool route_feasible(ProcessedInput* input, Route& r, double end_day) {
 					feasible = false;
 				}
 				if (r.get_refueling()[i] && !r.get_refueling()[i - 1]) {
-					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.airstrips[i - 1]][r.airstrips[i]];
+					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[i - 1]][r.get_airstrips()[i]];
 					if (r.fuel[i - 1] - fuel_consumed < map_airplane[r.aircraft_code].min_fuel) {
 						return false;
 						feasible = false;

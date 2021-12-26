@@ -69,7 +69,7 @@ void fix_key_passenger_for_regret(vector<Passenger>& passengers) {
 
 }
 
-void Build_structure_Model(vector<Airplane> airplane, map<string, int>& mappa_aereo_tipo, map<int, int>& codice_aereo_tipo, map<int, int>& tipo_numero) {
+void build_structure_model(vector<Airplane> airplane, map<string, int>& mappa_aereo_tipo, map<int, int>& codice_aereo_tipo, map<int, int>& tipo_numero) {
 	int tipo = 0;
 	for (int j = 0; j < (int)airplane.size(); j++) {
 		//cout << " Creo per aereo " << airplane[j].code << endl;
@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 
 	//reading of AIRPLANE.CSV and creation VECTOR OF AIRPLANES
 	vector<Airplane> airplanes = fillAirplane("Network/NewAirplaneAll.csv", legenda);
-	Build_structure_Model(airplanes, mappa_aereo_tipo, codice_aereo_tipo, tipo_numero);
+	build_structure_model(airplanes, mappa_aereo_tipo, codice_aereo_tipo, tipo_numero);
 	vector<Airstrip> airstrips = fillAirstrip("Network/NewAirstrip.csv", legenda);
 	vector<Passenger> passengers = fillPassenger(argv[1], legenda);
 	vector<Passenger> passengers_for_company_solution;
@@ -140,7 +140,8 @@ int main(int argc, char* argv[]) {
 	map<int, Airstrip> map_airstrip;
 	for (auto f : airstrips) 
 		map_airstrip.insert(make_pair(f.code, f));
-	//ora faccio la mappa che mi permette di avere come chiave ogni aereo/aeroporto, come valore il fuel necessario, dato quell'aereo per andare nell'aereoporto pi? vicino con quel fuel
+	//ora faccio la mappa che mi permette di avere come chiave ogni aereo/aeroporto, come valore il fuel necessario,
+	//dato quell'aereo per andare nell'aereoporto pi? vicino con quel fuel
 
 	double2DVector location_fuel;
 	fillLocation_fuel(location_fuel, airstrips, airplanes, from_to, map_airstrip);
@@ -153,7 +154,8 @@ int main(int argc, char* argv[]) {
 	vector<Passenger> passengers_solution = passengers;
 	string company_routes = argv[2];
 	string company_passengers = argv[3];
-	double company_solution = calculationCostCompany(penalty_weights, company_routes, company_passengers, airstrips, airplanes, passengers_for_company_solution, from_to_company);
+	double company_solution = calculationCostCompany(penalty_weights, company_routes, company_passengers, airstrips, airplanes, 
+													 passengers_for_company_solution, from_to_company);
 	
 	cout << " Costo della soluzione della compagnia = " << company_solution << endl;
 	cout << " Costo della soluzione della compagnia = " << company_solution << endl;
@@ -466,7 +468,7 @@ int main(int argc, char* argv[]) {
 		}
 		cout << " Soluzione contiene numero di passeggieri pari a " << n << endl;
 		//finito di fissare gli aerei
-		vector<vector<vector<int>>> A3;  //matrix A
+		int3DVector A3;  //matrix A
 		double2DVector C;  //cost
 		vector<Route> routes;
 		for (auto& airplane : airplanes_model) {
@@ -533,9 +535,9 @@ int main(int argc, char* argv[]) {
 		size_route_bs = (int)start_solution_route.size();
 		solutionAll.push_back(start_solution_route);
 		Iter_FirstDo++;
-		cout << "*********************************************************************************************************************************" << endl;
-		cout << " ************************ ITERATION WHILE: " << Iter_FirstDo << " OF: " << iterMAX_FirstDo << "**********************************" << endl;
-		cout << "*********************************************************************************************************************************" << endl;
+		cout << "*****************************************************************************************************************" << endl;
+		cout << " ************************ ITERATION WHILE: " << Iter_FirstDo << " OF: " << iterMAX_FirstDo << "******************" << endl;
+		cout << "*****************************************************************************************************************" << endl;
 		auto stop_model = chrono::high_resolution_clock::now();
 		auto duration_model = chrono::duration_cast<chrono::seconds>(stop_model - start_model);
 		time_spent_model += (double)duration_model.count();
@@ -548,17 +550,17 @@ int main(int argc, char* argv[]) {
 	cout << "costo time windows: " << costo_time_windows_and_intermediate_stop(penalty_weights, start_solution_route) << endl;
 	cout << " Alla iterazione numero: " << best_iteration << endl;
 	for (Route s : start_solution_route) cout << s.cost << " -- " << endl;
-	//*****************************************************AGGREGAZIONE SEMPLICE***************************************************************
+	//*****************************************************AGGREGAZIONE SEMPLICE**************************
 	cout << "ora faccio l'aggregazione semplice" << endl;
 	start_solution_route = aggrezione_simple_after_model(start_solution_route, map_airplane, from_to);
 	cout << calculate_objective_function(&input, penalty_weights, start_solution_route) << endl;
 	cout << " Routing cost : " << costo_senza_time_windows(&input, start_solution_route) << endl;
 	cout << " Time windows cost: " << costo_time_windows_and_intermediate_stop(penalty_weights, start_solution_route) << endl;
-	//******************************************************AGGREGAZIONE COMPLESSA***************************************************************
+	//******************************************************AGGREGAZIONE COMPLESSA***********************
 	cout << "ora faccio l'aggregazione complessa" << endl;
 	start_solution_route = aggrezione_complex_after_model(start_solution_route, map_airplane, from_to, from_to_FuelConsumed);
 	cout << calculate_objective_function(&input, penalty_weights, start_solution_route) << endl;
-	cout << "************************************************************************************************************************************" << endl;
+	cout << "******************************************************************************************" << endl;
 	cout << "LE SOLUZIONI" << endl;
 
 	const string basic_columns = "costo fisso; costo landing; costo fuel; costo km; costo intermediate; costo tw;";
