@@ -21,14 +21,13 @@ Airplane::Airplane()
 	min_fuel = 0.0;
 	fixed_cost = 0.0;
 
-
 	//for the check of the weights
 	load_weight = 0.0;
-
-
 }
 
-Airplane::Airplane(int code, string code_company, int capacity, double speed, string model, int weight_airplane, int max_weight, int depot, double max_fuel, int fuel_burn_first, int fuel_burn_second, double min_fuel, double fixed_cost) {
+Airplane::Airplane(int code, string code_company, int capacity, double speed, string model, 
+				  int weight_airplane, int max_weight, int depot, double max_fuel, 
+				  int fuel_burn_first, int fuel_burn_second, double min_fuel, double fixed_cost) {
 
 	this->code_company = code_company;
 	this->code = code;
@@ -51,14 +50,11 @@ Airplane::Airplane(int code, string code_company, int capacity, double speed, st
 }
 
 void Airplane::print() {
-	cout << "--" << to_string(code) << " m:" << model << " c:" << capacity << " s:" << speed << " W:" << weight_airplane << " m_W" << max_weight << " d:" <<
-		to_string(depot) << " maxF" << max_fuel << " " << fuel_burn_first << " " << fuel_burn_second << " minF" << min_fuel << " w_available: " << load_weight << endl;
-
+	cout << "--" << to_string(code) << " m:" << model << " c:" << capacity << " s:" << speed
+		 << " W:" << weight_airplane << " m_W" << max_weight << " d:" <<to_string(depot)
+		 << " maxF" << max_fuel << " " << fuel_burn_first << " " << fuel_burn_second
+		 << " minF" << min_fuel << " w_available: " << load_weight << endl;
 }
-
-
-
-
 
 Airplane::~Airplane()
 {

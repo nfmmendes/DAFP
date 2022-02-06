@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 #include <fstream>
+#include <filesystem>
 
 
 #include "Airstrip.h"
@@ -102,6 +103,7 @@ vector<Airstrip> fillAirstrip(string file_input, map<string, int> legenda) {
 	vector<Airstrip> airstrips;
 	ifstream file;
 	file.open(file_input);
+	
 	if (file.fail()) {
 		cerr << "Error Opening File Airstrip.csv" << endl;
 		exit(1);
@@ -126,8 +128,9 @@ vector<Passenger> fillPassenger(string file_input, map<string, int> legenda) {
 	vector<Passenger> passengers;
 	ifstream file;
 	file.open(file_input);
+	
 	if (file.fail()) {
-		cerr << "Error Opening File Airstrip.csv" << endl;
+		cerr << "Error Opening File Passenger.csv" << endl;
 		exit(1);
 	}
 	while (!file.eof()) {
@@ -149,7 +152,7 @@ vector<Passenger> fillPassenger(string file_input, map<string, int> legenda) {
 		}
 		Passenger p(legenda[e[3]], legenda[e[4]], stoi(e[0]), e[1], e[3], e[4], e[5], e[6], e[7], e[8], min_dep, min_arr);
 		p.pnr_group = e[11];
-
+		cout << e[0] << " ";
 		passengers.push_back(p);
 
 	}

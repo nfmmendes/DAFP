@@ -656,7 +656,7 @@ double calculate_objective_function(ProcessedInput* input, const  PenaltyWeights
 	return cost;
 }
 
-double cost_time_windows_for_route(Route& r, double peso_TW) {
+inline double cost_time_windows_for_route(const Route& r, double peso_TW) {
 	double cost = 0.0;
 
 	for (const Passenger& p : r.get_passengers()) {

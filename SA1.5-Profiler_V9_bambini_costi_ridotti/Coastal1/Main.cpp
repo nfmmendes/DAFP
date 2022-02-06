@@ -15,6 +15,7 @@
 #include "Passenger.h"
 #include "Route.h"
 #include <chrono>
+#include <filesystem>
 
 #include "Constructive.h"
 #include "Destroy.h"
@@ -107,6 +108,11 @@ void print_time(int tempo_Alns)
 //***********************************MAIN****************************
 int main(int argc, char* argv[]) {
 
+	for (int i = 0; i < argc; i++)
+		cout << argv[i] << endl;
+
+	system("pause");
+	
 	PenaltyWeights penalty_weights{ 10.0, 20.0, 1.0 }; //ISW, TSW, TWW
 	
 	//**************************INPUT***********************************
@@ -118,7 +124,7 @@ int main(int argc, char* argv[]) {
 	map<string, int> legenda = fillLegenda("Network/legenda.csv", legenda_ritroso);
 
 	//reading of AIRPLANE.CSV and creation VECTOR OF AIRPLANES
-	vector<Airplane> airplanes = fillAirplane("Network/NewAirplaneAll.csv", legenda);
+	vector<Airplane> airplanes = fillAirplane("Network/AirplaneAll.csv", legenda);
 	build_structure_model(airplanes, mappa_aereo_tipo, codice_aereo_tipo, tipo_numero);
 	vector<Airstrip> airstrips = fillAirstrip("Network/NewAirstrip.csv", legenda);
 	vector<Passenger> passengers = fillPassenger(argv[1], legenda);
@@ -199,14 +205,8 @@ int main(int argc, char* argv[]) {
 		Weigth_repair.push_back(initial_weigth);
 	Weigth_heuristic[0] = 1.00; //parallel
 	Weigth_heuristic[1] = 0.00; //sequential
-	for (double i : Weigth_destroy) 
-		cout << i << " || ";
-	cout << endl;
-	for (double i : Weigth_repair) 
-		cout << i << " || ";
-	cout << endl;
+	
 	vector<vector<Route>> solutionAll;
-	//vector<Route> best_solution_route_ever;
 	srand(time(NULL));
 	int NumeroSA = 0;
 	int iterazioni_fallite = 0;

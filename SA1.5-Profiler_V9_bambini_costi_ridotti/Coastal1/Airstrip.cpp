@@ -32,7 +32,8 @@ Airstrip::Airstrip(int code, string name, string code_string, int ground_time, i
 
 
 void Airstrip::print() {
-	cout << "--" << name << " " << to_string(code) << " " << ground_time << " " << landing_cost << " " << lat << " " << lng << " " << fuel << " " << fuel_cost << endl;
+	cout << "--" << name << " " << to_string(code) << " " << ground_time << " " << landing_cost
+		 << " " << lat << " " << lng << " " << fuel << " " << fuel_cost << endl;
 
 }
 
