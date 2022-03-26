@@ -7,8 +7,6 @@
 #include <utility>
 #include <vector>
 #include <fstream>
-#include <filesystem>
-
 
 #include "Airstrip.h"
 #include "Fuel.h"
@@ -20,30 +18,23 @@ using std::ifstream;
 using std::vector;
 
 //per il tratto finale
-void fillLocation_fuel(double2DVector& risultato, vector<Airstrip> airstrips, vector<Airplane> airplanes, double2DVector& from_to, map<int, Airstrip>& map_airstrip) {
+void fillLocation_fuel(double2DVector& result, vector<Airstrip> airstrips, vector<Airplane> airplanes, double2DVector& from_to, map<int, Airstrip>& map_airstrip) {
 
-	risultato.resize((size_t)numero_airplane_const);
+	result.resize((size_t)numero_airplane_const);
 	for (int i = 0; i < numero_airplane_const; i++)
-		risultato[i].resize((size_t)numero_airstrip_const);
+		result[i].resize((size_t)numero_airstrip_const);
 
 	for (Airplane f : airplanes) {
 		for (Airstrip a : airstrips) {
 			if (a.fuel) {
-				risultato[f.code][a.code] = 0.0;
-				//risultato.insert(make_pair(f.code + "/" + a.code, 0.0));
+				result[f.code][a.code] = 0.0;
 			}
 			else {
 				double fuel_needed = 0;
 				double time_fly = from_to[a.code][location_closest_with_fuel(a.code, from_to, map_airstrip)] / f.speed;
-				//double time_fly = from_to[a.code + ";" + location_closest_with_fuel(a.code, from_to, map_airstrip)] / f.speed;
-				if (time_fly <= 1) {
-					fuel_needed = time_fly * f.fuel_burn_first;
-				}
-				else {
-					fuel_needed = f.fuel_burn_first + (time_fly - 1) * f.fuel_burn_second;
-				}
 
-				risultato[f.code][a.code] = fuel_needed;
+				fuel_needed = min(1.0, time_fly) * f.fuel_burn_first + max(time_fly - 1, 0.0) * f.fuel_burn_second;
+				result[f.code][a.code] = fuel_needed;
 			}
 		}
 	}
@@ -133,6 +124,7 @@ vector<Passenger> fillPassenger(string file_input, map<string, int> legenda) {
 		cerr << "Error Opening File Passenger.csv" << endl;
 		exit(1);
 	}
+	
 	while (!file.eof()) {
 		string row;
 		getline(file, row);
@@ -151,7 +143,8 @@ vector<Passenger> fillPassenger(string file_input, map<string, int> legenda) {
 			min_dep = 0;
 		}
 		Passenger p(legenda[e[3]], legenda[e[4]], stoi(e[0]), e[1], e[3], e[4], e[5], e[6], e[7], e[8], min_dep, min_arr);
-		p.pnr_group = e[11];
+		//TODO: Uncomment later
+		//p.pnr_group = e[11];
 		cout << e[0] << " ";
 		passengers.push_back(p);
 
@@ -176,20 +169,20 @@ vector<Route> fillRoute(string file_input) {
 		getline(file, row);
 		vector<Passenger> Pass;
 		vector<string> e = split(row, ';');
-		Route r(0, Pass);
-		r.aircraft_code_company_comparison = e[1];
+		Route route(0, Pass);
+		route.aircraft_code_company_comparison = e[1];
 		for (int i = 2; i < (int)(e.size() - 1); i = i + 2) {
-			r.addPlace_companySolution(e[i], stoi(e[i + 1]));
+			route.addPlace_companySolution(e[i], stoi(e[i + 1]));
 		}
-		routes.push_back(r);
+		routes.push_back(route);
 	}
+	
 	file.close();
 
 	return routes;
 }
 
 void fill_from_to_fuel_consumed(double3DVector& from_to_fuel_consumed, vector<vector<double>>& from_to, vector<Airplane> airplanes) {
-
 
 	from_to_fuel_consumed.resize((size_t)numero_airplane_const);
 	for (int i = 0; i < numero_airplane_const; i++) {
@@ -198,8 +191,6 @@ void fill_from_to_fuel_consumed(double3DVector& from_to_fuel_consumed, vector<ve
 			from_to_fuel_consumed[i][j].resize((size_t)numero_airstrip_const);
 		}
 	}
-
-
 
 	for (Airplane& airplane : airplanes) {
 

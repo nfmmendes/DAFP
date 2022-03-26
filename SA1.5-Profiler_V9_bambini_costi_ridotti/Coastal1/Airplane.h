@@ -7,6 +7,23 @@
 
 using namespace std;
 
+struct FuelSpecifications
+{
+	double max_fuel;
+	double min_fuel;
+	int fuel_burn_first;
+	int fuel_burn_second;
+};
+
+struct AirplaneModel
+{
+	int capacity;
+	double speed;
+	int weight_airplane;
+	int max_weight;
+	FuelSpecifications fuel_specifications;
+	double fixed_cost;
+};
 
 class Airplane
 {
