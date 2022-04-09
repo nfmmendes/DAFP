@@ -1,7 +1,7 @@
 ﻿#ifndef CONSTRUCTIVE_H
 #define CONSTRUCTIVE_H
 
-//*************************************************************************************COSTRUTTIVI************************************************************************
+//***************************************************************COSTRUTTIVI************************************************************************
 #include <iostream>
 #include <set>
 #include <vector>
@@ -447,10 +447,13 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 									if (!capacity_satisfy) 
 										break; //check also for the fuel;
 
-									//se sorpasso il break vuol dire che soddisfo la capacit?, in questo caso il solo costo che consider? per l'aggiunta del passeggero qui
+									//se sorpasso il break vuol dire che soddisfo la capacit?, in questo caso il solo costo che consider?
+									// per l'aggiunta del passeggero qui
 									//? la time windows, se calcolo la time windows qua vuol dire che sfrutto il tempo in cui mi trovo in queste posizioni
-									double TW_departure = max(0.0, p.early_departure - r.get_departure_at(from)) + max(0.0, r.get_departure_at(from) - p.late_departure);
-									double TW_arrival = max(0.0, p.early_arrival - r.get_arrival_at(to)) + max(0.0, r.get_arrival_at(to) - p.late_arrival);
+									double TW_departure = max(0.0, p.early_departure - r.get_departure_at(from)) + 
+														  max(0.0, r.get_departure_at(from) - p.late_departure);
+									double TW_arrival = max(0.0, p.early_arrival - r.get_arrival_at(to)) +
+														max(0.0, r.get_arrival_at(to) - p.late_arrival);
 
 									double cost = ((TW_departure + TW_arrival) * peso_TW + ((to - from - 1) * peso_intermediate_stop)) * p.capacity;
 									if (best_cost > cost) {
@@ -484,7 +487,8 @@ vector<Route> heuristic_costructive_first_fase(ProcessedInput* input, const Pena
 							
 							//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
 							if (capacity_satisfy && (r.index - from) <= p.stop) {								
-								double TW_departure = max(0.0, p.early_departure - r.get_departure_at(from)) + max(0.0, r.get_departure_at(from) - p.late_departure);
+								double TW_departure = max(0.0, p.early_departure - r.get_departure_at(from)) + 
+													  max(0.0, r.get_departure_at(from) - p.late_departure);
 
 								double cost = (TW_departure * peso_TW);
 								// ora ci metto chilometri e fuel dell'ultimo pezzo;
@@ -655,24 +659,24 @@ void run_situation_2(ProcessedInput* input, vector<Passenger>& passengers, Route
 	r.primo_pass = true;
 	Airplane* airplane = &map_airplane[r.aircraft_code];
 	auto previous_airstrip = r.get_airstrips()[r.index - 1];
-	auto passenger_origin = passengers[best_passenger].origin;
-	auto passenger_destination = passengers[best_passenger].destination;
+	auto origin = passengers[best_passenger].origin;
+	auto destination = passengers[best_passenger].destination;
 
-	double travel_time = (from_to[previous_airstrip][passenger_origin] / airplane->speed) * 60;
+	double travel_time = (from_to[previous_airstrip][origin] / airplane->speed) * 60;
 	r.get_arrival_at(r.index - 1) = passengers[best_passenger].early_departure - travel_time - map_airstrip[previous_airstrip].ground_time;
 
-	travel_time = (from_to[r.get_airstrips()[r.index - 1]][passenger_origin] / airplane->speed) * 60;
+	travel_time = (from_to[r.get_airstrips()[r.index - 1]][origin] / airplane->speed) * 60;
 	r.get_departure_at(r.index - 1) = passengers[best_passenger].early_departure - travel_time;
 
 	r.get_weight_at(r.index - 1) = map_airplane[r.aircraft_code].load_weight -
 		r.fuel[r.index - 1];  //here i put max_fuel because at the beginnig in the depot all the airplane have full fuel
 
-	double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][previous_airstrip][passenger_origin];
+	double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][previous_airstrip][origin];
 
-	if (map_airstrip[passenger_origin].fuel) {
-		r.addPlace(passenger_origin, map_airstrip[passenger_origin].fuel, 
+	if (map_airstrip[origin].fuel) {
+		r.addPlace(origin, map_airstrip[origin].fuel, 
 				   map_airplane[r.aircraft_code].max_fuel, 0.0, passengers[best_passenger].capacity, passengers[best_passenger].early_departure, 
-				   passengers[best_passenger].early_departure + map_airstrip[passenger_origin].ground_time);
+				   passengers[best_passenger].early_departure + map_airstrip[origin].ground_time);
 
 		r.get_weight_at(r.index - 1) = map_airplane[r.aircraft_code].load_weight -
 			map_airplane[r.aircraft_code].max_fuel - passengers[best_passenger].weight;
@@ -680,30 +684,30 @@ void run_situation_2(ProcessedInput* input, vector<Passenger>& passengers, Route
 	else {
 		double fuel_before = r.fuel[r.index - 1];
 
-		r.addPlace(passenger_origin, map_airstrip[passenger_origin].fuel, 
+		r.addPlace(origin, map_airstrip[origin].fuel, 
 				   fuel_before - fuel_consumed, 0.0, passengers[best_passenger].capacity, passengers[best_passenger].early_departure, 
-					passengers[best_passenger].early_departure + map_airstrip[passenger_origin].ground_time);
+					passengers[best_passenger].early_departure + map_airstrip[origin].ground_time);
 		r.get_weight_at(r.index - 1) = r.get_weights()[r.index - 2] - passengers[best_passenger].weight + fuel_consumed;
 
 	}
 	passengers[best_passenger].solution_from = r.index - 1;
-	travel_time = (from_to[passenger_origin][passengers[best_passenger].destination] / airplane->speed) * 60; 
-	double time = passengers[best_passenger].early_departure + map_airstrip[passenger_origin].ground_time + travel_time;
+	
+	travel_time = (from_to[origin][destination] / airplane->speed) * 60; 
+	double time = passengers[best_passenger].early_departure + map_airstrip[origin].ground_time + travel_time;
 
+	if (map_airstrip[destination].fuel) {
+		r.addPlace(destination, map_airstrip[destination].fuel, map_airplane[r.aircraft_code].max_fuel,
+				   0.0, 0, time, time + map_airstrip[destination].ground_time);
 
-	if (map_airstrip[passengers[best_passenger].destination].fuel) {
-		r.addPlace(passengers[best_passenger].destination, map_airstrip[passengers[best_passenger].destination].fuel,
-				   map_airplane[r.aircraft_code].max_fuel, 0.0, 0, time, time + map_airstrip[passengers[best_passenger].destination].ground_time);
-
-		r.get_weight_at(r.index - 1) = map_airplane[r.aircraft_code].load_weight -
-			map_airplane[r.aircraft_code].max_fuel;
+		r.get_weight_at(r.index - 1) = map_airplane[r.aircraft_code].load_weight - map_airplane[r.aircraft_code].max_fuel;
 	}
 	else {
+		
 		double fuel_before = r.fuel[r.index - 1];
-		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[best_passenger].destination];
+		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][destination];
 
-		r.addPlace(passengers[best_passenger].destination, map_airstrip[passengers[best_passenger].destination].fuel, fuel_before - fuel_consumed, 
-			      0.0, 0, time, time + map_airstrip[passengers[best_passenger].destination].ground_time);
+		r.addPlace(destination, map_airstrip[destination].fuel, fuel_before - fuel_consumed, 
+			      0.0, 0, time, time + map_airstrip[destination].ground_time);
 		r.get_weight_at(r.index - 1) = r.get_weights()[r.index - 2] + passengers[best_passenger].weight + fuel_consumed;
 
 	}
@@ -719,48 +723,53 @@ void run_situation_3(ProcessedInput* input, vector<Passenger>& passengers, Route
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
+	auto origin = passengers[best_passenger].origin; 
+	auto destination = passengers[best_passenger].destination; 
+	
 	Airplane* airplane = &map_airplane[r.aircraft_code]; 
 	
 	if (map_airstrip[passengers[best_passenger].origin].fuel) {
-		const double travel_time_1 = 60*(from_to[r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin] / airplane->speed);
-		const double travel_time_2 = 60*(from_to[r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin] / airplane->speed);
+		const double travel_time = 60*(from_to[r.get_airstrips()[r.index - 1]][origin] / airplane->speed);
+		const auto arrival_time = r.get_departures()[r.index - 1] + travel_time;
+		const auto departure_time = r.get_departures()[r.index - 1] + travel_time + map_airstrip[origin].ground_time; 
 		
-		r.addPlace(passengers[best_passenger].origin, map_airstrip[passengers[best_passenger].origin].fuel, airplane->max_fuel,
-				   0.0, passengers[best_passenger].capacity, r.get_departures()[r.index - 1] +
-				   travel_time_1, r.get_departures()[r.index - 1] + travel_time_2  + map_airstrip[passengers[best_passenger].origin].ground_time);
+		r.addPlace(origin, map_airstrip[origin].fuel, airplane->max_fuel, 0.0, passengers[best_passenger].capacity, arrival_time
+				   , departure_time);
 
 		r.get_weight_at(r.index - 1) = map_airplane[r.aircraft_code].load_weight -
 			map_airplane[r.aircraft_code].max_fuel - passengers[best_passenger].weight;
 
 	}
 	else {
+		auto previous_airstrip = r.get_airstrips()[r.index - 1];
 		double fuel_before = r.fuel[r.index - 1];
-		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin];
-		double travel_time_1 = ((from_to[r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin] / airplane->speed) * 60);
-		double travel_time_2 = ((from_to[r.get_airstrips()[r.index - 1]][passengers[best_passenger].origin] / airplane->speed) * 60);
-		r.addPlace(passengers[best_passenger].origin, map_airstrip[passengers[best_passenger].origin].fuel, fuel_before - fuel_consumed, 0.0, passengers[best_passenger].capacity, r.get_departures()[r.index - 1] +
-				   travel_time_1,
-				   r.get_departures()[r.index - 1] + travel_time_2  + map_airstrip[passengers[best_passenger].origin].ground_time);
+		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][previous_airstrip][origin];
+		double remaining_fuel = fuel_before - fuel_consumed;
+
+		double travel_time = ((from_to[previous_airstrip][origin] / airplane->speed) * 60);
+		auto time_arrival = r.get_departures()[r.index - 1] + travel_time;
+		auto time_departure = time_arrival + map_airstrip[origin].ground_time;
+
+		r.addPlace(origin, map_airstrip[origin].fuel, remaining_fuel, 0.0, passengers[best_passenger].capacity, time_arrival, time_departure);
 
 		r.get_weight_at(r.index - 1) = r.get_weights()[r.index - 2] - passengers[best_passenger].weight + fuel_consumed;
 
 	}
 	passengers[best_passenger].solution_from = r.index - 1;
-	double time = r.get_departures()[r.index - 1] + ((from_to[passengers[best_passenger].origin][passengers[best_passenger].destination] / map_airplane[r.aircraft_code].speed) * 60);
+	double time = r.get_departures()[r.index - 1] + ((from_to[origin][destination] / map_airplane[r.aircraft_code].speed) * 60);
 
 
-	if (map_airstrip[passengers[best_passenger].destination].fuel) {
-		r.addPlace(passengers[best_passenger].destination, map_airstrip[passengers[best_passenger].destination].fuel, map_airplane[r.aircraft_code].max_fuel, 0.0, 0, time, time + map_airstrip[passengers[best_passenger].destination].ground_time);
+	if (map_airstrip[destination].fuel) {
+		r.addPlace(destination, map_airstrip[destination].fuel, map_airplane[r.aircraft_code].max_fuel, 0.0, 0, time, time + map_airstrip[destination].ground_time);
 		r.get_weight_at(r.index - 1) = map_airplane[r.aircraft_code].load_weight -
 			map_airplane[r.aircraft_code].max_fuel;
 	}
 	else {
 		double fuel_before = r.fuel[r.index - 1];
-		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[best_passenger].destination];
+		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][destination];
 
-		r.addPlace(passengers[best_passenger].destination, map_airstrip[passengers[best_passenger].destination].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[passengers[best_passenger].destination].ground_time);
+		r.addPlace(destination, map_airstrip[destination].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[destination].ground_time);
 		r.get_weight_at(r.index - 1) = r.get_weights()[r.index - 2] + fuel_consumed + passengers[best_passenger].weight;
-
 	}
 
 	passengers[best_passenger].solution_to = r.index - 1;
@@ -816,6 +825,7 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	auto destination = passengers[best_passenger].destination; 
 	
 	for (int h = best_from; h < r.index; h++) {
 		r.add_capacity_at(h, passengers[best_passenger].capacity);
@@ -849,20 +859,18 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 	passengers[best_passenger].solution_from = best_from;
 	int place_1 = r.get_airstrips()[r.index - 1];
 	double aircraft_speed = map_airplane[r.aircraft_code].speed;
-	double time = r.get_departures()[r.index - 1] + ((from_to[place_1][passengers[best_passenger].destination] / aircraft_speed) * 60);
+	double time = r.get_departures()[r.index - 1] + ((from_to[place_1][destination] / aircraft_speed) * 60);
 
-	if (map_airstrip[passengers[best_passenger].destination].fuel) {
-		r.addPlace(passengers[best_passenger].destination, map_airstrip[passengers[best_passenger].destination].fuel, map_airplane[r.aircraft_code].max_fuel, 0.0, 0, time, time + map_airstrip[passengers[best_passenger].destination].ground_time);
+	if (map_airstrip[destination].fuel) {
+		r.addPlace(destination, map_airstrip[destination].fuel, map_airplane[r.aircraft_code].max_fuel, 0.0, 0, time, time + map_airstrip[destination].ground_time);
 		r.get_weight_at(r.index - 1) = map_airplane[r.aircraft_code].load_weight -
 			map_airplane[r.aircraft_code].max_fuel;
-
 	}
 	else {
 		double fuel_before = r.fuel[r.index - 1];
-		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[best_passenger].destination];
-		r.addPlace(passengers[best_passenger].destination, map_airstrip[passengers[best_passenger].destination].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[passengers[best_passenger].destination].ground_time);
+		double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][destination];
+		r.addPlace(destination, map_airstrip[destination].fuel, fuel_before - fuel_consumed, 0.0, 0, time, time + map_airstrip[destination].ground_time);
 		r.get_weight_at(r.index - 1) = r.get_weights()[r.index - 2] + fuel_consumed + passengers[best_passenger].weight;
-
 	}
 
 	passengers[best_passenger].solution_to = r.index - 1;
@@ -877,7 +885,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();
-	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	const double3DVector fuel_consumption = input->get_from_to_fuel_consumed();
 
 	vector<Airplane> airplanes;
 	for_each(map_airplane.begin(), map_airplane.end(), [&airplanes](auto entry) { airplanes.push_back(entry.second); });
@@ -897,19 +905,23 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 	for (Route& r : solution) {
 		int situation = -1;
 		do {
-			situation = -1; //se situation rimane error vuol dire che nessun passeggero si pu? inserire, quindi che la route ? piena e devo passare ad un'altra
+			situation = -1; //se situation rimane error vuol dire che nessun passeggero si pu? inserire, quindi che la route ?
 			int best_passenger = -1;
 			int best_from = -1;
 			int best_to = -1;
 			double best_cost = DBL_MAX;
 
 			for (int p = 0; p < (int)passengers.size(); p++) {
-
+				auto origin = passengers[p].origin;
+				auto destination = passengers[p].destination;
+				auto previous_airstrip = r.get_airstrips()[r.index - 1];
+				
 				if (r.primo_pass == false) {
-					if (r.get_airstrips()[r.index - 1] == passengers[p].origin) {
-						//in questo caso c'? solo lui nella route, il costo ? dato dalla sua inserzione, quindi, chilometri, costo fisso per uso aereo e fuel
-						double cost = map_airplane[r.aircraft_code].fixed_cost + from_to[passengers[p].origin][passengers[p].destination];
-						double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][passengers[p].origin][passengers[p].destination];
+					if (previous_airstrip == origin) {
+						//in questo caso c'? solo lui nella route, il costo ? dato dalla sua inserzione,
+						// quindi, chilometri, costo fisso per uso aereo e fuel
+						double cost = map_airplane[r.aircraft_code].fixed_cost + from_to[origin][destination];
+						double fuel_consumed = fuel_consumption[r.aircraft_code][origin][destination];
 
 						cost += fuel_consumed;
 						//per il check sul fuel:
@@ -917,7 +929,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 						fuel_after_trip = r.fuel[r.index - 1] - fuel_consumed;
 
 						if (best_cost > cost) {
-							if (fuel_after_trip >= (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code][passengers[p].destination])) {
+							if (fuel_after_trip >= (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code][destination])) {
 								best_cost = cost;
 								best_passenger = p;
 								situation = 1;
@@ -925,23 +937,23 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 						}
 					}
 					else {
-						//qui c'? solo lui nell'aereo ma deve fare un pezzo vuoto all'inizio dal deposito alla partenza per il cliente, devo aggiungere pi? kilometri e un landing stop
+						auto previous_airstrip = r.get_airstrips()[r.index - 1];
+						//qui c'? solo lui nell'aereo ma deve fare un pezzo vuoto all'inizio dal deposito alla partenza per
+						// il cliente, devo aggiungere pi? kilometri e un landing stop
 						//non considero le time windows, faccio una partenza mirata per loro visto che sono i primi
-						double cost = map_airplane[r.aircraft_code].fixed_cost + from_to[passengers[p].origin][passengers[p].destination] + from_to[r.get_airstrips()[r.index - 1]][passengers[p].origin];
-						double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][passengers[p].origin][passengers[p].destination] + from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[p].origin];
-
+						double cost = map_airplane[r.aircraft_code].fixed_cost + from_to[origin][destination] + from_to[previous_airstrip][origin];
+						double fuel_consumed = fuel_consumption[r.aircraft_code][origin][destination] + 
+											   fuel_consumption[r.aircraft_code][previous_airstrip][origin];
 						cost += fuel_consumed;
 
 						//per il check sul fuel
-						//double travel_primo_tratto = (from_to[r.get_airstrips()[r.index - 1] + ";" + passengers[p].origin]) / map_airplane[r.aircraft_code].speed;
-						double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[p].origin];
+						double fuel_consumed_primo_tratto = fuel_consumption[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[p].origin];
 
 						//****
-						//double travel_secondo_tratto = (from_to[passengers[p].origin + ";" + passengers[p].destination]) / map_airplane[r.aircraft_code].speed;
-						double fuel_consumed_secondo_tratto = from_to_FuelConsumed[r.aircraft_code][passengers[p].origin][passengers[p].destination];
+						double fuel_consumed_secondo_tratto = fuel_consumption[r.aircraft_code][origin][destination];
 
-						//ora fisso le vairabili che mi servono, questo lo faccio perch? nella departure per il passeggero potrebbe esserci il caso in cui l'aero possa fare 
-						//refuel
+						// ora fisso le vairabili che mi servono, questo lo faccio perch? nella departure per il passeggero
+						// potrebbe esserci il caso in cui l'aero possa fare refuel
 						double f_after_primo_tratto = r.fuel[r.index - 1] - fuel_consumed_primo_tratto;
 						double f_after_secondo_tratto = 0.0;
 						if (map_airstrip[passengers[p].origin].fuel) {
@@ -953,7 +965,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 
 						if (best_cost > cost) {
 							if (f_after_primo_tratto >= map_airplane[r.aircraft_code].min_fuel) {
-								if (f_after_secondo_tratto >= (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code][passengers[p].destination])) {
+								if (f_after_secondo_tratto >= (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code][destination])) {
 									best_cost = cost;
 									best_passenger = p;
 									situation = 2;
@@ -977,7 +989,7 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 							if (r.get_airstrips()[t] == passengers[p].destination) TO.push_back(t);
 						}
 
-						if (TO.size() != 0) {
+						if (!TO.empty()) {
 							for (auto from : FROM) {
 								for (auto to : TO) {
 									if (from < to && to - from <= passengers[p].stop) {
@@ -985,38 +997,44 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 										//per prima cosa guardo se ci sto con la capacit?, altrimenti break sul primo for
 										bool capacity_satisfy = true;
 										for (int c = from; c < to; c++) {
-											if ((r.get_capacities()[c] + passengers[p].capacity) > map_airplane[r.aircraft_code].capacity) capacity_satisfy = false;
+											if ((r.get_capacities()[c] + passengers[p].capacity) > map_airplane[r.aircraft_code].capacity) 
+												capacity_satisfy = false;
 
-											//double travel_time = (from_to[r.get_airstrips()[c] + ";" + r.get_airstrips()[c + 1]]) / map_airplane[r.aircraft_code].speed;
-											double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
+											auto current_airstrip = r.get_airstrips()[c];
+											auto next_airstrip = r.get_airstrips()[c + 1];
+											double fuel_consumed = fuel_consumption[r.aircraft_code][current_airstrip][next_airstrip];
 
 											double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
-											if (c == to - 1) fuel_i_j += location_fuel[r.aircraft_code][passengers[p].destination];
+											if (c == to - 1)
+												fuel_i_j += location_fuel[r.aircraft_code][destination];
 
-											if (!r.get_refueling()[c] && r.get_weights()[c] - passengers[p].weight + (r.fuel[c] - fuel_i_j) < 0) capacity_satisfy = false;
+											if (!r.get_refueling()[c] && r.get_weights()[c] - passengers[p].weight + (r.fuel[c] - fuel_i_j) < 0) 
+												capacity_satisfy = false;
 
 										}
 										//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
-										if (!capacity_satisfy) break; //check also for the fuel;
+										if (!capacity_satisfy) 
+											break; //check also for the fuel;
 
-										//se sorpasso il break vuol dire che soddisfo la capacit?, in questo caso il solo costo che consider? per l'aggiunta del passeggero qui
-										//? la time windows, se calcolo la time windows qua vuol dire che sfrutto il tempo in cui mi trovo in queste posizioni
-
+										// se sorpasso il break vuol dire che soddisfo la capacit?, in questo caso il solo costo
+										// che consider? per l'aggiunta del passeggero qui
+										// la time windows, se calcolo la time windows qua vuol dire che sfrutto il tempo in cui mi trovo in queste posizioni
 										double TW_departure = 0.0;
-										double t_arr_departure = r.get_arrivals()[from];
-										if (t_arr_departure < passengers[p].early_departure) TW_departure = passengers[p].early_departure - t_arr_departure;
-										else if (t_arr_departure > passengers[p].late_departure) TW_departure = t_arr_departure - passengers[p].late_departure;
+										double t_origin_departure = r.get_arrivals()[from];
+										
+										TW_departure = max(0.0, passengers[p].early_departure - t_origin_departure);
+														+ max(0.0, t_origin_departure - passengers[p].late_departure);
 
-										double TW_arrival = 0.0;
-										double t_arr_arrival = r.get_arrivals()[to];
-										if (t_arr_arrival < passengers[p].early_arrival) TW_arrival = passengers[p].early_arrival - t_arr_arrival;
-										else if (t_arr_arrival > passengers[p].late_arrival) TW_arrival = t_arr_arrival - passengers[p].late_arrival;
+										double TW_arrival = 0;
+										double t_destination_arrival = r.get_arrivals()[to];
+
+										TW_arrival = max(0.0, passengers[p].early_arrival - t_destination_arrival)
+												   + max(0.0, t_destination_arrival - passengers[p].late_arrival);   
 
 										double cost = ((TW_departure + TW_arrival) * peso_TW) * passengers[p].capacity;
 										cost += (peso_intermediate_stop * (to - from - 1));
 
-										//cout << "if del caso D " << best_cost << " > " << cost << endl;
 										if (best_cost > cost) {
 											best_cost = cost;
 											best_passenger = p;
@@ -1028,21 +1046,23 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 								}
 							}
 						}
-						//da qui in giu considero il caso in cui non ci sono TO ma anche se ci sono ma non mi conviene farlo fermare li 
-						//quindi il for per tutti i from ma al di fuori della route e poi considero anche il costo di aggiungerlo a parte il pezzetto che manca
+						//da qui in giu considero il caso in cui non ci sono TO ma anche se ci sono ma non mi
+						// conviene farlo fermare li quindi il for per tutti i from ma al di fuori della
+						// route e poi considero anche il costo di aggiungerlo a parte il pezzetto che manca
 						if (r.get_airstrips()[r.index - 1] != passengers[p].destination) {
 							for (auto from : FROM) {
 								bool capacity_satisfy = true;
 								for (int c = from; c < r.index; c++) {
-									if ((r.get_capacities()[c] + passengers[p].capacity) > map_airplane[r.aircraft_code].capacity) capacity_satisfy = false;
+									if ((r.get_capacities()[c] + passengers[p].capacity) > map_airplane[r.aircraft_code].capacity) 
+										capacity_satisfy = false;
 
 									if (c < r.index - 1) {
-										//double travel_time = (from_to[r.get_airstrips()[c] + ";" + r.get_airstrips()[c + 1]]) / map_airplane[r.aircraft_code].speed;
-										double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
+										double fuel_consumed = fuel_consumption[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
 
 										double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
-										if (!r.get_refueling()[c] && r.get_weights()[c] - passengers[p].weight + (r.fuel[c] - fuel_i_j) < 0) capacity_satisfy = false;
+										if (!r.get_refueling()[c] && r.get_weights()[c] - passengers[p].weight + (r.fuel[c] - fuel_i_j) < 0) 
+											capacity_satisfy = false;
 									}
 								}
 								//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
@@ -1050,90 +1070,85 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 
 									double TW_departure = 0.0;
 									double t_arr_departure = r.get_arrivals()[from];
-									if (t_arr_departure < passengers[p].early_departure) TW_departure = passengers[p].early_departure - t_arr_departure;
-									else if (t_arr_departure > passengers[p].late_departure) TW_departure = t_arr_departure - passengers[p].late_departure;
+									TW_departure = max(0.0, passengers[p].early_departure - t_arr_departure)
+												 + max(0.0, t_arr_departure - passengers[p].late_departure);
 
 									double cost = (TW_departure * peso_TW);
 									// ora ci metto chilometri e fuel dell'ultimo pezzo;
-									cost += from_to[r.get_airstrips()[r.index - 1]][passengers[p].destination];
-									double travel_time = (from_to[r.get_airstrips()[r.index - 1]][passengers[p].destination]) / map_airplane[r.aircraft_code].speed;
-									double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[p].destination];
+									cost += from_to[r.get_airstrips()[r.index - 1]][destination];
+									double travel_time = (from_to[r.get_airstrips()[r.index - 1]][destination]) / map_airplane[r.aircraft_code].speed;
+									double fuel_consumed = fuel_consumption[r.aircraft_code][r.get_airstrips()[r.index - 1]][destination];
 
 									cost += fuel_consumed;
 
 									bool fuel_ok = true;
 									if (!r.get_refueling()[r.index - 1]) {
 										double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
-										if (r.get_weights()[r.index - 1] - passengers[p].weight + (r.fuel[r.index - 1] - fuel_i_j) < 0) fuel_ok = false;
+										if (r.get_weights()[r.index - 1] - passengers[p].weight + (r.fuel[r.index - 1] - fuel_i_j) < 0) 
+											fuel_ok = false;
 									}
 
 									double TW_arrival = 0.0;
 									double t_arr_arrival = 0.0;
 									t_arr_arrival = r.get_arrivals()[r.index - 1] + (travel_time * 60) + map_airstrip[r.get_airstrips()[r.index - 1]].ground_time;
-									if (t_arr_arrival < passengers[p].early_arrival) TW_arrival = passengers[p].early_arrival - t_arr_arrival;
-									else if (t_arr_arrival > passengers[p].late_arrival) TW_arrival = t_arr_arrival - passengers[p].late_arrival;
+									
+									TW_arrival = max(0.0, passengers[p].early_arrival - t_arr_arrival) + max(0.0, t_arr_arrival - passengers[p].late_arrival);
 									cost += ((TW_arrival * peso_TW)) * passengers[p].capacity;
 									cost += (peso_intermediate_stop * (r.index - from - 1)) * passengers[p].capacity;
 
-									if (fuel_ok) {
-										if (best_cost > cost) {
-											if (t_arr_arrival <= end_day) {
-												if (r.fuel[r.index - 1] - fuel_consumed >= (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code][passengers[p].destination])) {
-													best_cost = cost;
-													best_passenger = p;
-													best_from = from;
-													situation = 5;
-												}
-											}
+									if (fuel_ok && best_cost > cost && t_arr_arrival <= end_day) {
+										if (r.fuel[r.index - 1] - fuel_consumed >= (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code][destination])) {
+											best_cost = cost;
+											best_passenger = p;
+											best_from = from;
+											situation = 5;
 										}
 									}
 								}
 							}
 						}
-
 					}
 					if (r.get_airstrips()[r.index - 1] != passengers[p].origin) {
 						//guardo il costo di aggiungere un pezzo alla fine
-						
-						double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[p].origin] + from_to_FuelConsumed[r.aircraft_code][passengers[p].origin][passengers[p].destination];
-						double cost = fuel_consumed + from_to[r.get_airstrips()[r.index - 1]][passengers[p].origin] + from_to[passengers[p].origin][passengers[p].destination];
+						auto previous_airstrip = r.get_airstrips()[r.index - 1];
+						double fuel_consumed = fuel_consumption[r.aircraft_code][previous_airstrip][origin] + 
+												fuel_consumption[r.aircraft_code][origin][destination];
+						double cost = fuel_consumed + from_to[previous_airstrip][origin] + from_to[origin][destination];
 
 						double TW_departure = 0.0;
-						//double t_arr_departure = r.arrival[r.index - 1] + (map_airstrip[r.get_airstrips()[r.index - 1]].ground_time + (from_to[r.get_airstrips()[r.index - 1] + ";" + passengers[p].origin]) / map_airplane[r.aircraft_code].speed) * 60;
-						double t_arr_departure = r.get_departures()[r.index - 1] + map_airstrip[r.get_airstrips()[r.index - 1]].ground_time + (((from_to[r.get_airstrips()[r.index - 1]][passengers[p].origin]) / map_airplane[r.aircraft_code].speed) * 60);
-						if (t_arr_departure < passengers[p].early_departure) TW_departure = passengers[p].early_departure - t_arr_departure;
-						else if (t_arr_departure > passengers[p].late_departure) TW_departure = t_arr_departure - passengers[p].late_departure;
+						double travel_time = 60.0*from_to[previous_airstrip][origin] / map_airplane[r.aircraft_code].speed;
+						double t_arr_departure = previous_airstrip + map_airstrip[previous_airstrip].ground_time + travel_time;
+						if (t_arr_departure < passengers[p].early_departure) 
+							TW_departure = passengers[p].early_departure - t_arr_departure;
+						else if (t_arr_departure > passengers[p].late_departure) 
+							TW_departure = t_arr_departure - passengers[p].late_departure;
 
 						double TW_arrival = 0.0;
-						double t_arr_arrival = t_arr_departure + map_airstrip[passengers[p].origin].ground_time + (((from_to[passengers[p].origin][passengers[p].destination]) / map_airplane[r.aircraft_code].speed) * 60);
-						if (t_arr_arrival < passengers[p].early_arrival) TW_arrival = passengers[p].early_arrival - t_arr_arrival;
-						else if (t_arr_arrival > passengers[p].late_arrival) TW_arrival = t_arr_arrival - passengers[p].late_arrival;
+						travel_time = 60.0*from_to[origin][destination] / map_airplane[r.aircraft_code].speed;
+						double t_arr_arrival = t_arr_departure + map_airstrip[origin].ground_time + travel_time;
+						TW_arrival = max(0.0, passengers[p].early_arrival - t_arr_arrival) + max(0.0, t_arr_arrival - passengers[p].late_arrival);
 						cost += ((TW_departure + TW_arrival) * peso_TW) * passengers[p].capacity;
 
 						//per il check sul fuel:
-						//double travel_primo_tratto = (from_to[r.get_airstrips()[r.index - 1] + ";" + passengers[p].origin]) / map_airplane[r.aircraft_code].speed;
-						double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][passengers[p].origin];
-						double fuel_consumed_secondo_tratto = from_to_FuelConsumed[r.aircraft_code][passengers[p].origin][passengers[p].destination];
-						double f_after_primo_tratto = r.fuel[r.index - 1] - fuel_consumed_primo_tratto;
+						double first_step_fuel_consumption = fuel_consumption[r.aircraft_code][previous_airstrip][origin];
+						double second_step_fuel_consumption = fuel_consumption[r.aircraft_code][origin][destination];
+						double f_after_primo_tratto = r.fuel[r.index - 1] - first_step_fuel_consumption;
 						double f_after_secondo_tratto = 0.0;
-						if (map_airstrip[passengers[p].origin].fuel) {
-							f_after_secondo_tratto = map_airplane[r.aircraft_code].max_fuel - fuel_consumed_secondo_tratto;
+						if (map_airstrip[origin].fuel) {
+							f_after_secondo_tratto = map_airplane[r.aircraft_code].max_fuel - second_step_fuel_consumption;
 						}
 						else {
-							f_after_secondo_tratto = r.fuel[r.index - 1] - fuel_consumed_primo_tratto - fuel_consumed_secondo_tratto;
+							f_after_secondo_tratto = r.fuel[r.index - 1] - first_step_fuel_consumption - second_step_fuel_consumption;
 						}
 
-						if (best_cost > cost) {
-							if (t_arr_arrival <= end_day) {
-								if (f_after_primo_tratto >= map_airplane[r.aircraft_code].min_fuel) {
-									if (f_after_secondo_tratto >= (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code][passengers[p].destination])) {
-										best_cost = cost;
-										best_passenger = p;
-										situation = 3;
-									}
+						if (best_cost > cost && t_arr_arrival <= end_day) {
+							if (f_after_primo_tratto >= map_airplane[r.aircraft_code].min_fuel) {
+								if (f_after_secondo_tratto >= (map_airplane[r.aircraft_code].min_fuel + location_fuel[r.aircraft_code][destination])) {
+									best_cost = cost;
+									best_passenger = p;
+									situation = 3;
 								}
 							}
-
 						}
 
 					}
@@ -1158,7 +1173,8 @@ vector<Route> heuristic_costructive_first_fase_sequential(ProcessedInput* input,
 				run_situation_5(input, passengers, r, best_passenger, best_from);
 			}
 
-			if (situation != -1) passengers.erase(passengers.begin() + best_passenger);
+			if (situation != -1) 
+				passengers.erase(passengers.begin() + best_passenger);
 
 		} while (situation != -1);
 		if (passengers.empty()) 
@@ -1509,7 +1525,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();
-	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
+	double3DVector fuel_consumption = input->get_from_to_fuel_consumed();
 
 	double peso_TW = penalty_weights.time_window;
 	double inter_stop_weight = penalty_weights.intermediate_stop;
@@ -1550,7 +1566,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 				if (r.get_airstrips()[r.index - 1] == p.origin) {
 					//in questo caso c'? solo lui nella route, il costo ? dato dalla sua inserzione, quindi, chilometri, costo fisso per uso aereo e fuel
 					double cost = airplane->fixed_cost + from_to[p.origin][p.destination];
-					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][p.origin][p.destination];
+					double fuel_consumed = fuel_consumption[r.aircraft_code][p.origin][p.destination];
 
 					cost += fuel_consumed;
 					//per il check sul fuel:
@@ -1566,8 +1582,8 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 					}
 				}
 				else {
-					const double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][p.origin];
-					const double fuel_consumed_secondo_tratto = from_to_FuelConsumed[r.aircraft_code][p.origin][p.destination];
+					const double fuel_consumed_primo_tratto = fuel_consumption[r.aircraft_code][r.get_airstrips()[r.index - 1]][p.origin];
+					const double fuel_consumed_secondo_tratto = fuel_consumption[r.aircraft_code][p.origin][p.destination];
 					const double distance_first_leg = from_to[r.get_airstrips()[r.index - 1]][p.origin];
 					const double distance_second_leg = from_to[p.origin][p.destination];
 					
@@ -1622,39 +1638,42 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 					if (TO.size() != 0) {
 						for (auto from : FROM) {
 							for (auto to : TO) {
-								if (from < to && to - from <= p.stop) {
-									//cout << "sono dentro al primo if e sono il passeggero: " << p.name << endl;
-									//se sono qua dentro il to ? maggiore del from e gli stop intermedi sono minori di tre
-									//per prima cosa guardo se ci sto con la capacit?, altrimenti break sul primo for
-									bool capacity_satisfy = true;
-									for (int c = from; c < to; c++) {
-										if ((r.get_capacities()[c] + p.capacity) > airplane->capacity) 
-											capacity_satisfy = false;
+								if (from >= to || to - from > p.stop)
+									continue;
+									
+								//se sono qua dentro il to ? maggiore del from e gli stop intermedi sono minori di tre
+								//per prima cosa guardo se ci sto con la capacit?, altrimenti break sul primo for
+								bool capacity_satisfy = true;
+								for (int c = from; c < to; c++) {
+									if ((r.get_capacities()[c] + p.capacity) > airplane->capacity) 
+										capacity_satisfy = false;
 
-										double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
-										double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
+									double fuel_consumed = fuel_consumption[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
+									double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
-										//aggiunto questa parte per l'ultimo tratto che deve prevedere l'andare da almeno un'altra parte con il fuel QUAAA
-										if (c == to - 1) fuel_i_j += location_fuel[r.aircraft_code][p.destination];
-										if (!r.get_refueling()[c] && r.get_weights()[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0)
-											capacity_satisfy = false;
-									}
-									//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
-									if (!capacity_satisfy) break; //check also for the fuel;
+									//aggiunto questa parte per l'ultimo tratto che deve prevedere l'andare da almeno un'altra parte con il fuel QUAAA
+									if (c == to - 1) fuel_i_j += location_fuel[r.aircraft_code][p.destination];
+									if (!r.get_refueling()[c] && r.get_weights()[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0)
+										capacity_satisfy = false;
+								}
+								//se non soddisfa la capacit? non guardo neanche e passo al TO successivo
+								if (!capacity_satisfy) break; //check also for the fuel;
 
-									//se sorpasso il break vuol dire che soddisfo la capacit?, in questo caso il solo costo che consider? per l'aggiunta del passeggero qui
-									//? la time windows, se calcolo la time windows qua vuol dire che sfrutto il tempo in cui mi trovo in queste posizioni
-									double TW_departure = max(0.0, p.early_departure - r.get_arrivals()[from]) + max(0.0, r.get_arrivals()[from] - p.late_departure);
-									double TW_arrival = max(0.0, p.early_arrival - r.get_arrivals()[to]) + max(0.0, r.get_arrivals()[to] - p.late_arrival);
+								//se sorpasso il break vuol dire che soddisfo la capacit?, in questo caso il solo costo che consider?
+								// per l'aggiunta del passeggero qui? la time windows, se calcolo la time windows qua vuol
+								// dire che sfrutto il tempo in cui mi trovo in queste posizioni
+								double TW_departure = max(0.0, p.early_departure - r.get_arrivals()[from])
+													+ max(0.0, r.get_arrivals()[from] - p.late_departure);
+								double TW_arrival = max(0.0, p.early_arrival - r.get_arrivals()[to])
+													+ max(0.0, r.get_arrivals()[to] - p.late_arrival);
 
-									double cost = (((TW_departure + TW_arrival) * peso_TW) + ((to - from - 1) * inter_stop_weight)) * p.capacity;
-									if (best_cost > cost) {
-										best_cost = cost;
-										best_route = i;
-										situation = 4;
-										best_from = from;
-										best_to = to;
-									}
+								double cost = (((TW_departure + TW_arrival) * peso_TW) + ((to - from - 1) * inter_stop_weight)) * p.capacity;
+								if (best_cost > cost) {
+									best_cost = cost;
+									best_route = i;
+									situation = 4;
+									best_from = from;
+									best_to = to;
 								}
 							}
 						}
@@ -1669,7 +1688,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 									capacity_satisfy = false;
 
 								if (c < r.index - 1) {
-									double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
+									double fuel_consumed = fuel_consumption[r.aircraft_code][r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
 									double fuel_i_j = fuel_consumed + map_airplane[r.aircraft_code].min_fuel;
 
 									if (!r.get_refueling()[c] && r.get_weights()[c] - p.weight + (r.fuel[c] - fuel_i_j) < 0)
@@ -1682,7 +1701,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 
 								double TW_departure = max(0.0, p.early_departure - r.get_arrivals()[from]) + max(0.0, r.get_arrivals()[from] - p.late_departure);
 
-								const double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][previous_airstrip][p.destination];
+								const double fuel_consumed = fuel_consumption[r.aircraft_code][previous_airstrip][p.destination];
 								double cost = (TW_departure * peso_TW) + fuel_consumed + from_to[r.get_airstrips()[r.index - 1]][p.destination];
 
 								bool fuel_ok = true;
@@ -1706,11 +1725,11 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 							}
 						}
 					}
-
 				}
 				if (r.get_airstrips()[r.index - 1] != p.origin) {
 					//guardo il costo di aggiungere un pezzo alla fine
-					double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][p.origin] + from_to_FuelConsumed[r.aircraft_code][p.origin][p.destination];
+					double fuel_consumed = fuel_consumption[r.aircraft_code][r.get_airstrips()[r.index - 1]][p.origin]
+										 + fuel_consumption[r.aircraft_code][p.origin][p.destination];
 					double cost = fuel_consumed + from_to[r.get_airstrips()[r.index - 1]][p.origin] + from_to[p.origin][p.destination];
 
 					double time_to_go = 60*(from_to[r.get_airstrips()[r.index - 1]][p.origin] / map_airplane[r.aircraft_code].speed); 
@@ -1723,10 +1742,10 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 					cost += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;
 
 					//per il check sul fuel:
-					double fuel_consumed_primo_tratto = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[r.index - 1]][p.origin];
+					double fuel_consumed_primo_tratto = fuel_consumption[r.aircraft_code][r.get_airstrips()[r.index - 1]][p.origin];
 
 					//****
-					double fuel_consumed_secondo_tratto = from_to_FuelConsumed[r.aircraft_code][p.origin][p.destination];
+					double fuel_consumed_secondo_tratto = fuel_consumption[r.aircraft_code][p.origin][p.destination];
 					double f_after_primo_tratto = r.fuel[r.index - 1] - fuel_consumed_primo_tratto;
 					double f_after_secondo_tratto = 0.0;
 					if (map_airstrip[p.origin].fuel) {
