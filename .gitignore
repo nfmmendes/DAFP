@@ -1,0 +1,47 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Others
+*.ipch
+*.pdb
+
+SA14_V5_.B34357A7.tlog
+Debug
+cplex
+/Rolling3days/.vs/Coastal1/v16/ipch/AutoPCH/b2c488408a2d4131/*.ipch
+/SA1.5-Profiler_V9_bambini_costi_ridotti/.vs/SA14_V5/v16/ipch/
+/Rolling-Model/.vs/Coastal1/v16
+Release
+/SA1.5-Profiler_V9_bambini_costi_ridotti/.vs/SA14_V5/v16
+/SA1.5-Profiler_V9_bambini_costi_ridotti/Coastal1/*.exe
+/SA1.5-Profiler_V9_bambini_costi_ridotti/Coastal1/*.pdb

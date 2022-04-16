@@ -1,0 +1,312 @@
+BAD;burton,stephen george;ARK;LKY;7:42;8:27
+BAD;burton,elizabeth ann;ARK;LKY;7:42;8:27
+BAD;mary,jo germain;ARK;SEU;7:42;10:13
+BAD;steve,hershfield;ARK;SEU;7:42;10:13
+BAD;knight,thea alice emily;DOL;SEU;7:48;10:13
+BAD;knight,sarah louise;DOL;SEU;7:48;10:13
+BAD;knight,edward martin;DOL;SEU;7:48;10:13
+BAD;knight,caspar ernest;DOL;SEU;7:48;10:13
+BAD;crookall,simon;LKY;GRU;8:27;9:31
+BAD;ahmed crookall,nealum;LKY;GRU;8:27;9:31
+BAD;crookall,myla;LKY;GRU;8:27;9:31
+BAD;crookall,hanna;LKY;GRU;8:27;9:31
+BAD;crookall,amira;LKY;GRU;8:27;9:31
+BAD;tatiana,leadbetter;SEU;ARK;10:13;11:26
+BAD;sophia,leadbetter;SEU;ARK;10:13;11:26
+BAD;paul,leadbetter;SEU;ARK;10:13;11:26
+BAD;maddi,leadbetter;SEU;ARK;10:13;11:26
+BAD;david,leadbetter;SEU;ARK;10:13;11:26
+BAD;lambert,christophe;SEU;ARK;10:13;11:26
+BAD;lambert,candice;SEU;ARK;10:13;11:26
+BAD;lambert,maureen;SEU;ARK;10:13;11:26
+BAD;diaz fernandez,lisa;SEU;ARK;10:13;11:26
+BAD;crombez,kerstine;SEU;ARK;10:13;11:26
+BAD;lambert,jacques;SEU;ARK;10:13;11:26
+BAD;lambert,elise;SEU;ARK;10:13;11:26
+VIP;andrew russell;ARK;NTU;7:30;8:47
+VIP;watson,stephen;KUR;KOG;7:51;9:43
+VIP;harlowe,jodie;KUR;KOG;7:51;9:43
+VIP;mceniery,william george seifert;NTU;KOG;8:47;9:43
+VIP;mceniery,paul timothy;NTU;KOG;8:47;9:43
+VIP;macdonald,linda kaye;NTU;KOG;8:47;9:43
+VIP;seifert,karen therese;NTU;KOG;8:47;9:43
+VIP;pinichsuwan,matanee;KOG;GRU;9:43;12:17
+VIP;kitlertphairoj,jitraporn;KOG;GRU;9:43;12:17
+VIP;wisotskky,rachel;KOG;SEU;9:43;12:41
+VIP;klausner,michael;KOG;SEU;9:43;12:41
+VIP;coulter,robin ann;KOG;NBO;15:05;17:15
+VIP;coulter,keith stuart;KOG;NBO;15:05;17:15
+VIP;coulter,alyssa;KOG;NBO;15:05;17:15
+OJC;ryan,patrick;ARK;KOG;7:54;8:54
+OJC;ryan,judith;ARK;KOG;7:54;8:54
+OJC;hutton,trevor ian;ARK;KOG;7:54;8:54
+OJC;ahearn,noela ann.;ARK;KOG;7:54;8:54
+OJC;mcguirk,helen mary.;ARK;KOG;7:54;8:54
+OJC;caldow,graham francis;ARK;KOG;7:54;8:54
+OJC;malhis natasha;ARK;KOG;7:54;8:54
+OJC;jones eric;ARK;KOG;7:54;8:54
+OJC;godwin mlay;ARK;KOG;7:54;8:54
+OJC;schiltz,joseph;KOG;LOB;8:54;9:40
+OJC;elvinger,anouk;KOG;LOB;8:54;9:40
+OJC;elvinger,victor;KOG;LOB;8:54;9:40
+OJC;charles,charles;KOG;LOB;8:54;9:40
+OJC;dessoy,catherine;KOG;LOB;8:54;9:40
+OJC;friskney,darrin;KOG;ARK;8:54;12:09
+OJC;mairs,malcolm;KOG;JRO;8:54;11:44
+OJC;mairs,catherine;KOG;JRO;8:54;11:44
+OJC;friskney,stella;KOG;ARK;8:54;12:09
+OJC;friskney,jessica;KOG;ARK;8:54;12:09
+OJC;williams,michael eugene;LOB;ARK;9:40;12:09
+OJC;williams,lynn gilman;LOB;ARK;9:40;12:09
+OJC;williams,kate gilman;LOB;ARK;9:40;12:09
+OJC;meislova,dagmar;SEU;LKY;10:06;11:01
+OJC;chumley,brett;SEU;LKY;10:06;11:01
+OJC;christiansonâ ,william thomas;SEU;ARK;10:06;12:09
+OJC;galina,victoria christianson;SEU;ARK;10:06;12:09
+GUS;padilla,wise  patricia eugenia;KGL;KOG;7:00;10:09
+GUS;ramirez,vela anibal;KGL;KOG;7:00;10:09
+GUS;ramirez,padilla  anton;KGL;KOG;7:00;10:09
+GUS;ramirez padilla,anibal daniel;KGL;KOG;7:00;10:09
+GUS;hope-hawkins,olivia;GRU;KOG;9:33;10:09
+GUS;keen,alexander;GRU;KOG;9:33;10:09
+GUS;lina meyer;GRU;KOG;9:33;10:09
+GUS;joshua kimmich";GRU;KOG;9:33;10:09
+GUS;mckearney,peter james;KOG;ZNZ;10:09;13:14
+GUS;mckearney,leslie;KOG;ZNZ;10:09;13:14
+GUS;raburn,maura anne;KOG;ZNZ;10:09;13:14
+GUS;gill,kulvinder singh;KOG;ZNZ;10:09;13:14
+GUS;mirza,zarina;KOG;ZNZ;10:09;13:14
+GUS;mirza,samuel;KOG;ZNZ;10:09;13:14
+GUS;mirza,naheed;KOG;ZNZ;10:09;13:14
+GUS;mirza,jill;KOG;ZNZ;10:09;13:14
+GUS;plews,kathryn;SEU;ZNZ;10:09;13:14
+GUS;plews,andrew;SEU;ZNZ;10:09;13:14
+SUN;bervoets,gert;KOG;ARK;9:24;10:24
+SUN;bervoets,bervoets;KOG;ARK;9:24;10:24
+SUN;arnaud,bervoets;KOG;ARK;9:24;10:24
+SUN;alexander,bervoets;KOG;ARK;9:24;10:24
+SUN;isabelle,bayon;KOG;ARK;9:24;10:24
+SUN;knechtel,irina;KOG;ARK;9:24;10:24
+SUN;yegorov,dmitriy;KOG;ARK;9:24;10:24
+SUN;cannella,katelyn anne;KOG;KUR;9:24;12:04
+SUN;west,aaron christopher;KOG;KUR;9:24;12:04
+SUN;marek,inna;KOG;ARK;9:24;10:24
+SUN;ruth pollock;ARK;KUR;10:24;12:04
+SUN;lisa spangler;ARK;KUR;10:24;12:04
+SUN;fong seng tee;ARK;LKY;10:24;12:38
+SUN;mei kit wan;ARK;LKY;10:24;12:38
+SUN;michael ricci whetstone;KUR;SEU;12:04;13:25
+SUN;teri jane whetstone;KUR;SEU;12:04;13:25
+SUN;nancy jo mejia;KUR;SEU;12:04;13:25
+SUN;patricia claire crnkovich;KUR;SEU;12:04;13:25
+SUN;kevin paul davis;KUR;SEU;12:04;13:25
+SUN;mary kathryn davis;KUR;SEU;12:04;13:25
+SUN;rene mejia;KUR;SEU;12:04;13:25
+SUN;john robert maxfield;KUR;SEU;12:04;13:25
+SUN;colleen jolovich maxfield;KUR;SEU;12:04;13:25
+SUN;francis michael crnkovich;KUR;SEU;12:04;13:25
+SUN;kimball,paul;SEU;KGL;13:25;16:37
+SUN;kimball,amy;SEU;KGL;13:25;16:37
+ARK;dell,lauretta;SEU;GRU;9:11;9:28
+ARK;munro,stuart john;SEU;LAM;9:11;9:55
+ARK;munro,kim maree;SEU;LAM;9:11;9:55
+ARK;munro,jake larwood;SEU;LAM;9:11;9:55
+ARK;munro,daniel john;SEU;LAM;9:11;9:55
+ARK;costa,sue;SEU;TME;9:11;10:18
+ARK;coasta,ryan;SEU;TME;9:11;10:18
+ARK;costa,omar;SEU;TME;9:11;10:18
+ARK;dooley,kevin;SEU;TME;9:11;10:18
+ARK;coasta,kevin;SEU;TME;9:11;10:18
+ARK;costa,freight seat(60kgs);SEU;TME;9:11;10:18
+ARK;costa,freight seat(60kgs);SEU;TME;9:11;10:18
+ARK;costa,brandon;SEU;TME;9:11;10:18
+ARK;kitlertphairoj,wichai;TME;GRU;10:18;12:47
+ARK;kannika,tiamvanchai;TME;GRU;10:18;12:47
+ARK;innadda,saravutti;TME;GRU;10:18;12:47
+ARK;panutai,watana;TME;GRU;10:18;12:47
+ARK;dhirapatranon,veera;TME;GRU;10:18;12:47
+ARK;kongphasuk,sakchai;TME;GRU;10:18;12:47
+ARK;ronnachai,rattanaphawanont;TME;GRU;10:18;12:47
+ARK;oupachitakul,prapon;TME;GRU;10:18;12:47
+ARK;kiatwerakul,porntip;TME;GRU;10:18;12:47
+ARK;kantika,pichayanan;TME;GRU;10:18;12:47
+ARK;tippawan,pholwiriyatham;TME;GRU;10:18;12:47
+ARK;boonnak,numat;TME;GRU;10:18;12:47
+BAT;kulisic,annika;TME;LAM;11:18;11:28
+BAT;kulisic,alfredo;TME;LAM;11:18;11:28
+BAT;forsyth,albert;TME;LAM;11:18;11:28
+BAT;shelley,fischer;TME;KOG;11:18;11:43
+BAT;pire,emma maria;TME;LAM;11:18;11:28
+BAT;forsyth,begona;TME;LAM;11:18;11:28
+BAT;jeff,fischer;TME;KOG;11:18;11:43
+BAT;pinichsuwan,matanee;TME;KOG;11:18;11:43
+BAT;kitlertphairoj,jitraporn;TME;KOG;11:18;11:43
+BAT;wisotskky,rachel;TME;KOG;11:18;11:43
+BAT;klausner,michael;TME;KOG;11:18;11:43
+JOE;turnbull,penelope;LKY;KOG;8:02;9:13
+JOE;flanagan,niamh;LKY;KOG;8:02;9:13
+JOE;flanagan,ellen;LKY;KOG;8:02;9:13
+JOE;beasley,deirdre;LKY;KOG;8:02;9:13
+JOE;enright,john joseph;LKY;KOG;8:02;9:13
+JOE;enright,ann marie;LKY;KOG;8:02;9:13
+JOE;flanagan,darcy;LKY;KOG;8:02;9:13
+JOE;eckert,rico;LKY;KOG;8:02;9:13
+JOE;enright,megan ann;LKY;KOG;8:02;9:13
+JOE;enright,kasey marie;LKY;KOG;8:02;9:13
+JOE;eckert,roman;LKY;KOG;8:02;9:13
+JOE;eckert,lenka;LKY;KOG;8:02;9:13
+JOE;babcock,william jackson;KOG;ARK;9:13;11:28
+JOE;carey,terence patrick;KOG;ARK;9:13;11:28
+JOE;crocker,steven clinch;KOG;ARK;9:13;11:28
+JOE;carey,sean william;KOG;ARK;9:13;11:28
+JOE;crocker,kristina lee;KOG;ARK;9:13;11:28
+JOE;carey,juliane babcock;KOG;ARK;9:13;11:28
+JOE;crocker,jennifer lee;KOG;ARK;9:13;11:28
+JOE;morgan,janice;KOG;ARK;9:13;11:28
+JOE;carey,caroline ann;KOG;ARK;9:13;11:28
+JOE;may,taylor lauren;SEU;ARK;10:13;11:28
+JOE;may,denise cheryl;SEU;ARK;10:13;11:28
+JOE;may ii,cullen john;SEU;ARK;10:13;11:28
+JOE;may,caitlyn mackenzie;SEU;ARK;10:13;11:28
+BAT;polk,louise;ARK;KUR;13:40;14:01
+BAT;polk,kelly.a;ARK;KUR;13:40;14:01
+BAT;wackym,jeremy;ARK;KUR;13:40;14:01
+BAT;wackym,ashyton;ARK;KUR;13:40;14:01
+BAT;wackym,ashley;ARK;KUR;13:40;14:01
+BAT;polk,annm;ARK;KUR;13:40;14:01
+BAT;abbott,reyna;ARK;GRU;13:40;15:37
+BAT;abbott,james duncan;ARK;GRU;13:40;15:37
+BAT;abbott,anna;ARK;GRU;13:40;15:37
+BAT;shaver,lisa;KUR;LKY;14:01;14:35
+BAT;shaver,john;KUR;LKY;14:01;14:35
+BAT;bringhurst,ronald;LKY;GRU;14:35;15:37
+BAT;bringhurst,patricia;LKY;GRU;14:35;15:37
+BAT;frye,melissa;LOB;JRO;16:30;17:58
+BAT;frye,kayley;LOB;JRO;16:30;17:58
+BAT;frye,jason;LOB;JRO;16:30;17:58
+BAT;daniel anold;LOB;ARK;16:30;18:22
+BAT;morales,suly;SEU;JRO;16:44;17:58
+BAT;dlugasch,philip;SEU;JRO;16:44;17:58
+BAT;dlugasch,lucy;SEU;JRO;16:44;17:58
+BAT;shama,leonor;SEU;JRO;16:44;17:58
+BAT;aurora,shilpjeet;SEU;JRO;16:44;17:58
+BAT;mandrekar,ashay pandurang;SEU;JRO;16:44;17:58
+JOE;chin sien tan;ARK;LKY;11:56;12:17
+JOE;kim yong teo;ARK;LKY;11:56;12:17
+JOE;brenda smith weyl;ARK;LKY;11:56;12:17
+JOE;stephen edward weyl;ARK;LKY;11:56;12:17
+JOE;john garriock firth;ARK;KOG;11:56;14:03
+JOE;martin eric meyer;ARK;LKY;11:56;12:17
+JOE;brian garriock firth;ARK;KOG;11:56;14:03
+JOE;christopher leslie;ARK;LAM;11:56;14:27
+JOE;richard reese;ARK;LAM;11:56;14:27
+JOE;mark lemley;ARK;LAM;11:56;14:27
+JOE;rose hagan;ARK;LAM;11:56;14:27
+JOE;michael levy;LKY;KOG;12:17;14:03
+JOE;lori levy;LKY;KOG;12:17;14:03
+JOE;kirchhof kirsten;LKY;KOG;12:17;14:03
+JOE;kirchhof dietmar;LKY;KOG;12:17;14:03
+JOE;stephen c johnson;LKY;KOG;12:17;14:03
+JOE;mimi fry johnson;LKY;KOG;12:17;14:03
+JOE;kershaw,nic;TME;KOG;14:51;15:18
+JOE;brown,lloyd;TME;KOG;14:51;15:18
+JOE;nimni,jessica;TME;KOG;14:51;15:18
+JOE;salinger-brown,daniel;TME;KOG;14:51;15:18
+JOE;salinger-brown,barbara;TME;KOG;14:51;15:18
+JOE;salinger,annette;TME;KOG;14:51;15:18
+JOE;jackson,emma jude;TME;SGS;14:51;16:24
+JOE;louw,adrian campbell;TME;SGS;14:51;16:24
+JOE;bresee,thomas pendleton;KOG;JRO;15:18;17:31
+JOE;morgan,sean eric;KOG;JRO;15:18;17:31
+JOE;bresee,sara jane;KOG;JRO;15:18;17:31
+JOE;jones,philip tudor;KOG;JRO;15:18;17:31
+JOE;crocker,daniel steven;KOG;JRO;15:18;17:31
+OJC;babcock,william jackson;ARK;ZNZ;12:45;14:17
+OJC;carey,terence patrick;ARK;ZNZ;12:45;14:17
+OJC;crocker,steven clinch;ARK;ZNZ;12:45;14:17
+OJC;carey,sean william;ARK;ZNZ;12:45;14:17
+OJC;crocker,kristina lee;ARK;ZNZ;12:45;14:17
+OJC;carey,juliane babcock;ARK;ZNZ;12:45;14:17
+OJC;crocker,jennifer lee;ARK;ZNZ;12:45;14:17
+OJC;morgan,janice;ARK;ZNZ;12:45;14:17
+OJC;carey,caroline ann;ARK;ZNZ;12:45;14:17
+OJC;bosman pietro;ARK;DAR;12:45;14:47
+OJC;delport ricus;ARK;DAR;12:45;14:47
+OJC;kaduma,rose charles;DAR;ARK;14:47;18:14
+OJC;grace,kyallo;DAR;ARK;14:47;18:14
+OJC;nia,harris;DAR;ARK;14:47;18:14
+OJC;linden,john;DAR;ARK;14:47;18:14
+BAD;hawkins,gary;ARK;ZNZ;12:45;14:17
+BAD;hawkins,elizabeth;ARK;ZNZ;12:45;14:17
+BAD;christiansonâ ,william thomas;ARK;ZNZ;12:45;14:17
+BAD;galina,victoria christianson;ARK;ZNZ;12:45;14:17
+BAD;tan,melanie;ARK;ZNZ;12:45;14:17
+BAD;lim,foong;ARK;ZNZ;12:45;14:17
+BAD;bervoets,gert;ARK;ZNZ;12:45;14:17
+BAD;bervoets,bervoets;ARK;ZNZ;12:45;14:17
+BAD;arnaud,bervoets;ARK;ZNZ;12:45;14:17
+BAD;alexander,bervoets;ARK;ZNZ;12:45;14:17
+BAD;isabelle,bayon;ARK;ZNZ;12:45;14:17
+ZEB;williams,michael eugene;ARK;ZNZ;12:45;14:17
+ZEB;williams,lynn gilman;ARK;ZNZ;12:45;14:17
+ZEB;williams,kate gilman;ARK;ZNZ;12:45;14:17
+ZEB;friskney,stella;ARK;ZNZ;12:45;14:17
+ZEB;friskney,jessica;ARK;ZNZ;12:45;14:17
+ZEB;friskney,darrin;ARK;ZNZ;12:45;14:17
+ZEB;neilson,scott;ARK;ZNZ;12:45;14:17
+ZEB;combs,jennifer;ARK;ZNZ;12:45;14:17
+ZEB;mcfadden,denise;ARK;ZNZ;12:45;14:17
+ZEB;afshar,rod;ARK;ZNZ;12:45;14:17
+ZEB;hristova,krasimira;ARK;ZNZ;12:45;14:17
+OJF;lenz,mackenzie;ARK;ZNZ;12:45;14:17
+OJF;lenz,jodi;ARK;ZNZ;12:45;14:17
+OJF;lambert,maureen;ARK;ZNZ;12:45;14:17
+OJF;diaz fernandez,lisa;ARK;ZNZ;12:45;14:17
+OJF;crombez,kerstine;ARK;ZNZ;12:45;14:17
+OJF;lambert,jacques;ARK;ZNZ;12:45;14:17
+OJF;lambert,elise;ARK;ZNZ;12:45;14:17
+OJF;lambert,christophe;ARK;ZNZ;12:45;14:17
+OJF;lambert,candice;ARK;ZNZ;12:45;14:17
+OJF;mason lenz;ARK;ZNZ;12:45;14:17
+OJF;frank beer;ARK;ZNZ;12:45;14:17
+OJF;linden,john;ZNZ;DAR;14:30;14:47
+JUD;de grave,delphine valerie d;ARK;TGT;12:45;14:32
+JUD;toye, vanessa anne-marie j;ARK;TGT;12:45;14:32
+JUD;de brauwer, valentine;ARK;TGT;12:45;14:32
+JUD;de brauwer, peter herman;ARK;TGT;12:45;14:32
+JUD;de grave, melanie ann a.;ARK;TGT;12:45;14:32
+JUD;de brauwer, marie-florence;ARK;TGT;12:45;14:32
+JUD;biedermann,marcel;TGT;ZNZ;14:32;15:12
+JUD;poulin,ryan bernard;TGT;DAR;14:32;15:47
+JUD;zajac,robert thaddeus;TGT;DAR;14:32;15:47
+JUD;poulin,luke ryan;TGT;DAR;14:32;15:47
+JUD;zajac,leah plunkett;TGT;DAR;14:32;15:47
+JUD;poulin,kara elizabeth;TGT;DAR;14:32;15:47
+JUD;zajac,cooper thaddeus;TGT;DAR;14:32;15:47
+JUD;zajac,chloe estelle;TGT;DAR;14:32;15:47
+JUD;poulin,anna frances;TGT;DAR;14:32;15:47
+JUD;grace,kyallo;ZNZ;DAR;15:12;15:47
+JUD;nia,harris;ZNZ;DAR;15:12;15:47
+FAB;keirnes,nicole susan;ZNZ;KOG;7:44;9:44
+FAB;scanlon,matthew john;ZNZ;KOG;7:44;9:44
+FAB;ozkulâ ,omer;KOG;MSE;9:44;11:40
+FAB;randles,cynthia;KOG;MSE;9:44;11:40
+FAB;gideon lidor;MSE;DAR;11:40;13:11
+FAB;eva chava lidor;MSE;DAR;11:40;13:11
+FAB;alexandra matts;MSE;DAR;11:40;13:11
+FAB;alexander neil;MSE;DAR;11:40;13:11
+ZEB;afshar,rod;LKY;ARK;10:57;11:51
+ZEB;hristova,krasimira;LKY;ARK;10:57;11:51
+ZEB;tan,melanie;LKY;ARK;10:57;11:51
+ZEB;lim,foong;LKY;ARK;10:57;11:51
+ZEB;lenz,mason;LKY;ARK;10:57;11:51
+ZEB;lenz,mackenzie;LKY;ARK;10:57;11:51
+ZEB;lenz,jodi;LKY;ARK;10:57;11:51
+ZEB;bosman pietro;LKY;ARK;10:57;11:51
+ZEB;delport ricus;LKY;ARK;10:57;11:51
+ZOE;hildahl,soren gunnar;LKY;ZNZ;10:50;12:12
+ZOE;hildahl,rachel ilene;LKY;ZNZ;10:50;12:12
+ZOE;hildahl,lars torben;LKY;ZNZ;10:50;12:12
+ZOE;hertzog,ilene joyce;LKY;ZNZ;10:50;12:12
+ZOE;hildahl,haakon lars;LKY;ZNZ;10:50;12:12
+ZOE;hildahl,elwood wesley;LKY;ZNZ;10:50;12:12

@@ -1,0 +1,401 @@
+#include "Model.h"
+#include <string>
+#include <sstream>
+#include <gurobi_c++.h>
+#include <vector>
+#include <cmath>
+
+Model::Model(vector<vector<vector<int>>> a, vector<vector<double>> c, vector<Airplane>& airplaneNew, map<string, vector<Route>>& airplane_routesNew, vector<Route>& all_Route, const int nrichieste, vector<Passenger>& all_passengers, vector<Route>& solution_model_new, map <string, Airplane>& map_airplane_new) {	//construtor
+	A = a;
+	C = c;
+	airplane = airplaneNew;
+	All_Route = all_Route;
+	NRichieste = nrichieste;
+	All_Passenger = all_passengers;
+	airplane_routes = airplane_routesNew;
+	solution_model = solution_model_new;
+	map_airplane = map_airplane_new;
+	solution_after;
+	Aggregazione;
+}
+
+Model::~Model() { // Destrutor
+
+}
+
+
+
+
+
+void Model::create_Model_grb(int NumberAirplane, map<string, int> solution_warm_up) {	
+	//Formulation - Gurobi
+	int nbColumns = 0;
+	int nRow = 0;
+	try {
+		GRBEnv env = GRBEnv();
+		GRBModel model = GRBModel(env);
+		model.set(GRB_StringAttr_ModelName, "Prova");
+
+		// set Valiables
+		GRBVar** x = new GRBVar*[airplane.size()];
+		//cout << "----------- Sto Creando la prima Variabile X---------------" << endl;
+		for (int j = 0; j < airplane.size(); j++) {
+			x[j] = new GRBVar[airplane_routes[airplane[j].code].size()];   // Qua non ci vorrà una cosa come C. size ma ci vorrà Aerei[j].Route.size()
+			for (int i = 0; i < airplane_routes[airplane[j].code].size(); i++) {		// Stessa cosa qua sotto non devi scorrere tutte 
+				//cout << j << " -- " << i <<"   "<<C[j][i]<< endl;
+				double cost_coefX = C[j][i];			//cost coeficient in the objective function
+				string vname;
+				vname = "x_" + airplane[j].code + to_string(i);
+				//cout << " sono alla variabile " << to_string(i) << endl;
+				//cout << " sono alla variabile dal nome" << vname << endl;
+				//cout << " sono alla variabile dal costo " << to_string(cost_coefX) << endl;
+				x[j][i] = model.addVar(0, 1, cost_coefX, GRB_BINARY, vname); //(lb, ub, obj, type, name)
+				nbColumns++;
+			}
+		}
+
+
+		model.update();
+		
+		//cout << nbColumns << " variables created!!" << endl;
+		////============================================================================================================= 
+		//// Creating objective function
+		////=============================================================================================================
+		//cout << "Creating objective function..." << endl;
+		// Adding the objective function to the model
+		model.set(GRB_IntAttr_ModelSense, 1);	//1 means minimization and 0 means maximization
+		// Update model to integrate new variables
+		model.update();
+		//cout << "Objective function created!" << endl;
+		//cout << "Creating constraint 1..." << endl;
+		// Devo capite come fare il For su tutti i Passeggieri........... Non so quanti siano
+		cout << "Creating constraint 1..." << endl;
+		for (int i = 0; i < NRichieste; i++) {
+			GRBLinExpr C1 = 0;
+			for (int z = 0; z < airplane.size(); z++) {
+				for (int j = 0; j < airplane_routes[airplane[z].code].size(); j++) {
+					C1 += x[z][j] * A[z][j][i];
+				}
+			}
+			string cname1;
+			cname1 = "C1_" + to_string(i);
+			//cout << " sto aggiungendo il vincolo: " << cname1 << endl;
+			model.addConstr(C1 == 1, cname1);
+			nRow++;
+		}
+
+		cout << "Creating constraint 2..." << endl;
+		for (int i = 0; i < airplane.size(); i++) {
+			GRBLinExpr C2 = 0;
+			for (int j = 0; j < airplane_routes[airplane[i].code].size(); j++) {
+				C2 += x[i][j];
+			}
+
+			C2 = C2 - 1;
+			string cname = "";
+			//cout << " sono al vincolo  " << to_string(i) << endl;
+			cname = "C2_" + to_string(i);
+			//cout << " sto aggiungendo il vincolo: " << cname << endl;
+			//cout << " sono alla vincolo dal nome" << cname << endl;
+			model.addConstr(C2 <= 0, cname);
+			nRow++;
+		}
+
+		cout << "Creating constraint 3..." << endl;
+		GRBLinExpr C3 = 0;
+		for (int i = 0; i < airplane.size(); i++) {
+			for (int j = 0; j < airplane_routes[airplane[i].code].size(); j++) {
+				C3 += x[i][j];
+			}
+		}
+		string cname = "";
+		//cout << " sono al vincolo  " << to_string(i) << endl;
+		cname = "C3_";
+		//cout << " sto aggiungendo il vincolo: " << cname << endl;
+		//cout << " sono alla vincolo dal nome" << cname << endl;
+		model.addConstr(C3 <= NumberAirplane, cname);
+		nRow++;
+
+
+
+		//Update model
+		model.update();
+		///*
+		cout << " Numero aerei soluzione ALNS " << solution_warm_up.size() << endl;
+		cout << " Input Numero Aerei " << NumberAirplane << endl;
+		if (solution_warm_up.size() <= NumberAirplane) {
+			cout << " OK! la soluzione del ALNS puo essere usata come MipStart " << endl;
+			for (int j = 0; j < airplane.size(); j++) {
+				map<string, int>::iterator it = solution_warm_up.find(airplane[j].code);
+				if (it != solution_warm_up.end())
+				{
+					cout << " Ho torvato nella mia soluzione ho questo aereo " << airplane[j].code << endl;
+					cout << " La route di questo aereo che va nella soluzione: " << solution_warm_up[airplane[j].code] << endl;
+					for (int i = 0; i < airplane_routes[airplane[j].code].size(); i++) {
+						if(i != solution_warm_up[airplane[j].code]) x[j][i].set(GRB_DoubleAttr_Start, 0.0);
+						else {
+							cout << " I = " << i << " allora metti a 1 " << endl;
+							x[j][i].set(GRB_DoubleAttr_Start, 1.0);
+						}
+					}
+					
+				}
+				else {
+					cout << " Nella mia soluzione NON ho questo aereo " << airplane[j].code << endl;
+					for (int i = 0; i < airplane_routes[airplane[j].code].size(); i++) {
+						x[j][i].set(GRB_DoubleAttr_Start, 0.0);
+					}
+					
+				}
+				
+			}
+			model.update();
+		}
+		//*/
+
+		//Setting gurobi parameters
+		
+		model.getEnv().set(GRB_IntParam_MIPFocus, 1);
+		model.getEnv().set(GRB_DoubleParam_TimeLimit, 6000);		//Set time limit in seconds
+		model.getEnv().set(GRB_IntParam_Seed, 1);				//Fix gurobi seed
+		model.getEnv().set(GRB_IntParam_DisplayInterval, 100);	//Control output print time interval
+		//model.getEnv().set(GRB_DoubleParam_ImproveStartTime,3600); 
+		model.getEnv().set(GRB_IntParam_Method, -1);			//Set lp solver method -- -1=automatic, 0=primal simplex, 1=dual simplex, 2=barrier, 3=concurrent, 4=deterministic concurrent
+		model.getEnv().set(GRB_DoubleParam_MIPGap, 0.001);		//MIP optimality percentage gap
+		model.getEnv().set(GRB_DoubleParam_MIPGapAbs, 0.001);	//MIP optimality absolute gap
+		model.getEnv().set(GRB_IntParam_Threads, 6);			//Use only 1 thread
+		model.getEnv().set(GRB_DoubleParam_Heuristics, 0.5);
+		//model.getEnv().set(GRB_IntParam_Cuts, 0);
+		model.getEnv().set(GRB_IntParam_RINS, 10);
+		// ============= Solving model============= //
+		cout << "Solving model..." << endl << endl;
+		model.optimize();
+		cout << "... model solved!!" << endl << endl;
+		// ======================================= //
+
+		//Get final optimization status
+		int grb_solStatus = model.get(GRB_IntAttr_Status);
+
+
+		// Create.lp file
+		//string str = string("Models/\\") + string(".lp");
+		//	model.write(str);	//Uncomment to write lp in file
+		//model.write("modello.msp");
+		//Save gurobi .log file
+		//str = string("Gurobi_logs/") + string(".log");
+		if (grb_solStatus == GRB_INFEASIBLE) {
+			//cout << " Sono infeasible devo stampare perchè lo sono " << endl;
+			//model.computeIIS();
+			//string Filename = "INFEASIBLE" + to_string(ceil(rand())) + ".ilp";
+			//model.write(Filename);
+			/*
+				for (int i = 0; i < All_Passenger.size(); i++) {
+					for (int z = 0; z < airplane.size(); z++) {
+						for (int j = 0; j < airplane_routes[airplane[z].code].size(); j++) {
+							if(A[z][j][i] > 0) cout << "C1_" + to_string(i) << " :  x["<<z << "][ " << j << "] * " <<   A[z][j][i] << " == 1 " << endl;
+						}
+					}
+				}
+
+			*/
+		}
+
+
+		cout << " Lo stato  della soluzione= " << grb_solStatus << endl;
+		//If optimal solution found, then print it
+		if (grb_solStatus == GRB_OPTIMAL || grb_solStatus == GRB_SUBOPTIMAL || grb_solStatus == 9) {
+			//Getting final information
+			string Filename = "INFEASIBLE" + to_string(ceil(rand())) + ".mps.zip";
+			//model.write(Filename);
+			double nbColumns = model.get(GRB_IntAttr_NumVars);
+			double nbRows = model.get(GRB_IntAttr_NumConstrs);
+			double nbNodes = model.get(GRB_DoubleAttr_NodeCount);
+			double modeVal = model.get(GRB_DoubleAttr_ObjVal);
+			double modeOF = model.get(GRB_DoubleAttr_ObjBound);
+			double modelGap = model.get(GRB_DoubleAttr_MIPGap);
+			double modelExec_time = model.get(GRB_DoubleAttr_Runtime);
+
+			ostringstream strs;
+			strs << modeVal;
+			string range = strs.str();
+			ostringstream strs2;
+			strs2 << modeOF;
+			string OF = strs2.str();
+			ostringstream strs3;
+			strs3 << modelGap;
+			string gap = strs3.str();
+
+
+			
+			cout << "=========================================\n" << endl;
+			cout << "Optimal solution found!! " << range << "  !" << endl;
+			cout << "Optimal solution found!! " << OF << endl;
+			cout << "GAP! " << gap << endl;
+			cout << "==================FINITO=======================\n" << endl;
+			cout << "===============================================\n" << endl;
+			
+			//metto le route ottime dentro alla struttura**************************
+			for (int j = 0; j < airplane.size(); j++) {
+				for (int i = 0; i < airplane_routes[airplane[j].code].size(); i++) {
+					double val = x[j][i].get(GRB_DoubleAttr_X);
+					if (val > 0.01) {
+						//airplane_routes[airplane[j].code][i].print();
+						solution_model.push_back(airplane_routes[airplane[j].code][i]);
+					}
+
+				}
+
+			}
+			
+
+		}
+
+
+	}
+	catch (GRBException e) {
+		cout << "Error code = " << e.getErrorCode() << endl;
+		cout << e.getMessage() << endl;
+	}
+	catch (...) {
+		cout << "Error during optimization" << endl;
+	}
+
+}
+
+void Model::create_Model_grb_for_SP(int NumberAirplane) {	//Formulation - Gurobi
+
+
+
+
+	int nbColumns = 0;
+	int nRow = 0;
+	try {
+		GRBEnv env = GRBEnv();
+		GRBModel model = GRBModel(env);
+		model.set(GRB_StringAttr_ModelName, "Prova");
+
+		// set Valiables
+		GRBVar** x = new GRBVar*[airplane.size()];
+		//cout << "----------- Sto Creando la prima Variabile X---------------" << endl;
+		for (int j = 0; j < airplane.size(); j++) {
+			x[j] = new GRBVar[airplane_routes[airplane[j].code].size()];   // Qua non ci vorrà una cosa come C. size ma ci vorrà Aerei[j].Route.size()
+			for (int i = 0; i < airplane_routes[airplane[j].code].size(); i++) {		// Stessa cosa qua sotto non devi scorrere tutte 
+				//cout << j << " -- " << i <<"   "<<C[j][i]<< endl;
+				double cost_coefX = C[j][i];			//cost coeficient in the objective function
+				string vname;
+				vname = "x_" + to_string(j) + to_string(i);
+				//cout << " sono alla variabile " << to_string(i) << endl;
+				//cout << " sono alla variabile dal nome" << vname << endl;
+				//cout << " sono alla variabile dal costo " << to_string(cost_coefX) << endl;
+				x[j][i] = model.addVar(0, 1, cost_coefX, GRB_BINARY, vname); //(lb, ub, obj, type, name)
+				nbColumns++;
+			}
+		}
+
+
+		model.update();
+		model.set(GRB_IntAttr_ModelSense, 1);	//1 means minimization and 0 means maximization
+		model.update();
+		//cout << "Objective function created!" << endl;
+		//cout << "Creating constraint 1..." << endl;
+		// Devo capite come fare il For su tutti i Passeggieri........... Non so quanti siano
+		//cout << "Creating constraint 1..." << endl;
+		for (int i = 0; i < NRichieste; i++) {
+			GRBLinExpr C1 = 0;
+			for (int z = 0; z < airplane.size(); z++) {
+				for (int j = 0; j < airplane_routes[airplane[z].code].size(); j++) {
+					C1 += x[z][j] * A[z][j][i];
+				}
+			}
+			string cname1;
+			cname1 = "C1_" + to_string(i);
+			//cout << " sto aggiungendo il vincolo: " << cname1 << endl;
+			model.addConstr(C1 == 1, cname1);
+			nRow++;
+		}
+
+		//cout << "Creating constraint 2..." << endl;
+		for (int i = 0; i < airplane.size(); i++) {
+			GRBLinExpr C2 = 0;
+			for (int j = 0; j < airplane_routes[airplane[i].code].size(); j++) {
+				C2 += x[i][j];
+			}
+
+			C2 = C2 - 1;
+			string cname = "";
+			//cout << " sono al vincolo  " << to_string(i) << endl;
+			cname = "C2_" + to_string(i);
+			//cout << " sto aggiungendo il vincolo: " << cname << endl;
+			//cout << " sono alla vincolo dal nome" << cname << endl;
+			model.addConstr(C2 <= 0, cname);
+			nRow++;
+		}
+
+		//cout << "Creating constraint 3..." << endl;
+		GRBLinExpr C3 = 0;
+		for (int i = 0; i < airplane.size(); i++) {
+			for (int j = 0; j < airplane_routes[airplane[i].code].size(); j++) {
+				C3 += x[i][j];
+			}
+		}
+		string cname = "";
+		//cout << " sono al vincolo  " << to_string(i) << endl;
+		cname = "C3_";
+		//cout << " sto aggiungendo il vincolo: " << cname << endl;
+		//cout << " sono alla vincolo dal nome" << cname << endl;
+		model.addConstr(C3 <= NumberAirplane, cname);
+		nRow++;
+
+
+
+		//Update model
+		model.update();
+		model.getEnv().set(GRB_IntParam_MIPFocus, 3);
+		model.getEnv().set(GRB_DoubleParam_TimeLimit, 20);		//Set time limit in seconds
+		model.getEnv().set(GRB_IntParam_Seed, 1);				//Fix gurobi seed
+		model.getEnv().set(GRB_IntParam_DisplayInterval, 1000);	//Control output print time interval
+		model.getEnv().set(GRB_IntParam_Method, -1);			//Set lp solver method -- -1=automatic, 0=primal simplex, 1=dual simplex, 2=barrier, 3=concurrent, 4=deterministic concurrent
+		model.getEnv().set(GRB_DoubleParam_MIPGap, 0.001);		//MIP optimality percentage gap
+		model.getEnv().set(GRB_DoubleParam_MIPGapAbs, 0.001);	//MIP optimality absolute gap
+		model.getEnv().set(GRB_IntParam_Threads, 6);			//Use only 1 thread
+		model.getEnv().set(GRB_IntParam_OutputFlag, 0);			//turn off the print line
+
+
+
+		// ============= Solving model============= //
+		cout << "Solving model..." << endl << endl;
+		model.optimize();
+		cout << "... model solved!!" << endl << endl;
+		// ======================================= //
+
+		//Get final optimization status
+		int grb_solStatus = model.get(GRB_IntAttr_Status);
+		//If optimal solution found, then print it
+		if (grb_solStatus == GRB_OPTIMAL) {
+			//Getting final information
+			//metto le route ottime dentro alla struttura**************************
+			for (int j = 0; j < airplane.size(); j++) {
+				for (int i = 0; i < airplane_routes[airplane[j].code].size(); i++) {
+					double val = x[j][i].get(GRB_DoubleAttr_X);
+					if (val > 0.01) {
+						//airplane_routes[airplane[j].code][i].print();
+						solution_model.push_back(airplane_routes[airplane[j].code][i]);
+					}
+
+				}
+
+			}
+			
+		}
+
+
+	}
+	catch (GRBException e) {
+		cout << "Error code = " << e.getErrorCode() << endl;
+		cout << e.getMessage() << endl;
+	}
+	catch (...) {
+		cout << "Error during optimization" << endl;
+	}
+
+}
