@@ -66,7 +66,6 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 					passenger_removed.push_back(r.get_passengers()[p]);
 					r.erase_passenger(p);
 				}
-
 			}
 			else {
 				//qua devo pescare un numero di nodi da distruggere pari a numero_random
@@ -161,14 +160,16 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 								int Max_To_Pass = node_destroy;
 								for (int p = 0; p < (int)r.get_passengers().size(); p++) {
 									if (r.get_passengers()[p].solution_to == node_destroy || r.get_passengers()[p].solution_from == node_destroy) { // ho cambiato questa condizione
-										if (r.get_passengers()[p].solution_from < Min_From_Pass) Min_From_Pass = r.get_passengers()[p].solution_from;
-										if (r.get_passengers()[p].solution_to > Max_To_Pass) Max_To_Pass = r.get_passengers()[p].solution_to;
+										if (r.get_passengers()[p].solution_from < Min_From_Pass) 
+											Min_From_Pass = r.get_passengers()[p].solution_from;
+										if (r.get_passengers()[p].solution_to > Max_To_Pass) 
+											Max_To_Pass = r.get_passengers()[p].solution_to;
+										
 										int_removed.push_back(p);
 										for (int t = r.get_passengers()[p].solution_from; t < r.get_passengers()[p].solution_to; t++) {
 											r.add_capacity_at(t, -1.0*r.get_passengers()[p].capacity);
 											r.get_weight_at(t) += r.get_passengers()[p].weight;
 										}
-
 									}
 								}
 
@@ -188,7 +189,6 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 
 									if (r.get_refueling()[i]) break;
 									if (index_before == (node_destroy - 1)) {
-
 										diff = r.fuel[i];
 										r.fuel[i] = r.fuel[index_before] - fuel_consumed;
 										diff = diff - r.fuel[i];
@@ -237,7 +237,6 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 					} while (check);
 				} while (nodi_rimossi < numero_random);
 			}
-
 		}
 		index++;
 	}
@@ -317,7 +316,6 @@ void do_work14(Route& r, int node_destroy, double fuel_consumed)
 
 		r.get_weight_at(i) = r.get_weights()[i] + diff;
 		index_before = i + 1;
-
 	}
 }
 
@@ -553,7 +551,9 @@ void do_work8(Route& r, double& add_fuel, int& index_weight_neg)
 			}
 
 			for (int t = index_refueling; t < r.index; t++) {
-				if (r.get_refueling()[t] && t != index_refueling) break;
+				if (r.get_refueling()[t] && t != index_refueling) 
+					break;
+				
 				r.fuel[t] += add_fuel;
 				r.get_weight_at(t) -= add_fuel;
 			}
@@ -679,7 +679,7 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights& penalty_weights, int num_passenger, vector<Passenger>& passenger_removed, vector<Route>& solution,  vector<Passenger> all_passengers) {
 
 	double peso_TW = penalty_weights.time_window;
-	double peso_itermediate_stop = penalty_weights.intermediate_stop;
+	double stop_weight = penalty_weights.intermediate_stop;
 
 	map<int, Passenger> map_id_passenger; 
 	map<int, Airplane> map_airplane = input->get_map_airplane();
@@ -704,8 +704,8 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 	for (Route& s : route_destroyed) {
 		for (const Passenger& pass : s.get_passengers()) {
 			int codpass = pass.pnr;
-			cost_tw_pass[codpass] += cost_for_route_passenger_destroyCluster(s, pass, peso_itermediate_stop, peso_TW);
-			my_set.insert(cost_for_route_passenger_destroyCluster(s, pass, peso_itermediate_stop, peso_TW));
+			cost_tw_pass[codpass] += cost_for_route_passenger_destroyCluster(s, pass, stop_weight, peso_TW);
+			my_set.insert(cost_for_route_passenger_destroyCluster(s, pass, stop_weight, peso_TW));
 		}
 	}
 	vector<string> OrderVectore;
@@ -718,7 +718,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 	}
 
 	map<string, vector<int>> agr_pass;
-	vector<string> sequenza;
+	vector<string> sequence;
 	for (string x : OrderVectore) {
 
 		int codice = stoi(split(x, '|')[0]);
@@ -728,30 +728,30 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 			agr_pass[code].push_back(map_id_passenger[codice].pnr);
 		}
 		else {
-			sequenza.push_back(code);
+			sequence.push_back(code);
 			vector<int> id_passeggieri;
 			id_passeggieri.push_back(map_id_passenger[codice].pnr);
 			agr_pass.insert(make_pair(code, id_passeggieri));
 		}
 	}
 
-	for (int x = 0; x < (int)sequenza.size(); x++) {
-		int Codpass = agr_pass[sequenza[x]][0];
+	for (int x = 0; x < (int)sequence.size(); x++) {
+		int Codpass = agr_pass[sequence[x]][0];
 
 		// tolgo tutti di questa aggregazione
-		for (int p : agr_pass[sequenza[x]]) 
+		for (int p : agr_pass[sequence[x]]) 
 			passenger_removed.push_back(map_id_passenger[p]);
-		agr_pass.erase(agr_pass.find(sequenza[x]));
-		sequenza.erase(sequenza.begin() + x);
+		agr_pass.erase(agr_pass.find(sequence[x]));
+		sequence.erase(sequence.begin() + x);
 
-		for (int y = 0; y < (int)sequenza.size(); y++) {
+		for (int y = 0; y < (int)sequence.size(); y++) {
 			// Qui adesso chimao la funzione Relateness !!
 			Passenger pass = map_id_passenger[Codpass];
-			auto p_r = map_id_passenger[agr_pass[sequenza[y]][0]];
+			auto p_r = map_id_passenger[agr_pass[sequence[y]][0]];
 			double distances = from_to[p_r.destination][pass.destination] + from_to[p_r.origin][pass.origin];
 			double relateness = distances + abs(p_r.arrival_time - pass.arrival_time) + abs(p_r.departure_time - pass.departure_time);
 
-			if (relateness_passenger2(soglia_relateness, relateness, passenger_removed, agr_pass, sequenza, y, map_id_passenger))
+			if (relateness_passenger2(soglia_relateness, relateness, passenger_removed, agr_pass, sequence, y, map_id_passenger))
 				y--;
 		}
 
