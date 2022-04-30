@@ -27,10 +27,15 @@ void aggregate_same_nodes(Route& r, int node) {
 	// La modicfica del form e to del passeggiero non funziona
 	for(int i=0; i< r.get_passengers().size(); i++){
 		Passenger &p = r.get_passenger(i);
-		if (p.solution_from == (1 + node)) p.solution_from = node;
-		if (p.solution_to == (1 + node)) p.solution_to = node;
-		if (p.solution_from > (1 + node)) p.solution_from--;
-		if (p.solution_to > (1 + node))	p.solution_to--;
+		
+		if (p.solution_from == (1 + node)) 
+			p.solution_from = node;
+		if (p.solution_to == (1 + node)) 
+			p.solution_to = node;
+		if (p.solution_from > (1 + node))
+			p.solution_from--;
+		if (p.solution_to > (1 + node))
+			p.solution_to--;
 	}
 
 	// Now, we remove the node
@@ -41,10 +46,15 @@ void aggregate_same_nodes_inter_ls(Route& r, int node) {
 	// La modicfica del form e to del passeggiero non funziona
 	for (int i = 0; i < r.get_passengers().size(); i++) {
 		auto& p = r.get_passenger(i);
-		if (p.solution_from == (1 + node)) p.solution_from = node;
-		if (p.solution_to == (1 + node)) p.solution_to = node;
-		if (p.solution_from > (1 + node)) p.solution_from--;
-		if (p.solution_to > (1 + node))	p.solution_to--;
+		
+		if (p.solution_from == (1 + node)) 
+			p.solution_from = node;
+		if (p.solution_to == (1 + node)) 
+			p.solution_to = node;
+		if (p.solution_from > (1 + node))
+			p.solution_from--;
+		if (p.solution_to > (1 + node))	
+			p.solution_to--;
 	}
 
 	// Now, we remove the node
@@ -87,6 +97,7 @@ vector <Route> aggrezione_simple_after_model(vector<Route>& solution_model, map<
 			Route* route_r1 = &solution_model[r1];
 			Airplane* airplane_r1 = &map_airplane[route_r1->aircraft_code];
 
+			//TODO: Replace it by a list of break if's
 			if (r != r1 && route->get_airstrips()[route->index - 1] == route_r1->get_airstrips()[0] &&
 				route->get_departure_at(route->index - 1) <= route_r1->get_arrival_at(0) &&
 				airplane->model == airplane_r1->model
@@ -148,9 +159,9 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 			
 			string val = to_string(r) + ";";
 			string val1 = to_string(r1) + ";";
+			// TODO: Refactor here
 			double time_trascorso = (from_to[route->get_airstrips()[route->index - 1]][route_r1->get_airstrips()[0]] / airplane->speed) * 60;
 			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][route_r1->get_airstrips()[0]];
-
 
 			double costo_aggiunta = fuel_consumed + from_to[route->get_airstrips()[route->index - 1]][route_r1->get_airstrips()[0]];
 			//READ ME: non ? importante fare il check se i due posti (finale di una route, inziale della seconda) siano uguali,
@@ -161,6 +172,7 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 			//	- posso arrivare a tutte le altre locazioni se tolgo il refuel al depot?????????????????????????????????????
 			// ho aggiunto il fatto che il costo del tratto aggiuntivo deve essere minore o uguale al costo fisso dell'aereo
 			
+			// TODO: Replace it by a list of break if's
 			if (r != r1 && route->get_departures()[route->index - 1] + time_trascorso <= route->get_arrivals()[0] &&
 				route->fuel[route->index - 1] - fuel_consumed >= airplane->min_fuel &&
 				airplane->model == airplane_r1->model
