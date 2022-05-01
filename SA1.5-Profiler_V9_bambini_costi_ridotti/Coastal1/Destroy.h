@@ -2,12 +2,9 @@
 #include <set>
 #include <unordered_map>
 
-
 #include "Evaluate.h"
 #include "Route.h"
 #include "Util.h"
-
-
 
 bool relateness_passenger2(int trheshold, double relateness, vector<Passenger>& passengers_removed, map<string, vector<int>>& agr_pass, vector<string>& sequence, int y, map<int, Passenger>& map_id_passenger) {
 	// Poi questo for si potra togliere
@@ -25,7 +22,6 @@ bool relateness_passenger2(int trheshold, double relateness, vector<Passenger>& 
 	return false;
 }
 
-
 vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution) {
 
 	map<int, Airplane> map_airplane = input->get_map_airplane();
@@ -38,15 +34,13 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 		double f = (double)rand() / RAND_MAX;
 		f = f * (10);
 		if (f <= destroy_coef_route && r.index > 1) {
-
 			//genero il numero random di nodi da distruggere da 2 a place.size()-1;
 			double numero_random = (double)rand() / RAND_MAX;
-			if (r.get_airstrips().size() == 2) {
+
+			if (r.get_airstrips().size() == 2) 
 				numero_random = round(1 + (numero_random * (r.get_airstrips().size() - 2)));
-			}
-			else {
+			else
 				numero_random = round(2 + (numero_random * (r.get_airstrips().size() - 3)));
-			}
 
 			if (numero_random == r.get_airstrips().size() - 1) {
 				// qua devo distruggere tutta la route e lasciare solo il depot
@@ -79,12 +73,12 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 
 						if (node_destroy == r.index - 1) { //this in the case of that node is at the end
 							check = false;
-
 							vector<int> int_removed;
 
 							int Min_From_Pass = node_destroy;
 							int Max_To_Pass = node_destroy;
 							for (int p = 0; p < (int)r.get_passengers().size(); p++) {
+								// TODO: replace r.get_passengers()[p] by a Passenger object
 								if (r.get_passengers()[p].solution_to == node_destroy) {  // ho cambiato questa condizione
 									if (r.get_passengers()[p].solution_from < Min_From_Pass) Min_From_Pass = r.get_passengers()[p].solution_from;
 									int_removed.push_back(p);
@@ -115,12 +109,13 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 									int index_updating_from = k;
 									int index_updating_to = r.index;  //qua prima c'era -1
 									for (int i = k + 1; i <= Max_To_Pass; i++) {
-										if (r.get_refueling()[i]) break;
+										if (r.get_refueling()[i]) 
+											break;
+										
 										if (r.get_weights()[i] < min_weight && i != node_destroy) {
 											min_weight = r.get_weights()[i];
 											Node_min = i;
 										}
-										//}
 									}
 									if (Node_min >= 0) {
 										for (int i = k + 1; i < r.index; i++) {
@@ -141,7 +136,6 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 										}
 									}
 								}
-
 							}
 
 							int nodi_mancanti = (int)(r.get_airstrips().size());
@@ -150,7 +144,6 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 							nodi_rimossi += nodi_mancanti;
 						}
 						else {
-
 							double fuel_consumed = from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[node_destroy - 1]][r.get_airstrips()[node_destroy + 1]];
 
 							if (fuel_consumed <= r.fuel[node_destroy - 1] && r.get_airstrips()[node_destroy - 1] != r.get_airstrips()[node_destroy + 1]) {
@@ -197,12 +190,10 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 										r.fuel[i] = r.fuel[i] - diff;
 									}
 
-									if (r.get_refueling()[node_destroy]) {
+									if (r.get_refueling()[node_destroy])
 										r.get_weight_at(i) = r.get_weights()[i] + diff;
-									}
-									else {
+									else
 										r.get_weight_at(i) = r.get_weights()[i] + diff;
-									}
 
 									index_before = i + 1;
 								}
@@ -285,7 +276,7 @@ void do_work13(Route& r, const int node_destroy, vector<int>& int_removed, int& 
 	for (int p = 0; p < (int)r.get_passengers().size(); p++) {
 		const Passenger passenger = r.get_passengers()[p];
 		if (passenger.solution_to == node_destroy || passenger.solution_from == node_destroy) {								if (r.get_passengers()[p].solution_from < Min_From_Pass) 
-				Min_From_Pass = r.get_passengers()[p].solution_from;
+			Min_From_Pass = passenger.solution_from;
 			Max_To_Pass = max(Max_To_Pass, passenger.solution_to);
 								
 			int_removed.push_back(p);
@@ -319,7 +310,6 @@ void do_work14(Route& r, int node_destroy, double fuel_consumed)
 	}
 }
 
-
 void do_work12(Route& r)
 {
 	double add_fuel = 0;
@@ -338,7 +328,6 @@ void do_work12(Route& r)
 			}
 
 			for (int t = index_refueling; t < r.index; t++) {
-
 				if (r.get_refueling()[t] && t != index_refueling) 
 					break;
 				r.fuel[t] += add_fuel;
@@ -417,14 +406,12 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 						if (r.get_refueling()[k] && r.fuel[k] < airplane->max_fuel) { //&& k!= node_destroy
 							do_work11(r, airplane, node_destroy, Max_To_Pass, k);
 						}
-
 					}
+					
 					r.removePlace(node_destroy, map_airplane);
-
 					do_work12(r);
 				}
 				else {
-
 					double fuel_consumed = airplane_consumptions[r.get_airstrips()[node_destroy - 1]][r.get_airstrips()[node_destroy + 1]];
 					
 					if ((fuel_consumed + airplane->min_fuel) <= r.fuel[node_destroy - 1] && r.get_airstrips()[node_destroy - 1] != r.get_airstrips()[node_destroy + 1]) {
@@ -525,12 +512,10 @@ void do_work7(Route& r, int node_destroy, double fuel_consumed, int index_before
 			r.fuel[i] = r.fuel[i] - diff;
 		}
 
-		if (r.get_refueling()[node_destroy]) {
+		if (r.get_refueling()[node_destroy]) 
 			r.get_weight_at(i) = r.get_weights()[i] + diff;
-		}
-		else {
+		else
 			r.get_weight_at(i) = r.get_weights()[i] + diff;
-		}
 
 		index_before = i + 1;
 	}
@@ -616,7 +601,6 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 					
 					for (int i = int_removed.size() - 1; i >= 0; i--) {
 						r.get_passenger(int_removed[i]).route_before = index;
-
 						passenger_removed.push_back(r.get_passengers()[int_removed[i]]);
 						r.erase_passenger(int_removed[i]);
 					}
@@ -655,7 +639,6 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 							r.erase_passenger(int_removed[i]);
 						}
 						r.update_route_destroy(input, node_destroy, min_from_pass, max_to_pass); //update of the time
-
 
 						int index_before = node_destroy - 1;
 						double diff = 0;
@@ -723,8 +706,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 
 		int codice = stoi(split(x, '|')[0]);
 		string code = split(x, '|')[1] + "|" + to_string(map_id_passenger[codice].origin) + "|" + to_string(map_id_passenger[codice].destination);
-		if (agr_pass.find(code) != agr_pass.end())
-		{
+		if (agr_pass.find(code) != agr_pass.end()){
 			agr_pass[code].push_back(map_id_passenger[codice].pnr);
 		}
 		else {
@@ -789,9 +771,8 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 			}
 		}
 
-		for (int i = int_removed.size() - 1; i >= 0; i--) {
+		for (int i = int_removed.size() - 1; i >= 0; i--)
 			s.erase_passenger(int_removed[i]);
-		}
 
 		if (update) {
 			int index_min_from = min_from_pass;
@@ -891,7 +872,6 @@ void do_work9(int node_destroy, Route& r, vector<int>& int_removed, int& min_fro
 				r.add_capacity_at(t, -1*r.get_passengers()[p].capacity);
 				r.get_weight_at(t) += r.get_passengers()[p].weight;
 			}
-
 		}
 	}
 }
@@ -940,7 +920,8 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 
 				for (int i = node_destroy + 1; i < r.index; i++) {
 
-					if (r.get_refueling()[i]) break;
+					if (r.get_refueling()[i]) 
+						break;
 
 					if (index_before == (node_destroy - 1)) {
 						diff = r.fuel[i];
@@ -977,7 +958,6 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 						}
 					}
 				}
-
 			}
 		}
 
