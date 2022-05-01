@@ -2,8 +2,6 @@
 #include <iostream>
 using namespace std;
 
-
-
 Airstrip::Airstrip()
 {
 	code = 0;
@@ -18,7 +16,6 @@ Airstrip::Airstrip()
 }
 
 Airstrip::Airstrip(int code, string name, string code_string, int ground_time, int leading_cost, double lat, double lng, bool fuel, double fuel_cost) {
-
 	this->code = code;
 	this->name = name;
 	this->code_string = code_string;
@@ -30,11 +27,9 @@ Airstrip::Airstrip(int code, string name, string code_string, int ground_time, i
 	this->fuel_cost = fuel_cost;
 }
 
-
 void Airstrip::print() {
 	cout << "--" << name << " " << to_string(code) << " " << ground_time << " " << landing_cost
 		 << " " << lat << " " << lng << " " << fuel << " " << fuel_cost << endl;
-
 }
 
 
