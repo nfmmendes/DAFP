@@ -66,7 +66,7 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 	//aggiorno i tempi e fuel senza aver considerato il probabile peso negativo, il paso qua ? come se lo inizializzassi
 	for (int i = 0; i < r_new.index; i++) {
 		if (i > 0) {
-			r_new.get_arrival_at(i) = r_new.get_departures()[i - 1] + (((from_to[r_new.get_airstrips()[i - 1]][r_new.get_airstrips()[i]]) / map_airplane[r_new.aircraft_code].speed) * 60);
+			r_new.get_arrival_at(i) = r_new.get_departures()[i - 1] + map_airplane[r_new.aircraft_code].travelTime(from_to[r_new.get_airstrips()[i - 1]][r_new.get_airstrips()[i]]);
 			r_new.get_departure_at(i) = r_new.get_departures()[i] + map_airstrip[r_new.get_airstrips()[i]].ground_time;
 
 			double fuel_consumed = from_to_FuelConsumed[r_new.aircraft_code][r_new.get_airstrips()[i - 1]][r_new.get_airstrips()[i]];

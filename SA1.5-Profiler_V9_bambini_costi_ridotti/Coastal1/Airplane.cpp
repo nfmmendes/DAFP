@@ -60,3 +60,7 @@ Airplane::~Airplane()
 {
 }
 
+double Airplane::travelTime(double distance)
+{
+	return 60 * distance / speed;
+}

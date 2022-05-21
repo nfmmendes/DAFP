@@ -31,9 +31,9 @@ void fillLocation_fuel(double2DVector& result, vector<Airstrip> airstrips, vecto
 			}
 			else {
 				double fuel_needed = 0;
-				double time_fly = from_to[a.code][location_closest_with_fuel(a.code, from_to, map_airstrip)] / f.speed;
+				double time_fly = f.travelTime(from_to[a.code][location_closest_with_fuel(a.code, from_to, map_airstrip)]);
 
-				fuel_needed = min(1.0, time_fly) * f.fuel_burn_first + max(time_fly - 1, 0.0) * f.fuel_burn_second;
+				fuel_needed = min(1.0, time_fly/60) * f.fuel_burn_first + max(time_fly/60 - 1, 0.0) * f.fuel_burn_second;
 				result[f.code][a.code] = fuel_needed;
 			}
 		}
@@ -196,13 +196,13 @@ void fill_from_to_fuel_consumed(double3DVector& from_to_fuel_consumed, vector<ve
 
 		for (int i = 1; i < numero_airstrip_const; i++) {
 			for (int j = 1; j < numero_airstrip_const; j++) {
-				double time_fly = from_to[i][j] / airplane.speed;
+				double time_fly = airplane.travelTime(from_to[i][j]);
 				double fuel_consumed = 0.0;
-				if (time_fly <= 1) {
-					fuel_consumed = time_fly * airplane.fuel_burn_first;
+				if (time_fly >= 60) {
+					fuel_consumed = time_fly/60 * airplane.fuel_burn_first;
 				}
 				else {
-					fuel_consumed = airplane.fuel_burn_first + (time_fly - 1) * airplane.fuel_burn_second;
+					fuel_consumed = airplane.fuel_burn_first + (time_fly/60 - 1) * airplane.fuel_burn_second;
 				}
 				from_to_fuel_consumed[airplane.code][i][j] = fuel_consumed;
 			}
@@ -278,12 +278,12 @@ map<string, double> fillLocation_fuel_string(vector<Airstrip> airstrips, vector<
 			}
 			else {
 				double fuel_needed = 0;
-				double time_fly = from_to[a.code_string + ";" + location_closest_with_fuel_string(a.code_string, from_to, map_airstrip)] / f.speed;
-				if (time_fly <= 1) {
-					fuel_needed = time_fly * f.fuel_burn_first;
+				double time_fly = f.travelTime(from_to[a.code_string + ";" + location_closest_with_fuel_string(a.code_string, from_to, map_airstrip)]);
+				if (time_fly/60 <= 1) {
+					fuel_needed = time_fly/60 * f.fuel_burn_first;
 				}
 				else {
-					fuel_needed = f.fuel_burn_first + (time_fly - 1) * f.fuel_burn_second;
+					fuel_needed = f.fuel_burn_first + (time_fly/60 - 1) * f.fuel_burn_second;
 				}
 				risultato.insert(make_pair(f.code_company + "/" + a.code_string, fuel_needed));
 			}

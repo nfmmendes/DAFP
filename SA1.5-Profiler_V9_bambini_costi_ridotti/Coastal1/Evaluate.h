@@ -204,7 +204,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 				c += from_to_company[key];
 				final_cost_km += from_to_company[key];
 
-				double time_flight = (from_to_company[key]) / airplanes_map[route->aircraft_code_company_comparison].speed;
+				double time_flight = airplanes_map[route->aircraft_code_company_comparison].travelTime((from_to_company[key]));
 				double cost_fuel = airplane->fuel_burn_first + max(0.0 , (time_flight - 1) * airplane->fuel_burn_second);
 				
 				c += cost_fuel;
@@ -488,7 +488,7 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 			int depot = airplane->depot;
 			int maxFuel = airplane->max_fuel;
 			int groundTime = map_airstrip[depot].ground_time;
-			double arrivalTime = r.get_departures()[r.index - 1] + (from_to[origin][depot] / airplane->speed);
+			double arrivalTime = r.get_departures()[r.index - 1] + airplane->travelTime(from_to[origin][depot]);
 
 			r.addPlace(depot, 1, maxFuel, airplane->max_weight - maxFuel, 0, arrivalTime, arrivalTime + groundTime);
 		}

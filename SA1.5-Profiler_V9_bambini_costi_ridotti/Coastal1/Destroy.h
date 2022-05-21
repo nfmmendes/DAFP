@@ -888,8 +888,8 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 		bool check = true;
 		double fuel_consumed_check = 0.0;
 		if ((node_destroy + 2) < r.index) {
-			double time_travel = from_to[r.get_airstrips()[node_destroy - 1]][r.get_airstrips()[node_destroy + 2]] / airplane->speed;
-			fuel_consumed_check = airplane->fuel_burn_first * min(1.0, time_travel) + max(0.0, time_travel-1)* airplane->fuel_burn_second;
+			double time_travel = airplane->travelTime(from_to[r.get_airstrips()[node_destroy - 1]][r.get_airstrips()[node_destroy + 2]]);
+			fuel_consumed_check = airplane->fuel_burn_first * min(1.0, time_travel/60) + max(0.0, time_travel/60-1)* airplane->fuel_burn_second;
 		}
 		
 		if ((fuel_consumed_check + airplane->min_fuel) <= r.fuel[node_destroy - 1]) {
@@ -899,9 +899,9 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 				if (i == 1 && (number_initial_node - r.index) > 1) 
 					break;
 				double fuel_consumed = 0.0;
-				double time_travel = from_to[r.get_airstrips()[node_destroy - 1]][r.get_airstrips()[node_destroy + 1]] / airplane->speed;
+				double time_travel = airplane->travelTime(from_to[r.get_airstrips()[node_destroy - 1]][r.get_airstrips()[node_destroy + 1]]);
 				
-				fuel_consumed = airplane->fuel_burn_first * min(1.0, time_travel) + max(0.0, time_travel - 1)* airplane->fuel_burn_second;
+				fuel_consumed = airplane->fuel_burn_first * min(1.0, time_travel/60) + max(0.0, time_travel/60 - 1)* airplane->fuel_burn_second;
 
 				vector<int> int_removed;
 				int min_from_pass;

@@ -202,11 +202,11 @@ void Route::update_route_destroy(ProcessedInput* input, int node_destroy, int mi
 	double2DVector from_to = input->get_from_to();
 	Airplane* airplane = & map<int, Airplane>(input->get_map_airplane())[aircraft_code];
 	
-	arrival[node_destroy + 1] = departure[node_destroy - 1] + from_to[airstrips[node_destroy - 1]][airstrips[node_destroy + 1]] /airplane->speed * 60;
+	arrival[node_destroy + 1] = departure[node_destroy - 1] + airplane->travelTime(from_to[airstrips[node_destroy - 1]][airstrips[node_destroy + 1]]);
 	departure[node_destroy + 1] = arrival[node_destroy + 1] + map_airstrip[airstrips[node_destroy + 1]].ground_time;
 
 	for (int i = node_destroy + 1; i < index - 1; i++) {
-		arrival[i + 1] = departure[i] + from_to[airstrips[i]][airstrips[i + 1]] / airplane->speed * 60;
+		arrival[i + 1] = departure[i] + airplane->travelTime(from_to[airstrips[i]][airstrips[i + 1]]);
 		departure[i + 1] = arrival[i + 1] + map_airstrip[airstrips[i + 1]].ground_time;
 	}
 
@@ -419,14 +419,14 @@ void Route::update_route_rebuilt_one(ProcessedInput* input, int node_add_from, i
 			}
 		}
 
-		double time_add = departure[node_add_from] + ((from_to[airstrips[node_add_from]][location_from] / airplane->speed) * 60);
+		double time_add = departure[node_add_from] + airplane->travelTime(from_to[airstrips[node_add_from]][location_from]);
 		arrival.insert(arrival.begin() + node_add_from + 1, time_add);
 		departure.insert(departure.begin() + node_add_from + 1, time_add + map_airstrip[location_from].ground_time);
 
-		double time = ((from_to[airstrips[node_add_from]][location_from] / airplane->speed) * 60)
-			+ ((from_to[location_from][airstrips[node_add_from + 2]] / airplane->speed) * 60)
+		double time = airplane->travelTime(from_to[airstrips[node_add_from]][location_from]);
+			+ airplane->travelTime(from_to[location_from][airstrips[node_add_from + 2]])
 			+ map_airstrip[location_from].ground_time
-			- ((from_to[airstrips[node_add_from]][airstrips[node_add_from + 2]] / airplane->speed) * 60);
+			- airplane->travelTime(from_to[airstrips[node_add_from]][airstrips[node_add_from + 2]]);
 
 		index++;
 
@@ -496,15 +496,15 @@ void Route::update_route_rebuilt_one(ProcessedInput* input, int node_add_from, i
 
 		airstrips.insert(airstrips.begin() + node_add_to, location_to);
 		p.solution_to = node_add_to;
-		double time_add1 = departure[node_add_to - 1] + ((from_to[airstrips[node_add_to - 1]][location_to] / airplane->speed) * 60);
+		double time_add1 = departure[node_add_to - 1] + airplane->travelTime(from_to[airstrips[node_add_to - 1]][location_to]);
 		arrival.insert(arrival.begin() + node_add_to, time_add1);
 		departure.insert(departure.begin() + node_add_to, time_add1 + map_airstrip[location_to].ground_time);
 		double time1 = 0.0;
 		if (!non_to_final) {
-			time1 = ((from_to[airstrips[node_add_to - 1]][location_to] / airplane->speed) * 60)
-				+ ((from_to[location_to][airstrips[node_add_to + 1]] / airplane->speed) * 60)
+			time1 = airplane->travelTime(from_to[airstrips[node_add_to - 1]][location_to])
+				+ airplane->travelTime(from_to[location_to][airstrips[node_add_to + 1]])
 				+ map_airstrip[location_to].ground_time
-				- ((from_to[airstrips[node_add_to - 1]][airstrips[node_add_to + 1]] / airplane->speed) * 60);
+				- airplane->travelTime(from_to[airstrips[node_add_to - 1]][airstrips[node_add_to + 1]]);
 		}
 
 		index++;
@@ -619,7 +619,7 @@ void Route::add_update_only_one_node_first_passanger(ProcessedInput* input, Pass
 		fuel[0] = airplane->max_fuel;
 		weights[0] = airplane->load_weight - fuel[0] - p.weight;
 
-		double time = (from_to[p.origin][p.destination] / map_airplane[aircraft_code].speed) * 60;
+		double time = map_airplane[aircraft_code].travelTime(from_to[p.origin][p.destination]);
 		double fuel_consumed = from_to_fuelConsumed[aircraft_code][p.origin][p.destination];
 
 		addPlace(p.destination, map_airstrip[p.destination].fuel, 0.0, 0.0, 0, departure[0] + time, departure[0] + time + map_airstrip[p.destination].ground_time);
@@ -637,9 +637,9 @@ void Route::add_update_only_one_node_first_passanger(ProcessedInput* input, Pass
 	}
 	else {
 
-		arrival[index - 1] = p.early_departure - (from_to[airstrips[index - 1]][p.origin] / map_airplane[aircraft_code].speed) * 60 -
+		arrival[index - 1] = p.early_departure - map_airplane[aircraft_code].travelTime(from_to[airstrips[index - 1]][p.origin]) -
 			map_airstrip[airstrips[index - 1]].ground_time;
-		departure[index - 1] = p.early_departure - (from_to[airstrips[index - 1]][p.origin] / map_airplane[aircraft_code].speed) * 60;
+		departure[index - 1] = p.early_departure - map_airplane[aircraft_code].travelTime(from_to[airstrips[index - 1]][p.origin]);
 
 		weights[index - 1] = map_airplane[aircraft_code].load_weight - fuel[index - 1];  //here i put max_fuel because at the beginnig in the depot all the airplane have full fuel
 
@@ -657,7 +657,7 @@ void Route::add_update_only_one_node_first_passanger(ProcessedInput* input, Pass
 			weights[index - 1] = weights[index - 2] - p.weight + fuel_consumed;
 		}
 		p.solution_from = index - 1;
-		double time = p.early_departure + map_airstrip[p.origin].ground_time + (from_to[p.origin][p.destination] / map_airplane[aircraft_code].speed) * 60;
+		double time = p.early_departure + map_airstrip[p.origin].ground_time + map_airplane[aircraft_code].travelTime(from_to[p.origin][p.destination]);
 
 		if (map_airstrip[p.destination].fuel) {
 			addPlace(p.destination, map_airstrip[p.destination].fuel, map_airplane[aircraft_code].max_fuel, 0.0, 0, time, time + map_airstrip[p.destination].ground_time);
@@ -689,7 +689,7 @@ void Route::move_c(ProcessedInput* input, Passenger& p, int location_from, int l
 		capacities[index - 1] += p.capacity;
 		weights[index - 1] -= p.weight;
 
-		double time_arri = departure[index - 1] + (from_to[location_from][location_to] / airplane->speed) * 60;
+		double time_arri = departure[index - 1] + airplane->travelTime(from_to[location_from][location_to]);
 		double time_depa = time_arri + map_airstrip[location_to].ground_time;
 		p.solution_from = index - 1;
 		double fuel_consumed = from_to_fuelConsumed[aircraft_code][location_from][location_to];
@@ -707,9 +707,8 @@ void Route::move_c(ProcessedInput* input, Passenger& p, int location_from, int l
 
 		if (map_airstrip[p.origin].fuel) {
 			addPlace(p.origin, map_airstrip[p.origin].fuel, airplane->max_fuel, 0.0, p.capacity,
-				departure[index - 1] +
-				(from_to[airstrips[index - 1]][p.origin] / airplane->speed) * 60,
-				departure[index - 1] + (from_to[airstrips[index - 1]][p.origin] / airplane->speed) * 60 + map_airstrip[p.origin].ground_time);
+				departure[index - 1] + airplane->travelTime(from_to[airstrips[index - 1]][p.origin]),
+				departure[index - 1] + airplane->travelTime(from_to[airstrips[index - 1]][p.origin]) + map_airstrip[p.origin].ground_time);
 
 			weights[index - 1] = airplane->load_weight - airplane->max_fuel - p.weight;
 		}
@@ -718,14 +717,14 @@ void Route::move_c(ProcessedInput* input, Passenger& p, int location_from, int l
 			double fuel_consumed = from_to_fuelConsumed[aircraft_code][airstrips[index - 1]][p.origin];
 			
 			addPlace(p.origin, map_airstrip[p.origin].fuel, fuel_before - fuel_consumed, 0.0, p.capacity, departure[index - 1] +
-				(from_to[airstrips[index - 1]][p.origin] / airplane->speed) * 60,
-				departure[index - 1] + (from_to[airstrips[index - 1]][p.origin] / airplane->speed) * 60 + map_airstrip[p.origin].ground_time);
+				airplane->travelTime(from_to[airstrips[index - 1]][p.origin]),
+				departure[index - 1] + airplane->travelTime(from_to[airstrips[index - 1]][p.origin]) + map_airstrip[p.origin].ground_time);
 
 			weights[index - 1] = map_airplane[aircraft_code].load_weight - fuel[index - 1] - p.weight;
 
 		}
 		p.solution_from = index - 1;
-		double time = departure[index - 1] + (from_to[p.origin][p.destination] / airplane->speed) * 60;
+		double time = departure[index - 1] + airplane->travelTime(from_to[p.origin][p.destination]);
 
 		if (map_airstrip[p.destination].fuel) {
 			addPlace(p.destination, map_airstrip[p.destination].fuel, airplane->max_fuel, 0.0, 0, time, time + map_airstrip[p.destination].ground_time);
@@ -842,14 +841,14 @@ void Route::update_time_for_check_repair(ProcessedInput* input, int node_add_fro
 			}
 		}
 
-		const double travel_distance = ((from_to[airstrips[node_add_from]][location_from] / airplane->speed) * 60);
+		const double travel_distance = airplane->travelTime(from_to[airstrips[node_add_from]][location_from]);
 		arrival.insert(arrival.begin() + node_add_from + 1, departure[node_add_from] + travel_distance);
 		departure.insert(departure.begin() + node_add_from + 1, departure[node_add_from] + travel_distance + map_airstrip[location_from].ground_time);
 
-		double time = ((from_to[airstrips[node_add_from]][location_from] / airplane->speed) * 60)
-			+ ((from_to[location_from][airstrips[node_add_from + 2]] / airplane->speed) * 60)
+		double time = airplane->travelTime(from_to[airstrips[node_add_from]][location_from]);
+			+ airplane->travelTime(from_to[location_from][airstrips[node_add_from + 2]])
 			+ map_airstrip[location_from].ground_time
-			- ((from_to[airstrips[node_add_from]][airstrips[node_add_from + 2]] / airplane->speed) * 60);
+			- airplane->travelTime(from_to[airstrips[node_add_from]][airstrips[node_add_from + 2]]);
 
 		index++;
 
@@ -861,14 +860,14 @@ void Route::update_time_for_check_repair(ProcessedInput* input, int node_add_fro
 
 	if (non_to) {
 		airstrips.insert(airstrips.begin() + node_add_to, location_to);
-		double travel_time = ((from_to[airstrips[node_add_to - 1]][location_to] / airplane->speed) * 60);
+		double travel_time = airplane->travelTime(from_to[airstrips[node_add_to - 1]][location_to]);
 		arrival.insert(arrival.begin() + node_add_to, departure[node_add_to - 1] + travel_time);
 		departure.insert(departure.begin() + node_add_to, departure[node_add_to - 1] + travel_time + map_airstrip[location_to].ground_time);
 		double time1 = 0.0;
 		
 		if (!non_to_final) {
-			double travel_time_2 = ((from_to[location_to][airstrips[node_add_to + 1]] / airplane->speed) * 60);
-			double travel_time_3 = ((from_to[airstrips[node_add_to - 1]][airstrips[node_add_to + 1]] / airplane->speed) * 60);
+			double travel_time_2 = airplane->travelTime(from_to[location_to][airstrips[node_add_to + 1]]);
+			double travel_time_3 = airplane->travelTime(from_to[airstrips[node_add_to - 1]][airstrips[node_add_to + 1]]);
 			time1 = travel_time	 + travel_time_2 + map_airstrip[location_to].ground_time - travel_time_3;
 		}
 
@@ -977,15 +976,15 @@ void Route::do_work3(int& node_add_from, int& node_add_to, int location_from, in
 
 void Route::do_work4(int& node_add_from, int location_from, map<int, Airstrip> map_airstrip, double2DVector from_to, Airplane* airplane)
 {
-	double time_add = departure[node_add_from] + ((from_to[airstrips[node_add_from]][location_from] / airplane->speed) * 60);
+	double time_add = departure[node_add_from] + airplane->travelTime(from_to[airstrips[node_add_from]][location_from]);
 
 	arrival.insert(arrival.begin() + node_add_from + 1, time_add);
 	departure.insert(departure.begin() + node_add_from + 1, time_add + map_airstrip[location_from].ground_time);
 
-	double time = ((from_to[airstrips[node_add_from]][location_from] / airplane->speed) * 60)
-		+ ((from_to[location_from][airstrips[node_add_from + 2]] / airplane->speed) * 60)
+	double time = airplane->travelTime(from_to[airstrips[node_add_from]][location_from])
+		+ airplane->travelTime(from_to[location_from][airstrips[node_add_from + 2]])
 		+ map_airstrip[location_from].ground_time
-		- ((from_to[airstrips[node_add_from]][airstrips[node_add_from + 2]] / airplane->speed) * 60);
+		- airplane->travelTime(from_to[airstrips[node_add_from]][airstrips[node_add_from + 2]]);
 
 	index++;
 
@@ -1003,16 +1002,16 @@ void Route::do_work4(int& node_add_from, int location_from, map<int, Airstrip> m
 void Route::do_work5(int& node_add_to, int location_to, bool& non_to_final, map<int, Airplane> map_airplane, map<int, Airstrip> map_airstrip, double2DVector from_to)
 {
 	airstrips.insert(airstrips.begin() + node_add_to, location_to);
-	double time_add1 = departure[node_add_to - 1] + ((from_to[airstrips[node_add_to - 1]][location_to] / map_airplane[aircraft_code].speed) * 60);
+	double time_add1 = departure[node_add_to - 1] + map_airplane[aircraft_code].travelTime(from_to[airstrips[node_add_to - 1]][location_to]);
 	arrival.insert(arrival.begin() + node_add_to, time_add1);
 	departure.insert(departure.begin() + node_add_to, time_add1 + map_airstrip[location_to].ground_time);
 
 	double time1 = 0.0;
 	if (!non_to_final) {
-		time1 = ((from_to[airstrips[node_add_to - 1]][location_to] / map_airplane[aircraft_code].speed) * 60)
-			+ ((from_to[location_to][airstrips[node_add_to + 1]] / map_airplane[aircraft_code].speed) * 60)
+		time1 = map_airplane[aircraft_code].travelTime(from_to[airstrips[node_add_to - 1]][location_to])
+			+ map_airplane[aircraft_code].travelTime(from_to[location_to][airstrips[node_add_to + 1]])
 			+ map_airstrip[location_to].ground_time
-			- ((from_to[airstrips[node_add_to - 1]][airstrips[node_add_to + 1]] / map_airplane[aircraft_code].speed) * 60);
+			- map_airplane[aircraft_code].travelTime(from_to[airstrips[node_add_to - 1]][airstrips[node_add_to + 1]]);
 	}
 
 	index++;

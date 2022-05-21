@@ -108,7 +108,7 @@ vector <Route> aggrezione_simple_after_model(vector<Route>& solution_model, map<
 				r_add.primo_pass = true;
 
 				for (int i = 0; i < route->index - 1; i++) {
-					double travel_time = 60*from_to[route->get_airstrips()[i]][solution_model[r1].get_airstrips()[0]] / airplane->speed;
+					double travel_time = airplane->travelTime(from_to[route->get_airstrips()[i]][solution_model[r1].get_airstrips()[0]]);
 					if (i == route->index - 2) {
 						r_add.addPlace(route->get_airstrips()[i], route->get_refueling()[i], route->fuel[i], route->get_weights()[i],
 							route->get_capacities()[i], route->get_arrivals()[i], (route_r1->get_arrivals()[0] - travel_time));
@@ -160,7 +160,7 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 			string val = to_string(r) + ";";
 			string val1 = to_string(r1) + ";";
 			// TODO: Refactor here
-			double time_trascorso = (from_to[route->get_airstrips()[route->index - 1]][route_r1->get_airstrips()[0]] / airplane->speed) * 60;
+			double time_trascorso = airplane->travelTime(from_to[route->get_airstrips()[route->index - 1]][route_r1->get_airstrips()[0]]);
 			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][route->get_airstrips()[route->index - 1]][route_r1->get_airstrips()[0]];
 
 			double costo_aggiunta = fuel_consumed + from_to[route->get_airstrips()[route->index - 1]][route_r1->get_airstrips()[0]];
@@ -183,7 +183,7 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 				Route r_add(route->aircraft_code, route->get_passengers());
 				r_add.primo_pass = true; //N.B. commentare questa riga se si vuole vedere quelle che aggrega
 				for (int i = 0; i <= route->index - 1; i++) {
-					double time_to_go = 60*from_to[route->get_airstrips()[i]][route_r1->get_airstrips()[0]]/ airplane->speed;
+					double time_to_go = airplane->travelTime(from_to[route->get_airstrips()[i]][route_r1->get_airstrips()[0]]);
 					if (i == route->index - 1) {
 						r_add.addPlace(route->get_airstrips()[i], route->get_refueling()[i], route->fuel[i], route->get_weights()[i],
 							route->get_capacities()[i], route->get_arrivals()[i], (route_r1->get_arrivals()[0] - time_to_go));

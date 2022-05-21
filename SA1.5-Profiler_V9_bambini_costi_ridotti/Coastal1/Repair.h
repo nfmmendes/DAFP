@@ -115,7 +115,7 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 				//if there is at least one passenger inside the route, i evaluete the possibility to put him/her inside the route with the move C
 				if (route->get_airstrips()[routes_destroyed[r].index - 1] == p.origin) {
 					double dist = from_to[p.origin][p.destination];
-					double time = (from_to[p.origin][p.destination] / airplane->speed) * 60;
+					double time = airplane->travelTime(from_to[p.origin][p.destination]);
 
 					double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][p.origin][p.destination];
 					double time_window_cost = get_time_window_cost(p, route, time);
@@ -145,10 +145,10 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 					// the departure is not equals to the last place of the route
 					double cost = from_to[route->get_airstrips()[route->index - 1]][p.origin] + from_to[p.origin][p.destination];
 					double ground_time = map_airstrip[p.origin].ground_time;
-					double travel_time = 60*(from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed);
+					double travel_time = airplane->travelTime(from_to[route->get_airstrips()[route->index - 1]][p.origin]);
 					double t_arr_departure = route->get_departures()[route->index - 1] + travel_time;
 
-					travel_time = 60 * (from_to[p.origin][p.destination] / airplane->speed);
+					travel_time = airplane->travelTime(from_to[p.origin][p.destination]);
 					double t_arr_arrival = t_arr_departure + ground_time + travel_time;
 					
 					double TW_departure = max(0.0, p.early_departure - t_arr_departure) + max(0.0, t_arr_departure - p.late_departure);
@@ -322,7 +322,7 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights
 				//if there is at least one passenger inside the route, i evaluete the possibility to put him/her inside the route with the move C
 				if (route->get_airstrips()[route->index - 1] == p.origin) {
 					double dist = from_to[p.origin][p.destination];
-					double time = (from_to[p.origin][p.destination] / airplane->speed) * 60;
+					double time = airplane->travelTime(from_to[p.origin][p.destination]);
 
 					double fuel_consumed = from_to_fuel_consumed[route->aircraft_code][p.origin][p.destination];
 					double time_window_cost = get_time_window_cost(p, route, time);
@@ -342,9 +342,9 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights
 					
 					// the departure is not equals to the last place of the route
 					double cost = from_to[route->get_airstrips()[route->index - 1]][p.origin] + from_to[p.origin][p.destination];
-					double travelTime = 60*(from_to[route->get_airstrips()[route->index - 1]][p.origin]/ airplane->speed);
+					double travelTime = airplane->travelTime(from_to[route->get_airstrips()[route->index - 1]][p.origin]);
 					double t_arr_departure = route->get_departure_at(route->index - 1) + travelTime;
-					travelTime = 60*(from_to[p.origin][p.destination] / airplane->speed);
+					travelTime = airplane->travelTime(from_to[p.origin][p.destination]);
 
 					double t_arr_arrival = t_arr_departure + map_airstrip[p.origin].ground_time + travelTime; 
 					double TW_departure = max(0.0, p.early_departure - t_arr_departure) + max(0.0, t_arr_departure - p.late_departure);
@@ -634,7 +634,7 @@ vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_w
 				//if there is at least one passenger inside the route, i evaluete the possibility to put him/her inside the route with the move C
 				if (routes_destroyed[r].get_airstrips()[routes_destroyed[r].index - 1] == p.origin) {
 					double dist = from_to[p.origin][p.destination];
-					double time = (from_to[p.origin][p.destination] / airplane->speed) * 60;
+					double time = airplane->travelTime(from_to[p.origin][p.destination]);
 
 					double trip_fuel_consumed = fuel_consumed[p.origin][p.destination];
 
@@ -660,9 +660,9 @@ vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_w
 				else {
 					// the departure is not equals to the last place of the route
 					double cost = from_to[route->get_airstrips()[route->index - 1]][p.origin] + from_to[p.origin][p.destination];
-					double travel_time = (from_to[route->get_airstrips()[route->index - 1]][p.origin] / airplane->speed) * 60; 
+					double travel_time = airplane->travelTime(from_to[route->get_airstrips()[route->index - 1]][p.origin]);
 					double t_arr_departure = route->get_departures()[route->index - 1] + travel_time;
-					double t_arr_arrival = t_arr_departure + map_airstrip[p.origin].ground_time + (60*from_to[p.origin][p.destination] / airplane->speed);
+					double t_arr_arrival = t_arr_departure + map_airstrip[p.origin].ground_time + airplane->travelTime(from_to[p.origin][p.destination]);
 
 					double TW_departure = max(0.0, p.early_departure - t_arr_departure) + max(0.0, t_arr_departure - p.late_departure);
 					double TW_arrival = max(0.0, p.early_arrival - t_arr_arrival) + max(0.0, t_arr_arrival - p.late_arrival);
@@ -852,7 +852,7 @@ vector<Route> two_regret_repair_agregate(ProcessedInput* input, const PenaltyWei
 						//if there is at least one passenger inside the route, i evaluete the possibility to put him/her inside the route with the move C
 						if (d_route->get_airstrips()[d_route->index - 1] == p.origin) {
 							double dist = from_to[p.origin][p.destination];
-							double time = (from_to[p.origin][p.destination] / airplane->speed) * 60;
+							double time = airplane->travelTime(from_to[p.origin][p.destination]);
 							double fuel_consumed = from_to_FuelConsumed[d_route->aircraft_code][p.origin][p.destination];
 
 							double time_window_cost = 0.0;
@@ -880,10 +880,10 @@ vector<Route> two_regret_repair_agregate(ProcessedInput* input, const PenaltyWei
 						else {
 							// the departure is not equals to the last place of the route
 							double cost = from_to[d_route->get_airstrips()[d_route->index - 1]][p.origin] + from_to[p.origin][p.destination];
-							double time_to_go = (from_to[d_route->get_airstrips()[d_route->index - 1]][p.origin] / airplane->speed) * 60;
+							double time_to_go = airplane->travelTime(from_to[d_route->get_airstrips()[d_route->index - 1]][p.origin]);
 							double t_arr_departure = d_route->get_departures()[d_route->index - 1] + time_to_go;
 
-							time_to_go = ((from_to[p.origin][p.destination]) / airplane->speed) * 60;
+							time_to_go = airplane->travelTime(from_to[p.origin][p.destination]);
 							double t_arr_arrival = t_arr_departure + map_airstrip[p.origin].ground_time + time_to_go ;
 
 							double TW_departure = max(0.0, p.early_departure - t_arr_departure) + max(0.0, t_arr_departure - p.late_departure);
@@ -915,7 +915,6 @@ vector<Route> two_regret_repair_agregate(ProcessedInput* input, const PenaltyWei
 										arc_from.push_back(-2);
 										arc_to.push_back(-2);
 										route.push_back(r);
-
 									}
 								}
 							}
@@ -1111,7 +1110,7 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 					//if there is at least one passenger inside the route, i evaluete the possibility to put him/her inside the route with the move C
 					if (routes_destroyed[r].get_airstrips()[routes_destroyed[r].index - 1] == p.origin) {
 						double dist = from_to[p.origin][p.destination];
-						double time = (from_to[p.origin][p.destination] / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60;
+						double time = map_airplane[routes_destroyed[r].aircraft_code].travelTime(from_to[p.origin][p.destination]);
 						double fuel_consumed = from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.origin][p.destination];
 
 						double time_window_cost = 0.0;
@@ -1138,12 +1137,12 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 						// the departure is not equals to the last place of the route
 						double cost = from_to[routes_destroyed[r].get_airstrips()[routes_destroyed[r].index - 1]][p.origin] + from_to[p.origin][p.destination];
 						double TW_departure = 0.0;
-						double t_arr_departure = routes_destroyed[r].get_departures()[routes_destroyed[r].index - 1] + (((from_to[routes_destroyed[r].get_airstrips()[routes_destroyed[r].index - 1]][p.origin]) / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60);
+						double t_arr_departure = routes_destroyed[r].get_departures()[routes_destroyed[r].index - 1] + map_airplane[routes_destroyed[r].aircraft_code].travelTime(from_to[routes_destroyed[r].get_airstrips()[routes_destroyed[r].index - 1]][p.origin]);
 						if (t_arr_departure < p.early_departure) TW_departure = p.early_departure - t_arr_departure;
 						else if (t_arr_departure > p.late_departure) TW_departure = t_arr_departure - p.late_departure;
 
 						double TW_arrival = 0.0;
-						double t_arr_arrival = t_arr_departure + map_airstrip[p.origin].ground_time + (((from_to[p.origin][p.destination]) / map_airplane[routes_destroyed[r].aircraft_code].speed) * 60);
+						double t_arr_arrival = t_arr_departure + map_airstrip[p.origin].ground_time + map_airplane[routes_destroyed[r].aircraft_code].travelTime(from_to[p.origin][p.destination]);
 						if (t_arr_arrival < p.early_arrival) TW_arrival = p.early_arrival - t_arr_arrival;
 						else if (t_arr_arrival > p.late_arrival) TW_arrival = t_arr_arrival - p.late_arrival;
 						cost += ((TW_departure + TW_arrival) * peso_TW) * p.capacity;

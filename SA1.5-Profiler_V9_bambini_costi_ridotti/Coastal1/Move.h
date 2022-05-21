@@ -166,7 +166,7 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, Route& r) {
 	for (int i = 0; i < r_new.index; i++) {
 		if (i > 0) {
 
-			double travel_time = 60*from_to[r_new.get_airstrips()[i - 1]][r_new.get_airstrips()[i]] / map_airplane[r_new.aircraft_code].speed;
+			double travel_time = map_airplane[r_new.aircraft_code].travelTime(from_to[r_new.get_airstrips()[i - 1]][r_new.get_airstrips()[i]]);
 			r_new.get_arrival_at(i) = r_new.get_departures()[i - 1] + travel_time;
 			r_new.get_departure_at(i) = r_new.get_arrivals()[i] + map_airstrip[r_new.get_airstrips()[i]].ground_time;
 

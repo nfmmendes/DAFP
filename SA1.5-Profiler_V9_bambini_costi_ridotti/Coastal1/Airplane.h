@@ -55,6 +55,8 @@ public:
 	//function
 	void print();
 
+	// Get the time in minutes to travel given a distance
+	double travelTime(double distance);
 
 };
 
