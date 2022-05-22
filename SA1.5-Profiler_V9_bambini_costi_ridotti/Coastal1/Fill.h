@@ -56,6 +56,7 @@ vector<Airplane> fillAirplane(string file_input, map<string, int> legenda) {
 		string row;
 		std::getline(file, row);
 		vector<string> e = split(row, ';');
+		// TODO: Improve this
 		Airplane a(stoi(e[13]), e[1], stoi(e[6]), stod(e[5]), e[0], stoi(e[3]), stoi(e[4]), legenda[e[7]], stod(e[10]), stoi(e[8]), stoi(e[9]), stod(e[11]), stod(e[12]));
 		airplanes.push_back(a);
 	}
@@ -167,9 +168,8 @@ vector<Route> fillRoute(string file_input) {
 	while (!file.eof()) {
 		string row;
 		getline(file, row);
-		vector<Passenger> Pass;
 		vector<string> e = split(row, ';');
-		Route route(0, Pass);
+		Route route(0, vector<Passenger>());
 		route.aircraft_code_company_comparison = e[1];
 		for (int i = 2; i < (int)(e.size() - 1); i = i + 2) {
 			route.addPlace_companySolution(e[i], stoi(e[i + 1]));
