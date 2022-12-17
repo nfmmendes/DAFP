@@ -14,14 +14,19 @@ using namespace std;
 const int numero_airstrip_const = 58;
 const int numero_airplane_const = 36;
 
+struct AirplaneStatus
+{
+	double fuel;
+	double weight;
+	int capacity;
+};
+
 struct Place
 {
 	string code_company; 
 	int airstrip;
 	bool has_refueling;
-	double fuel;
-	double weight;
-	double capacity;
+	AirplaneStatus airplane_status;
 	double arrival;
 	double departure;
 };
@@ -84,7 +89,7 @@ public:
 	void print();
 	void printCompany();
 	void addPlace_companySolution(string, int);
-	void addPlace(int, bool, double, double, int, double, double);
+	void addPlace(int, bool, AirplaneStatus, double, double);
 	void eraseAt(int i);
 	void removePlace(int, map<int, Airplane>&);
 	void update_from_to(int node_destroy, int sense = 1);

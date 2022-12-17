@@ -117,13 +117,13 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 		for (int i = 1; i < r.index; i++) {
 			if ((i < A) || (i > B)) {
 				// Caso in cui rimane come prima
-				r_new.addPlace(r.get_airstrips()[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.get_arrivals()[i], r.get_departures()[i]);
+				r_new.addPlace(r.get_airstrips()[i], r.get_refueling()[i], { r.fuel[i], 0.0, 0 }, r.get_arrivals()[i], r.get_departures()[i]);
 			}
 			else if ((i >= A) && (i < B)) {
-				r_new.addPlace(r.get_airstrips()[i + 1], r.get_refueling()[i + 1], r.fuel[i + 1], 0.0, 0, r.get_arrivals()[i + 1], r.get_departures()[i + 1]);
+				r_new.addPlace(r.get_airstrips()[i + 1], r.get_refueling()[i + 1], { r.fuel[i + 1], 0.0, 0 }, r.get_arrivals()[i + 1], r.get_departures()[i + 1]);
 			}
 			else if (i == B) {
-				r_new.addPlace(r.get_airstrips()[A], r.get_refueling()[A], r.fuel[A], 0.0, 0, r.get_arrivals()[A], r.get_departures()[A]);
+				r_new.addPlace(r.get_airstrips()[A], r.get_refueling()[A], { r.fuel[A], 0.0, 0 }, r.get_arrivals()[A], r.get_departures()[A]);
 			}
 		}
 	}
@@ -132,18 +132,18 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 			if (i < (B + 1)) {
 
 				//in questo posto ci devo mettere normalmente i
-				r_new.addPlace(r.get_airstrips()[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.get_arrivals()[i], r.get_departures()[i]);
+				r_new.addPlace(r.get_airstrips()[i], r.get_refueling()[i], { r.fuel[i], 0.0, 0 }, r.get_arrivals()[i], r.get_departures()[i]);
 			}
 			else if (i == (B + 1)) {
 				//in questo posto ci devo mettere A
-				r_new.addPlace(r.get_airstrips()[A], r.get_refueling()[A], r.fuel[A], 0.0, 0, r.get_arrivals()[A], r.get_departures()[A]);
+				r_new.addPlace(r.get_airstrips()[A], r.get_refueling()[A], { r.fuel[A], 0.0, 0 }, r.get_arrivals()[A], r.get_departures()[A]);
 			}
 			else if (i >= A + 1) {
 				//in questo posto ci devo mettere normalmente i-1
-				r_new.addPlace(r.get_airstrips()[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.get_arrivals()[i], r.get_departures()[i]);
+				r_new.addPlace(r.get_airstrips()[i], r.get_refueling()[i], { r.fuel[i], 0.0, 0 }, r.get_arrivals()[i], r.get_departures()[i]);
 			}
 			else {
-				r_new.addPlace(r.get_airstrips()[i - 1], r.get_refueling()[i - 1], r.fuel[i - 1], 0.0, 0, r.get_arrivals()[i - 1], r.get_departures()[i - 1]);
+				r_new.addPlace(r.get_airstrips()[i - 1], r.get_refueling()[i - 1], { r.fuel[i - 1], 0.0, 0 }, r.get_arrivals()[i - 1], r.get_departures()[i - 1]);
 			}
 		}
 	}
@@ -159,7 +159,8 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, Route& r) {
 	r_new.aircraft_code = r.aircraft_code;
 	r_new.primo_pass = r.primo_pass;
 
-	r_new.addPlace(r.get_airstrips()[0], r.get_refueling()[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.get_arrivals()[0], r.get_departures()[0]);
+	AirplaneStatus airplane_status{ map_airplane[r.aircraft_code].max_fuel, 0.0, 0 };
+	r_new.addPlace(r.get_airstrips()[0], r.get_refueling()[0], airplane_status, r.get_arrivals()[0], r.get_departures()[0]);
 	add_new_place(A, B, r, r_new);
 
 	//aggiorno i tempi e fuel senza aver considerato il probabile peso negativo, il paso qua ? come se lo inizializzassi

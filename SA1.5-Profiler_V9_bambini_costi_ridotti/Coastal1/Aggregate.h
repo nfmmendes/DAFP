@@ -110,18 +110,18 @@ vector <Route> aggrezione_simple_after_model(vector<Route>& solution_model, map<
 				for (int i = 0; i < route->index - 1; i++) {
 					double travel_time = airplane->travelTime(from_to[route->get_airstrips()[i]][solution_model[r1].get_airstrips()[0]]);
 					if (i == route->index - 2) {
-						r_add.addPlace(route->get_airstrips()[i], route->get_refueling()[i], route->fuel[i], route->get_weights()[i],
-							route->get_capacities()[i], route->get_arrivals()[i], (route_r1->get_arrivals()[0] - travel_time));
+						AirplaneStatus airplane_status{ route->fuel[i], route->get_weights()[i], route->get_capacities()[i] };
+						r_add.addPlace(route->get_airstrips()[i], route->get_refueling()[i], airplane_status, route->get_arrivals()[i], (route_r1->get_arrivals()[0] - travel_time));
 					}
 					else {
-						r_add.addPlace(route->get_airstrips()[i], route->get_refueling()[i], route->fuel[i], route->get_weights()[i],
-							route->get_capacities()[i], route->get_arrivals()[i], route->get_departures()[i]);
+						AirplaneStatus airplane_status{ route->fuel[i], route->get_weights()[i],route->get_capacities()[i] };
+						r_add.addPlace(route->get_airstrips()[i], route->get_refueling()[i], airplane_status, route->get_arrivals()[i], route->get_departures()[i]);
 					}
 				}
 
 				for (int i = 0; i < route_r1->index; i++) {
-					r_add.addPlace(route_r1->get_airstrips()[i], route_r1->get_refueling()[i], route_r1->fuel[i], route_r1->get_weights()[i],
-						route_r1->get_capacities()[i], route_r1->get_arrivals()[i], route_r1->get_departures()[i]);
+					AirplaneStatus airplane_status{ route_r1->fuel[i], route_r1->get_weights()[i],route_r1->get_capacities()[i] };
+					r_add.addPlace(route_r1->get_airstrips()[i], route_r1->get_refueling()[i],airplane_status , route_r1->get_arrivals()[i], route_r1->get_departures()[i]);
 				}
 				
 				for (auto& p : solution_model[r1].get_passengers()) {
@@ -185,18 +185,19 @@ vector <Route> aggrezione_complex_after_model(vector<Route>& solution_model, map
 				for (int i = 0; i <= route->index - 1; i++) {
 					double time_to_go = airplane->travelTime(from_to[route->get_airstrips()[i]][route_r1->get_airstrips()[0]]);
 					if (i == route->index - 1) {
-						r_add.addPlace(route->get_airstrips()[i], route->get_refueling()[i], route->fuel[i], route->get_weights()[i],
-							route->get_capacities()[i], route->get_arrivals()[i], (route_r1->get_arrivals()[0] - time_to_go));
+						AirplaneStatus airplane_status{ route->fuel[i], route->get_weights()[i], route->get_capacities()[i] };
+						r_add.addPlace(route->get_airstrips()[i], route->get_refueling()[i], airplane_status, route->get_arrivals()[i], (route_r1->get_arrivals()[0] - time_to_go));
 					}
 					else {
-						r_add.addPlace(route->get_airstrips()[i], route->get_refueling()[i], route->fuel[i], route->get_weights()[i],
-							route->get_capacities()[i], route->get_arrivals()[i], route->get_departures()[i]);
+						AirplaneStatus airplane_status{ route->fuel[i], route->get_weights()[i],route->get_capacities()[i] };
+						r_add.addPlace(route->get_airstrips()[i], route->get_refueling()[i], airplane_status, route->get_arrivals()[i], route->get_departures()[i]);
 					}
 				}
 
 				for (int i = 0; i < route_r1->index; i++) {
-					r_add.addPlace(route_r1->get_airstrips()[i], route_r1->get_refueling()[i], route_r1->fuel[i], route_r1->get_weights()[i],
-						route_r1->get_capacities()[i], route_r1->get_arrivals()[i], route_r1->get_departures()[i]);
+					AirplaneStatus airplane_status{ route_r1->fuel[i], route_r1->get_weights()[i],
+						route_r1->get_capacities()[i] };
+					r_add.addPlace(route_r1->get_airstrips()[i], route_r1->get_refueling()[i], airplane_status, route_r1->get_arrivals()[i], route_r1->get_departures()[i]);
 				}
 				
 				for (const Passenger& p : route_r1->get_passengers()) {

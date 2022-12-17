@@ -486,11 +486,11 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 			Airplane* airplane = &map_airplane[r.aircraft_code];
 			
 			int depot = airplane->depot;
-			int maxFuel = airplane->max_fuel;
+			double maxFuel = airplane->max_fuel;
 			int groundTime = map_airstrip[depot].ground_time;
 			double arrivalTime = r.get_departures()[r.index - 1] + airplane->travelTime(from_to[origin][depot]);
 
-			r.addPlace(depot, 1, maxFuel, airplane->max_weight - maxFuel, 0, arrivalTime, arrivalTime + groundTime);
+			r.addPlace(depot, 1, { maxFuel, double(airplane->max_weight - maxFuel), 0 }, arrivalTime, arrivalTime + groundTime);
 		}
 
 		r.print();

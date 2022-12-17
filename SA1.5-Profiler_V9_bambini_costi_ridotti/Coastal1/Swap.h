@@ -46,20 +46,20 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 	r_new.aircraft_code = r.aircraft_code;
 	r_new.primo_pass = r.primo_pass;
 
-	//cout << "sto inserendo i vari posti nella nuova route" << endl;
-	r_new.addPlace(r.get_airstrips()[0], r.get_refueling()[0], map_airplane[r.aircraft_code].max_fuel, 0.0, 0, r.get_arrivals()[0], r.get_departures()[0]);
+	AirplaneStatus airplane_status{ map_airplane[r.aircraft_code].max_fuel, 0.0, 0 };
+	r_new.addPlace(r.get_airstrips()[0], r.get_refueling()[0], airplane_status, r.get_arrivals()[0], r.get_departures()[0]);
 	for (int i = 1; i < r.index; i++) {
 		if (i == A) {
 			//in questo posto ci devo mettere B
-			r_new.addPlace(r.get_airstrips()[B], r.get_refueling()[B], r.fuel[B], 0.0, 0, r.get_arrivals()[B], r.get_departures()[B]);
+			r_new.addPlace(r.get_airstrips()[B], r.get_refueling()[B], { r.fuel[B], 0.0, 0 }, r.get_arrivals()[B], r.get_departures()[B]);
 		}
 		else if (i == B) {
 			//in questo posto ci devo mettere A
-			r_new.addPlace(r.get_airstrips()[A], r.get_refueling()[A], r.fuel[A], 0.0, 0, r.get_arrivals()[A], r.get_departures()[A]);
+			r_new.addPlace(r.get_airstrips()[A], r.get_refueling()[A], { r.fuel[A], 0.0, 0 }, r.get_arrivals()[A], r.get_departures()[A]);
 		}
 		else {
 			//in questo posto ci devo mettere normalmente i
-			r_new.addPlace(r.get_airstrips()[i], r.get_refueling()[i], r.fuel[i], 0.0, 0, r.get_arrivals()[i], r.get_departures()[i]);
+			r_new.addPlace(r.get_airstrips()[i], r.get_refueling()[i], { r.fuel[i], 0.0, 0 }, r.get_arrivals()[i], r.get_departures()[i]);
 		}
 	}
 
