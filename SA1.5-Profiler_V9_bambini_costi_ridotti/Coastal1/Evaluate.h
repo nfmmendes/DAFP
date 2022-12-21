@@ -111,7 +111,6 @@ double get_cost_intermediate_stop(Route* route, const string &departure_location
 {
 	vector<int> int_from1; //vettore con tutti i from
 	vector<int> int_to1; // vettore con tutti i to
-	//scorro tutte le localit? della route
 
 	for (int i = 0; i < route->index; i++) {
 		//salvo tutti i from e tutti i to che trovo
@@ -206,7 +205,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 	
 	//calcolo matrice A e costo della penalit? per essere fuori dall'orario previsto
 	for (int p = 0; p < (int)passengers.size(); p++) {
-		int c = 0; //costo_time_windows
+		int passenger_tw_cost = 0; //costo_time_windows
 		size_t trovato_pass_name;
 		size_t trovato_pass_cognome;
 		int controllo = 0;
@@ -235,20 +234,20 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 					//calcolo la time windows
 					int differenza_dep = passengers[p].departure_time - pass_trovato[z].departure_time;
 					
-					c += max(0, differenza_dep - 25);
+					passenger_tw_cost += max(0, differenza_dep - 25);
 
 					if (differenza_dep < -5) {
-						c -= (differenza_dep + 5);
+						passenger_tw_cost -= (differenza_dep + 5);
 					}
 				}
 				if (pass_trovato[z].arrival_location_company == passengers[p].arrival_location_company) {
 					//calcolo la time windows
 					int differenza_arr = passengers[p].arrival_time - pass_trovato[z].arrival_time;
 					if (differenza_arr > 30) {
-						c += differenza_arr - 30;
+						passenger_tw_cost += differenza_arr - 30;
 					}
 					if (differenza_arr < 0) {
-						c -= (differenza_arr);
+						passenger_tw_cost -= (differenza_arr);
 					}
 				}
 			}
@@ -315,7 +314,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 										pass_trovato[1].arrival_location_company, peso_intermediate_stop);
 		}
 
-		costi_time_windows += c;
+		costi_time_windows += passenger_tw_cost;
 	}
 
 	costi_time_windows = costi_time_windows * peso_TW; //per valutare cosa succede al cambiare del peso dato alle time windows
