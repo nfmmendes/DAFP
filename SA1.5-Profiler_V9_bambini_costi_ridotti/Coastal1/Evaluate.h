@@ -127,8 +127,56 @@ double get_cost_intermediate_stop(Route* route, const string &departure_location
 }
 
 
+void do_work_control_1(PenaltyWeights penalty_weights, vector<Passenger> passengers, map<string, Route> codice_routeAzienda, int& numeroTrashiment, double& costi_intermediate_stop, int p, vector<Passenger> pass_trovato)
+{
+	double peso_trashipment = penalty_weights.transhipment;
+	double peso_intermediate_stop = penalty_weights.intermediate_stop;
+	
+	vector<int> int_from; //vettore con tutti i from
+	vector<int> int_to; // vettore con tutti i to
+	//scorro tutte le localit? della route
+	auto code_flight = pass_trovato[0].code_flight;
+	for (int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
+		//salvo tutti i from e tutti i to che trovo
+		if (codice_routeAzienda[code_flight].get_places_company()[i] == passengers[p].departure_location_company) {
+			int_from.push_back(i);
+		}
+		if (codice_routeAzienda[code_flight].get_places_company()[i] == passengers[p].arrival_location_company) {
+			int_to.push_back(i);
+		}
+	}
+
+	if (!int_from.empty() && !int_to.empty()) 
+		do_work_1(peso_intermediate_stop, costi_intermediate_stop, int_from, int_to);
+	else if (int_from.empty() && !int_to.empty()) {
+		//qua ha fatto un transhipment sul from
+		//devo cercare tutti i from partendo dal from sulla soluzione
+		vector<int> int_from_soluz;
+		for (int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
+			if (codice_routeAzienda[code_flight].get_places_company()[i] == pass_trovato[0].departure_location_company)
+				int_from_soluz.push_back(i);
+		}
+
+		do_work(penalty_weights, costi_intermediate_stop, int_to, int_from_soluz);
+		numeroTrashiment++;
+	}
+	else if (!int_from.empty() && int_to.empty()) {
+		//qua ha fatto un transhipment sul to
+		//devo cercare tutti i to partendo dal from sulla soluzione
+		vector<int> int_to_soluz;
+		for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
+			if (codice_routeAzienda[pass_trovato[0].code_flight].get_places_company()[i] == pass_trovato[0].arrival_location_company) {
+				int_to_soluz.push_back(i);
+			}
+		}
+
+		costi_intermediate_stop += get_cost_intermediate_stop(peso_intermediate_stop, int_from, int_to_soluz)+ peso_trashipment;
+		numeroTrashiment++;
+	}
+}
+
 double calculationCostCompany(PenaltyWeights penalty_weights, string route_azienza, string passengers_azienda, 
-	           vector<Airstrip> airstrips, vector<Airplane> airplanes, vector<Passenger> passengers, map<string, double>& from_to_company) {
+							  vector<Airstrip> airstrips, vector<Airplane> airplanes, vector<Passenger> passengers, map<string, double>& from_to_company) {
 	double peso_TW = penalty_weights.time_window;
 	double peso_trashipment = penalty_weights.transhipment;
 	double peso_intermediate_stop = penalty_weights.intermediate_stop;
@@ -255,47 +303,13 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 
 		//parte per il calcolo del costo degli intermediate stop********************************************
 		if (controllo == 1) {
-			vector<int> int_from; //vettore con tutti i from
-			vector<int> int_to; // vettore con tutti i to
-			//scorro tutte le localit? della route
-			auto code_flight = pass_trovato[0].code_flight;
-			for (int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
-				//salvo tutti i from e tutti i to che trovo
-				if (codice_routeAzienda[code_flight].get_places_company()[i] == passengers[p].departure_location_company) {
-					int_from.push_back(i);
-				}
-				if (codice_routeAzienda[code_flight].get_places_company()[i] == passengers[p].arrival_location_company) {
-					int_to.push_back(i);
-				}
-			}
-
-			if (!int_from.empty() && !int_to.empty()) 
-				do_work_1(peso_intermediate_stop, costi_intermediate_stop, int_from, int_to);
-			else if (int_from.empty() && !int_to.empty()) {
-				//qua ha fatto un transhipment sul from
-				//devo cercare tutti i from partendo dal from sulla soluzione
-				vector<int> int_from_soluz;
-				for (int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
-					if (codice_routeAzienda[code_flight].get_places_company()[i] == pass_trovato[0].departure_location_company)
-						int_from_soluz.push_back(i);
-				}
-
-				do_work(penalty_weights, costi_intermediate_stop, int_to, int_from_soluz);
-				numeroTrashiment++;
-			}
-			else if (!int_from.empty() && int_to.empty()) {
-				//qua ha fatto un transhipment sul to
-				//devo cercare tutti i to partendo dal from sulla soluzione
-				vector<int> int_to_soluz;
-				for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
-					if (codice_routeAzienda[pass_trovato[0].code_flight].get_places_company()[i] == pass_trovato[0].arrival_location_company) {
-						int_to_soluz.push_back(i);
-					}
-				}
-
-				costi_intermediate_stop += get_cost_intermediate_stop(peso_intermediate_stop, int_from, int_to_soluz)+ peso_trashipment;
-				numeroTrashiment++;
-			}
+			do_work_control_1(penalty_weights,
+							  passengers,
+							  codice_routeAzienda,
+							  numeroTrashiment,
+							  costi_intermediate_stop,
+							  p,
+							  pass_trovato);
 		}
 		else if (controllo == 2) {
 
