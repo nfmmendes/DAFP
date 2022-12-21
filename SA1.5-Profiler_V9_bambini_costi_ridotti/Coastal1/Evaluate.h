@@ -86,28 +86,7 @@ void do_work(const PenaltyWeights& penalty_weights, double& costi_intermediate_s
 	costi_intermediate_stop += (penalty_weights.intermediate_stop * (best_to - best_from - 1)) + penalty_weights.transhipment;
 }
 
-void do_work2(double peso_intermediate_stop, double& costi_intermediate_stop, vector<int> int_from2, vector<int> int_to2)
-{
-	double best_differenza2 = DBL_MAX;
-	int best_from2 = -1;
-	int best_to2 = -1;
-	for (int from : int_from2) {
-		for (int to : int_to2) {
-			if (to > from) {
-				double diff = to - from;
-				if (diff < best_differenza2) {
-					best_differenza2 = diff;
-					best_from2 = from;
-					best_to2 = to;
-				}
-			}
-		}
-	}
-
-	costi_intermediate_stop += (peso_intermediate_stop * (best_to2 - best_from2 - 1));
-}
-
-void do_work_3(double peso_intermediate_stop, double& costi_intermediate_stop, vector<int> int_from1, vector<int> int_to1)
+double get_cost_intermediate_stop(double peso_intermediate_stop, vector<int> int_from1, vector<int> int_to1)
 {
 	double best_differenza1 = DBL_MAX;
 	int best_from1 = -1;
@@ -125,29 +104,29 @@ void do_work_3(double peso_intermediate_stop, double& costi_intermediate_stop, v
 		}
 	}
 
-	costi_intermediate_stop += (peso_intermediate_stop * (best_to1 - best_from1 - 1));
+	return peso_intermediate_stop * (best_to1 - best_from1 - 1);
 }
 
-void do_work_4(double peso_trashipment, double peso_intermediate_stop, double& costi_intermediate_stop, vector<int> int_from, vector<int> int_to_soluz)
+double get_cost_intermediate_stop(Route* route, const string &departure_location, const string& arrival_location, double peso)
 {
-	double best_differenza = DBL_MAX;
-	int best_from = -1;
-	int best_to = -1;
-	for (int from : int_from) {
-		for (int to : int_to_soluz) {
-			if (to > from) {
-				double diff = to - from;
-				if (diff < best_differenza) {
-					best_differenza = diff;
-					best_from = from;
-					best_to = to;
-				}
-			}
-		}
-	}
+	vector<int> int_from1; //vettore con tutti i from
+	vector<int> int_to1; // vettore con tutti i to
+	//scorro tutte le localit? della route
 
-	costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1)) + peso_trashipment;
+	for (int i = 0; i < route->index; i++) {
+		//salvo tutti i from e tutti i to che trovo
+
+		if (route->get_places_company()[i] == departure_location) {
+			int_from1.push_back(i);
+		}
+		if (route->get_places_company()[i] == arrival_location) {
+			int_to1.push_back(i);
+		}
+
+		return get_cost_intermediate_stop(peso, int_from1, int_to1);
+	}
 }
+
 
 double calculationCostCompany(PenaltyWeights penalty_weights, string route_azienza, string passengers_azienda, 
 	           vector<Airstrip> airstrips, vector<Airplane> airplanes, vector<Passenger> passengers, map<string, double>& from_to_company) {
@@ -217,7 +196,8 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 	}
 
 	double costo_routing = 0.0;
-	for (double c : cost_route) costo_routing += c;
+	for (double c : cost_route) 
+		costo_routing += c;
 	cout << "Costo Routing per la compagnia: " << costo_routing << endl;
 
 	vector<Passenger> passengers_solution; //il code_flight qui ? l'aereo
@@ -258,7 +238,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 					c += max(0, differenza_dep - 25);
 
 					if (differenza_dep < -5) {
-						c += (differenza_dep + 5) * (-1);
+						c -= (differenza_dep + 5);
 					}
 				}
 				if (pass_trovato[z].arrival_location_company == passengers[p].arrival_location_company) {
@@ -268,7 +248,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 						c += differenza_arr - 30;
 					}
 					if (differenza_arr < 0) {
-						c += (differenza_arr) * (-1);
+						c -= (differenza_arr);
 					}
 				}
 			}
@@ -279,12 +259,13 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 			vector<int> int_from; //vettore con tutti i from
 			vector<int> int_to; // vettore con tutti i to
 			//scorro tutte le localit? della route
-			for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
+			auto code_flight = pass_trovato[0].code_flight;
+			for (int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
 				//salvo tutti i from e tutti i to che trovo
-				if (codice_routeAzienda[pass_trovato[0].code_flight].get_places_company()[i] == passengers[p].departure_location_company) {
+				if (codice_routeAzienda[code_flight].get_places_company()[i] == passengers[p].departure_location_company) {
 					int_from.push_back(i);
 				}
-				if (codice_routeAzienda[pass_trovato[0].code_flight].get_places_company()[i] == passengers[p].arrival_location_company) {
+				if (codice_routeAzienda[code_flight].get_places_company()[i] == passengers[p].arrival_location_company) {
 					int_to.push_back(i);
 				}
 			}
@@ -295,10 +276,9 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 				//qua ha fatto un transhipment sul from
 				//devo cercare tutti i from partendo dal from sulla soluzione
 				vector<int> int_from_soluz;
-				for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
-					if (codice_routeAzienda[pass_trovato[0].code_flight].get_places_company()[i] == pass_trovato[0].departure_location_company) {
+				for (int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
+					if (codice_routeAzienda[code_flight].get_places_company()[i] == pass_trovato[0].departure_location_company)
 						int_from_soluz.push_back(i);
-					}
 				}
 
 				do_work(penalty_weights, costi_intermediate_stop, int_to, int_from_soluz);
@@ -314,7 +294,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 					}
 				}
 
-				do_work_4(peso_trashipment, peso_intermediate_stop, costi_intermediate_stop, int_from, int_to_soluz);
+				costi_intermediate_stop += get_cost_intermediate_stop(peso_intermediate_stop, int_from, int_to_soluz)+ peso_trashipment;
 				numeroTrashiment++;
 			}
 		}
@@ -322,42 +302,17 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 
 			costi_intermediate_stop += peso_trashipment;
 			numeroTrashiment++;
-			//*********************************primo passeggero trovato*************************************************************
-			vector<int> int_from1; //vettore con tutti i from
-			vector<int> int_to1; // vettore con tutti i to
-			//scorro tutte le localit? della route
+
 			Route* route_pass_trovato_zero = &codice_routeAzienda[pass_trovato[0].code_flight];
 			Route* route_pass_trovato_one = &codice_routeAzienda[pass_trovato[1].code_flight];
-			
-			for (int i = 0; i < route_pass_trovato_zero->index; i++) {
-				//salvo tutti i from e tutti i to che trovo
-				
-				if (route_pass_trovato_zero->get_places_company()[i] == pass_trovato[0].departure_location_company) {
-					int_from1.push_back(i);
-				}
-				if (route_pass_trovato_zero->get_places_company()[i] == pass_trovato[0].arrival_location_company) {
-					int_to1.push_back(i);
-				}
-			}
 
-			do_work_3(peso_intermediate_stop, costi_intermediate_stop, int_from1, int_to1);
-			//*******************************************************************************************************************
+			//*********************************primo passeggero trovato************************************************************
+			costi_intermediate_stop +=  get_cost_intermediate_stop(route_pass_trovato_zero, pass_trovato[0].departure_location_company, 
+																   pass_trovato[0].arrival_location_company, peso_intermediate_stop);
 
 			//*********************************secondo pezzo del passeggero trovato**********************************************
-			vector<int> int_from2; //vettore con tutti i from
-			vector<int> int_to2; // vettore con tutti i to
-			//scorro tutte le localit? della route
-			for (int i = 0; i < route_pass_trovato_one->index; i++) {
-				//salvo tutti i from e tutti i to che trovo
-				if (route_pass_trovato_one->get_places_company()[i] == pass_trovato[1].departure_location_company)
-					int_from2.push_back(i);
-				
-				if (route_pass_trovato_one->get_places_company()[i] == pass_trovato[1].arrival_location_company)
-					int_to2.push_back(i);
-				
-			}
-
-			do_work2(peso_intermediate_stop, costi_intermediate_stop, int_from2, int_to2);
+			costi_intermediate_stop += get_cost_intermediate_stop(route_pass_trovato_one, pass_trovato[1].departure_location_company, 
+										pass_trovato[1].arrival_location_company, peso_intermediate_stop);
 		}
 
 		costi_time_windows += c;
@@ -632,6 +587,7 @@ double calculate_objective_function(ProcessedInput* input, const  PenaltyWeights
 				cost += map_airstrip[r.get_airstrips()[i]].landing_cost;
 				cost_route += map_airstrip[r.get_airstrips()[i]].landing_cost;
 			}
+			
 			if (i < r.index - 1) {
 				mileage += from_to[r.get_airstrips()[i]][r.get_airstrips()[i + 1]];
 				fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[i]][r.get_airstrips()[i + 1]];
