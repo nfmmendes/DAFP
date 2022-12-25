@@ -377,7 +377,7 @@ void calculate_ObjectiveFunction_final(ProcessedInput*input, double cost_company
 	}
 }
 
-double calculate_deviations_cost(double peso_TW, vector<Route>::value_type& r, const _Vector_const_iterator<_Vector_val<_Simple_types<Passenger>>>::value_type& p)
+double calculate_deviations_cost(double peso_TW, vector<Route>::value_type& r, const Passenger& p)
 {
 	const auto departure = r.get_departures()[p.solution_from];
 	const auto arrival = r.get_arrival_at(p.solution_to);
