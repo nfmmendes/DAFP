@@ -7,7 +7,7 @@
 #include "Util.h"
 #include "ProcessedInput.h"
 
-void write_on_file(string passengers_azienda, vector<Passenger> &passengers_solution)
+void read_passengers_from_file(string passengers_azienda, vector<Passenger> &passengers_solution)
 {
 	ifstream file;
 	
@@ -165,8 +165,6 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 	double final_cost_landing = 0.0;
 	double final_cost_km = 0.0;
 	double final_cost_fuel = 0.0;
-	double final_cost_IS = 0.0;
-	double final_cost_TW = 0.0;
 
 	int costi_time_windows = 0;
 	double costi_intermediate_stop = 0.0;
@@ -176,7 +174,6 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 	map<string, Airstrip> airstrips_map;
 	for (int i = 0; i < (int)airstrips.size(); i++)
 		airstrips_map.insert(make_pair(airstrips[i].code_string, airstrips[i]));
-	//look if the airstrips map are well saved
 
 	map<string, Airplane> airplanes_map;
 	for (int i = 0; i < (int)airplanes.size(); i++)
@@ -215,14 +212,9 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 		cost_route.push_back(c);
 	}
 
-	double costo_routing = 0.0;
-	for (double c : cost_route) 
-		costo_routing += c;
-	cout << "Costo Routing per la compagnia: " << costo_routing << endl;
-
 	vector<Passenger> passengers_solution; //il code_flight qui ? l'aereo
 
-	write_on_file(passengers_azienda, passengers_solution);
+	read_passengers_from_file(passengers_azienda, passengers_solution);
 	
 	//calcolo matrice A e costo della penalit? per essere fuori dall'orario previsto
 	for (int p = 0; p < (int)passengers.size(); p++) {
@@ -257,12 +249,10 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 					
 					passenger_tw_cost += max(0, differenza_dep - 25);
 
-					if (differenza_dep < -5) {
+					if (differenza_dep < -5)
 						passenger_tw_cost -= (differenza_dep + 5);
-					}
 				}
 				if (pass_trovato[z].arrival_location_company == passengers[p].arrival_location_company) {
-					//calcolo la time windows
 					int differenza_arr = passengers[p].arrival_time - pass_trovato[z].arrival_time;
 					if (differenza_arr > 30) {
 						passenger_tw_cost += differenza_arr - 30;
@@ -305,8 +295,6 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 	}
 
 	costi_time_windows = costi_time_windows * peso_TW; //per valutare cosa succede al cambiare del peso dato alle time windows
-	final_cost_IS = costi_intermediate_stop;
-	final_cost_TW = costi_time_windows;
 
 	double costo_Soluzione = costi_time_windows + costi_intermediate_stop;
 	for (int i = 0; i < (int)cost_route.size(); i++)
@@ -389,8 +377,18 @@ void calculate_ObjectiveFunction_final(ProcessedInput*input, double cost_company
 	}
 }
 
+double calculate_deviations_cost(double peso_TW, vector<Route>::value_type& r, const _Vector_const_iterator<_Vector_val<_Simple_types<Passenger>>>::value_type& p)
+{
+	const auto departure = r.get_departures()[p.solution_from];
+	const auto arrival = r.get_arrival_at(p.solution_to);
+	const auto TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
+	const auto TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
+
+	return (TW_arrival + TW_departure) * peso_TW * p.capacity;
+}
+
 void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double costo_company, 
-	const PenaltyWeights& penalt_weights, vector<Route>& solution) {
+												const PenaltyWeights& penalt_weights, vector<Route>& solution) {
 	double peso_TW = penalt_weights.time_window;
 	double peso_intermediate_stop = penalt_weights.intermediate_stop;
 	
@@ -405,7 +403,6 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 	double km_cost = 0.0;
 	double fuel_cost = 0.0;
 	double landing_cost = 0.0;
-	double time_window_cost = 0.0;
 	double stop_cost = 0.0;
 
 	for (Route& r : solution) {
@@ -429,7 +426,6 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 		//first of all calculate the fixed cost of use the aircraft and the landing cost;
 		if (r.primo_pass) {
 			Airplane* airplane = &map_airplane[r.aircraft_code];
-			cost += airplane->fixed_cost;
 			cost_route += airplane->fixed_cost;
 			fixed_cost += airplane->fixed_cost;
 		}
@@ -442,7 +438,6 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 			const auto next_airstrip = r.get_airstrips()[i + 1];
 			
 			if (i >= 1) {
-				cost += map_airstrip[curr_airstrip].landing_cost;
 				cost_route += map_airstrip[curr_airstrip].landing_cost;
 				landing_cost += map_airstrip[curr_airstrip].landing_cost;
 			}
@@ -455,29 +450,18 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 		}
 
 		//now i add the mileage and the fuel consumption to the objective function
-		cost += mileage;
-		cost_route += mileage;
-		cost += fuel_consumed;
-		cost_route += fuel_consumed;
+		cost_route += mileage + fuel_consumed;
 
 		//now i have to calculate the penalitis regarding the time windows for each passeger
 		for (const auto& p : r.get_passengers()) {
-			cost += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;  
 			cost_route += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;
 			stop_cost += ((p.solution_to - p.solution_from - 1) * peso_intermediate_stop) * p.capacity;
 
-			const auto departure = r.get_departures()[p.solution_from];
-			const auto arrival = r.get_arrival_at(p.solution_to);
-			const auto TW_departure = max(0.0, p.early_departure - departure) + max(0.0, departure - p.late_departure);
-			const auto TW_arrival = max(0.0, p.early_arrival - arrival) + max(0.0, arrival - p.late_arrival);
-
-			const double deviations_cost = (TW_arrival + TW_departure) * peso_TW * p.capacity;
-			cost += deviations_cost;
-			cost_route += deviations_cost;
-			time_window_cost += deviations_cost;
+			cost_route += calculate_deviations_cost(peso_TW, r, p);
 		}
 
 		r.cost = cost_route;
+		cost += cost_route;
 	}
 }
 
@@ -502,8 +486,7 @@ double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_we
 		}
 	}
 
-	cost += mileage;
-	cost += fuel_consumed;
+	cost += mileage + fuel_consumed;
 
 	for (const auto& p : r.get_passengers()) {
 		cost += ((p.solution_to - p.solution_from - 1) * penalty_weights.intermediate_stop) * p.capacity; 
@@ -535,7 +518,6 @@ double calculate_objective_function(ProcessedInput* input, const  PenaltyWeights
 		//first of all calculate the fixed cost of use the aircraft and the landing cost;
 		if (r.primo_pass)
 			cost_route += map_airplane[r.aircraft_code].fixed_cost;
-		
 
 		double mileage = 0.0;
 		double fuel_consumed = 0.0;
