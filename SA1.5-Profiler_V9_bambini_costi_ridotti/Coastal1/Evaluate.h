@@ -40,7 +40,7 @@ void read_passengers_from_file(string passengers_azienda, vector<Passenger> &pas
 	file.close();
 }
 
-void do_work_1(double peso_intermediate_stop, double& costi_intermediate_stop, const vector<int>& int_from, const vector<int>& int_to)
+void do_work_1(double peso_intermediate_stop, double& costi_intermediate_stop, const vector<unsigned int>& int_from, const vector<unsigned int>& int_to)
 {
 	double best_differenza = DBL_MAX;
 	int best_from = -1;
@@ -61,7 +61,7 @@ void do_work_1(double peso_intermediate_stop, double& costi_intermediate_stop, c
 	costi_intermediate_stop += (peso_intermediate_stop * (best_to - best_from - 1));
 }
 
-double get_cost_intermediate_stop(double peso_intermediate_stop, vector<int> int_from1, vector<int> int_to1)
+double get_cost_intermediate_stop(double peso_intermediate_stop, vector<unsigned int> int_from1, vector<unsigned int> int_to1)
 {
 	double best_differenza1 = DBL_MAX;
 	int best_from1 = -1;
@@ -84,10 +84,10 @@ double get_cost_intermediate_stop(double peso_intermediate_stop, vector<int> int
 
 double get_cost_intermediate_stop(Route* route, const string &departure_location, const string& arrival_location, double peso)
 {
-	vector<int> int_from1; //vettore con tutti i from
-	vector<int> int_to1; // vettore con tutti i to
+	vector<unsigned int> int_from1; //vettore con tutti i from
+	vector<unsigned int> int_to1; // vettore con tutti i to
 
-	for (int i = 0; i < route->index; i++) {
+	for (unsigned int i = 0; i < route->index; i++) {
 		if (route->get_places_company()[i] == departure_location) {
 			int_from1.push_back(i);
 		}
@@ -104,8 +104,8 @@ void do_work_control_1(PenaltyWeights penalty_weights, vector<Passenger> passeng
 	double peso_trashipment = penalty_weights.transhipment;
 	double peso_intermediate_stop = penalty_weights.intermediate_stop;
 	
-	vector<int> int_from; //vettore con tutti i from
-	vector<int> int_to; // vettore con tutti i to
+	vector<unsigned int> int_from; //vettore con tutti i from
+	vector<unsigned int> int_to; // vettore con tutti i to
 	//scorro tutte le localit? della route
 	auto code_flight = pass_trovato[0].code_flight;
 	for (unsigned int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
@@ -123,7 +123,7 @@ void do_work_control_1(PenaltyWeights penalty_weights, vector<Passenger> passeng
 	else if (int_from.empty() && !int_to.empty()) {
 		//qua ha fatto un transhipment sul from
 		//devo cercare tutti i from partendo dal from sulla soluzione
-		vector<int> int_from_soluz;
+		vector<unsigned int> int_from_soluz;
 		for (unsigned int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
 			if (codice_routeAzienda[code_flight].get_places_company()[i] == pass_trovato[0].departure_location_company)
 				int_from_soluz.push_back(i);
@@ -136,7 +136,7 @@ void do_work_control_1(PenaltyWeights penalty_weights, vector<Passenger> passeng
 	else if (!int_from.empty() && int_to.empty()) {
 		//qua ha fatto un transhipment sul to
 		//devo cercare tutti i to partendo dal from sulla soluzione
-		vector<int> int_to_soluz;
+		vector<unsigned int> int_to_soluz;
 		for (unsigned int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
 			if (codice_routeAzienda[pass_trovato[0].code_flight].get_places_company()[i] == pass_trovato[0].arrival_location_company) {
 				int_to_soluz.push_back(i);
