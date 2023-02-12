@@ -14,6 +14,11 @@ bool route_feasible(ProcessedInput* input, Route& r, double end_day) {
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
 	bool feasible = true;
+
+	// A index lower than 1 represents an error in some part of the code, thus the solution can not be 
+	// feasible.
+	if (r.index < 1)
+		return false;
 	
 	//check and day
 	if (r.get_arrivals()[r.index - 1] > end_day) {
