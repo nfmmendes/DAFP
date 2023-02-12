@@ -30,9 +30,9 @@ vector<Route> heuristic_costructive_second_fase(vector<Route>& solution, double 
 		double best_cost = cost_time_windows_for_route(best_route, peso_TW);
 		
 		if (cost_time_windows_for_route(r, peso_TW) != 0) { //chiaramente cerco di migliorare la dove le timewindows non sono zero
-			for (int i = 0; i < r.index - 1; i++) { 
+			for (auto i = 0; i < r.index - 1; i++) { 
 				double wait_time = 0;
-				int start_index = (i == 0 ? 0 : i + 1);
+				auto start_index = (i == 0 ? 0 : i + 1);
 				
 				while (wait_time <= maximum_wait) {
 					if(i != start_index)
