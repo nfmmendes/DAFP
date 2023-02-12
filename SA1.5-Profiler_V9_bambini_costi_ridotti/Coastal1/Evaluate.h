@@ -108,7 +108,7 @@ void do_work_control_1(PenaltyWeights penalty_weights, vector<Passenger> passeng
 	vector<int> int_to; // vettore con tutti i to
 	//scorro tutte le localit? della route
 	auto code_flight = pass_trovato[0].code_flight;
-	for (int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
+	for (unsigned int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
 		//salvo tutti i from e tutti i to che trovo
 		if (codice_routeAzienda[code_flight].get_places_company()[i] == passengers[p].departure_location_company) {
 			int_from.push_back(i);
@@ -124,7 +124,7 @@ void do_work_control_1(PenaltyWeights penalty_weights, vector<Passenger> passeng
 		//qua ha fatto un transhipment sul from
 		//devo cercare tutti i from partendo dal from sulla soluzione
 		vector<int> int_from_soluz;
-		for (int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
+		for (unsigned int i = 0; i < codice_routeAzienda[code_flight].index; i++) {
 			if (codice_routeAzienda[code_flight].get_places_company()[i] == pass_trovato[0].departure_location_company)
 				int_from_soluz.push_back(i);
 		}
@@ -137,7 +137,7 @@ void do_work_control_1(PenaltyWeights penalty_weights, vector<Passenger> passeng
 		//qua ha fatto un transhipment sul to
 		//devo cercare tutti i to partendo dal from sulla soluzione
 		vector<int> int_to_soluz;
-		for (int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
+		for (unsigned int i = 0; i < codice_routeAzienda[pass_trovato[0].code_flight].index; i++) {
 			if (codice_routeAzienda[pass_trovato[0].code_flight].get_places_company()[i] == pass_trovato[0].arrival_location_company) {
 				int_to_soluz.push_back(i);
 			}
@@ -179,14 +179,14 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 	for (int i = 0; i < (int)airplanes.size(); i++)
 		airplanes_map.insert(make_pair(airplanes[i].code_company, airplanes[i]));
 
-	for (int r = 0; r < (int)routes_company_solution.size(); r++) {
+	for (unsigned int r = 0; r < routes_company_solution.size(); r++) {
 		Airplane* airplane = &airplanes_map[routes_company_solution[r].aircraft_code_company_comparison];
 		Route* route = &routes_company_solution[r];
 		double c = airplane->fixed_cost; //ho aggiunto il costo fisso
 		final_cost_fissi += airplane->fixed_cost;
 		string places = ";";
 		
-		for (int i = 0; i < (int)route->get_places_company().size(); i++) {
+		for (unsigned int i = 0; i < (int)route->get_places_company().size(); i++) {
 			places += route->get_places_company()[i] + ";";
 
 			if (i >= 1) {
@@ -217,7 +217,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 	read_passengers_from_file(passengers_azienda, passengers_solution);
 	
 	//calcolo matrice A e costo della penalit? per essere fuori dall'orario previsto
-	for (int p = 0; p < (int)passengers.size(); p++) {
+	for (unsigned int p = 0; p < passengers.size(); p++) {
 		int passenger_tw_cost = 0; //costo_time_windows
 		size_t trovato_pass_name;
 		size_t trovato_pass_cognome;
@@ -242,7 +242,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 		if (controllo >= 1) {
 			//vuol dire che ho trovato il passeggero
 			//controllo se trovo l'andata
-			for (int z = 0; z < (int)pass_trovato.size(); z++) {
+			for (unsigned int z = 0; z < (int)pass_trovato.size(); z++) {
 				if (pass_trovato[z].departure_location_company == passengers[p].departure_location_company) {
 					//calcolo la time windows
 					int differenza_dep = passengers[p].departure_time - pass_trovato[z].departure_time;
@@ -297,7 +297,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 	costi_time_windows = costi_time_windows * peso_TW; //per valutare cosa succede al cambiare del peso dato alle time windows
 
 	double costo_Soluzione = costi_time_windows + costi_intermediate_stop;
-	for (int i = 0; i < (int)cost_route.size(); i++)
+	for (unsigned int i = 0; i < (int)cost_route.size(); i++)
 		costo_Soluzione += cost_route[i];
 	
 	return costo_Soluzione;
@@ -476,7 +476,7 @@ double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_we
 	//second of all calculate the cost of the Km and the fuel burn
 	double mileage = 0.0;
 	double fuel_consumed = 0.0;
-	for (int i = 0; i < r.index; i++) {
+	for (unsigned int i = 0; i < r.index; i++) {
 		if (i >= 1)
 			cost += map_airstrip[r.get_airstrips()[i]].landing_cost;
 		
@@ -622,7 +622,7 @@ double costo_senza_time_windows(ProcessedInput* input, vector<Route>& solution) 
 		//second of all calculate the cost of the Km and the fuel burn
 		double mileage = 0.0;
 		double fuel_consumed = 0.0;
-		for (int i = 0; i < r.index - 1; i++) {
+		for (unsigned int i = 0; i < r.index - 1; i++) {
 			mileage += from_to[airstrips[i]][airstrips[i + 1]];
 			fuel_consumed += from_to_FuelConsumed[r.aircraft_code][airstrips[i]][airstrips[i + 1]];	
 		}
