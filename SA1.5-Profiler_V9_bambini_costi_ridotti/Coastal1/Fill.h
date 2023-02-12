@@ -170,9 +170,12 @@ vector<Route> fillRoute(string file_input) {
 		getline(file, row);
 		vector<string> e = split(row, ';');
 		Route route(0, vector<Passenger>());
-		route.aircraft_code_company_comparison = e[1];
-		for (int i = 2; i < (int)(e.size() - 1); i = i + 2) {
-			route.addPlace_companySolution(e[i], stoi(e[i + 1]));
+
+		if (e.size() >= 2) {
+			route.aircraft_code_company_comparison = e[1];
+			for (auto i = 2; i < e.size() - 1; i = i + 2) {
+				route.addPlace_companySolution(e[i], stoi(e[i + 1]));
+			}
 		}
 		routes.push_back(route);
 	}
@@ -194,8 +197,8 @@ void fill_from_to_fuel_consumed(double3DVector& from_to_fuel_consumed, vector<ve
 
 	for (Airplane& airplane : airplanes) {
 
-		for (int i = 1; i < numero_airstrip_const; i++) {
-			for (int j = 1; j < numero_airstrip_const; j++) {
+		for (auto i = 1; i < numero_airstrip_const; i++) {
+			for (auto j = 1; j < numero_airstrip_const; j++) {
 				double time_fly = airplane.travelTime(from_to[i][j]);
 				double fuel_consumed = 0.0;
 				if (time_fly >= 60) {
