@@ -53,19 +53,13 @@ public:
 	Route(int, const vector<Passenger>& passengers_in_route);
 	~Route();
 
-	void set_airstrip(vector<int>& value) { airstrips = value;  }
-	void set_airstrip_at(unsigned int index, int value) { airstrips[index] = value;  }
-	vector<int> get_airstrips() const { return airstrips;  }
+	vector<unsigned int> get_airstrips() const { return airstrips;  }
 
 	double& get_weight_at(unsigned int position) { return weights[position];  }
 	vector<double> get_weights() { return weights;  }
-	void set_weights(const vector<double>& p_weights) { weights = p_weights; }
 	
 	double& get_departure_at(unsigned int position) { return departure[position];  };
 	double& get_arrival_at(unsigned position) { return arrival[position];  };
-
-	void set_departure_at(unsigned int position, double value) { if (position >= departure.size()) return; departure[position] = value; };
-	void set_arrival_at(unsigned int position, double value) { if (position >= arrival.size()) return;  arrival[position] = value;  };
 
 	const vector<double>& get_departures() const { return departure;  }
 	const vector<double>& get_arrivals() const { return arrival;  }
@@ -118,7 +112,7 @@ public:
 	void update_rebuilt_one_second_fase(ProcessedInput*, int& node_add_from, int& node_add_to, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
 
 private:
-	vector<int> airstrips;
+	vector<unsigned int> airstrips;
 	vector<int> capacities;
 	vector<string> places_company;
 	vector<Passenger> passengers_in_route;
