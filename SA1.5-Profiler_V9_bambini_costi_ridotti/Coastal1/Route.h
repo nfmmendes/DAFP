@@ -54,18 +54,18 @@ public:
 	~Route();
 
 	void set_airstrip(vector<int>& value) { airstrips = value;  }
-	void set_airstrip_at(int index, int value) { airstrips[index] = value;  }
+	void set_airstrip_at(unsigned int index, int value) { airstrips[index] = value;  }
 	vector<int> get_airstrips() const { return airstrips;  }
 
-	double& get_weight_at(int position) { return weights[position];  }
+	double& get_weight_at(unsigned int position) { return weights[position];  }
 	vector<double> get_weights() { return weights;  }
 	void set_weights(const vector<double>& p_weights) { weights = p_weights; }
 	
-	double& get_departure_at(int position) { return departure[position];  };
-	double& get_arrival_at(int position) { return arrival[position];  };
+	double& get_departure_at(unsigned int position) { return departure[position];  };
+	double& get_arrival_at(unsigned position) { return arrival[position];  };
 
-	void set_departure_at(int position, double value) { if (position < 0 || position >= departure.size()) return; departure[position] = value; };
-	void set_arrival_at(int position, double value) { if (position < 0 || position >= arrival.size()) return;  arrival[position] = value;  };
+	void set_departure_at(unsigned int position, double value) { if (position >= departure.size()) return; departure[position] = value; };
+	void set_arrival_at(unsigned int position, double value) { if (position >= arrival.size()) return;  arrival[position] = value;  };
 
 	const vector<double>& get_departures() const { return departure;  }
 	const vector<double>& get_arrivals() const { return arrival;  }
