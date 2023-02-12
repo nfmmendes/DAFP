@@ -188,17 +188,17 @@ vector<Route> fillRoute(string file_input) {
 void fill_from_to_fuel_consumed(double3DVector& from_to_fuel_consumed, vector<vector<double>>& from_to, vector<Airplane> airplanes) {
 
 	from_to_fuel_consumed.resize((size_t)numero_airplane_const);
-	for (int i = 0; i < numero_airplane_const; i++) {
+	for (unsigned int i = 0; i < numero_airplane_const; i++) {
 		from_to_fuel_consumed[i].resize((size_t)numero_airstrip_const);
-		for (int j = 0; j < numero_airstrip_const; j++) {
+		for (unsigned int j = 0; j < numero_airstrip_const; j++) {
 			from_to_fuel_consumed[i][j].resize((size_t)numero_airstrip_const);
 		}
 	}
 
 	for (Airplane& airplane : airplanes) {
 
-		for (auto i = 1; i < numero_airstrip_const; i++) {
-			for (auto j = 1; j < numero_airstrip_const; j++) {
+		for (unsigned int i = 1; i < numero_airstrip_const; i++) {
+			for (unsigned int j = 1; j < numero_airstrip_const; j++) {
 				double time_fly = airplane.travelTime(from_to[i][j]);
 				double fuel_consumed = 0.0;
 				if (time_fly >= 60) {
@@ -216,7 +216,7 @@ void fill_from_to_fuel_consumed(double3DVector& from_to_fuel_consumed, vector<ve
 void fillMatrix(vector<vector<double>>& from_to, string file_input, const vector<Airstrip>& airstrips) {
 
 	from_to.resize((size_t)numero_airstrip_const);
-	for (int i = 0; i < numero_airstrip_const; i++)
+	for (unsigned int i = 0; i < numero_airstrip_const; i++)
 		from_to[i].resize((size_t)numero_airstrip_const);
 
 
@@ -226,12 +226,13 @@ void fillMatrix(vector<vector<double>>& from_to, string file_input, const vector
 		cerr << "Error Opening File Matrix.csv" << endl;
 		exit(1);
 	}
-	int index_row = 0;
+
+	unsigned int index_row = 0;
 	while (!file.eof()) {
 		std::string row;
 		getline(file, row);
 		std::vector<std::string> e = split(row, ';');
-		for (int i = 0; i < (int)e.size(); i++) {
+		for (unsigned int i = 0; i < e.size(); i++) {
 			std::istringstream is(e[i]);
 			double d;
 			is >> d;
@@ -258,7 +259,7 @@ std::map<std::string, double> fillMatrixCompany(string file_input, vector<Airstr
 		string row;
 		getline(file, row);
 		vector<string> e = split(row, ';');
-		for (int i = 0; i < (int)e.size(); i++) {
+		for (unsigned int i = 0; i < (int)e.size(); i++) {
 			istringstream is(e[i]);
 			double d;
 			is >> d;
