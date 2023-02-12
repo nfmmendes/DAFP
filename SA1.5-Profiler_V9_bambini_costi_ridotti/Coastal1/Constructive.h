@@ -227,20 +227,20 @@ namespace heuristic_costructive_first_fase_namespace {
 		//**************************************************************************
 		double add_fuel = 0;
 		int index_weight_neg = -1;
-		for (int j = best_from; j < route->index; j++) {
+		for (auto j = best_from; j < route->index; j++) {
 			if (route->get_weights()[j] < 0) {
 
 				add_fuel = route->get_weights()[j];
 				index_weight_neg = j;
 				int index_refueling = index_weight_neg;
-				for (int i = index_weight_neg; i >= 0; i--) {
+				for (auto i = index_weight_neg; i >= 0; i--) {
 					if (route->get_refueling()[i]) {
 						index_refueling = i;
 						break;
 					}
 				}
 
-				for (int t = index_refueling; t < route->index; t++) {
+				for (auto t = index_refueling; t < route->index; t++) {
 					if (route->get_refueling()[t] && t != index_refueling) 
 						break;
 					route->fuel[t] += add_fuel;
