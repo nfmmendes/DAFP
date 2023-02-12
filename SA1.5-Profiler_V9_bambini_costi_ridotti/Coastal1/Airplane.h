@@ -49,7 +49,9 @@ public:
 
 	//costructors and distructor
 	Airplane();
-	Airplane(int, string, int, double, string, int, int, int, double, int, int, double, double);
+	Airplane(unsigned int code, string code_company, unsigned int capacity, double speed, string model,
+		unsigned int weight_airplane, unsigned int max_weight, unsigned int depot, double max_fuel,
+		unsigned int fuel_burn_first, unsigned int fuel_burn_second, double min_fuel, double fixed_cost);
 	virtual ~Airplane();
 
 	//function

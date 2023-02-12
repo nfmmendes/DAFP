@@ -25,9 +25,9 @@ Airplane::Airplane()
 	load_weight = 0.0;
 }
 
-Airplane::Airplane(int code, string code_company, int capacity, double speed, string model, 
-				  int weight_airplane, int max_weight, int depot, double max_fuel, 
-				  int fuel_burn_first, int fuel_burn_second, double min_fuel, double fixed_cost) {
+Airplane::Airplane(unsigned int code, string code_company, unsigned int capacity, double speed, string model,
+	unsigned int weight_airplane, unsigned int max_weight, unsigned int depot, double max_fuel,
+	unsigned int fuel_burn_first, unsigned int fuel_burn_second, double min_fuel, double fixed_cost) {
 
 	this->code_company = code_company;
 	this->code = code;
