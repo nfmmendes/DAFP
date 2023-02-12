@@ -30,13 +30,13 @@ class Airplane
 public:
 
 	string code_company;
-	int code;
-	int capacity;
+	unsigned int code;
+	unsigned int capacity;
 	double speed;
 	string model;
-	int weight_airplane;
-	int max_weight;
-	int depot;
+	unsigned int weight_airplane;
+	unsigned int max_weight;
+	unsigned int depot;
 	double max_fuel;
 	int fuel_burn_first;
 	int fuel_burn_second;
