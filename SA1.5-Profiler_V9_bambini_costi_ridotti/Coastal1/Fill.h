@@ -21,7 +21,7 @@ using std::vector;
 void fillLocation_fuel(double2DVector& result, vector<Airstrip> airstrips, vector<Airplane> airplanes, double2DVector& from_to, map<int, Airstrip>& map_airstrip) {
 
 	result.resize((size_t)numero_airplane_const);
-	for (int i = 0; i < numero_airplane_const; i++)
+	for (unsigned int i = 0; i < numero_airplane_const; i++)
 		result[i].resize((size_t)numero_airstrip_const);
 
 	for (Airplane f : airplanes) {
@@ -173,7 +173,7 @@ vector<Route> fillRoute(string file_input) {
 
 		if (e.size() >= 2) {
 			route.aircraft_code_company_comparison = e[1];
-			for (auto i = 2; i < e.size() - 1; i = i + 2) {
+			for (unsigned int i = 2; i < e.size() - 1; i = i + 2) {
 				route.addPlace_companySolution(e[i], stoi(e[i + 1]));
 			}
 		}
