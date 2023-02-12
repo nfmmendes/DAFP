@@ -97,10 +97,10 @@ public:
 	void do_work2(int& node_add_to, int location_to, bool& non_to, bool& non_to_final, bool& num_equals);
 	void do_work3(int& node_add_from, int& node_add_to, int location_from, int location_to, bool& non_to,
 				  bool& non_to_final, bool& num_equals);
-	void do_work4(int& node_add_from, int location_from, map<int, Airstrip> map_airstrip, double2DVector from_to,
+	void do_work4(int& node_add_from, int location_from, map<unsigned int, Airstrip> map_airstrip, double2DVector from_to,
 				  Airplane* airplane);
 	void do_work5(int& node_add_to, int location_to, bool& non_to_final, map<int, Airplane> map_airplane,
-				  map<int, Airstrip> map_airstrip, double2DVector from_to);
+				  map<unsigned int, Airstrip> map_airstrip, double2DVector from_to);
 	void update_rebuilt_one_first_fase(ProcessedInput*, int& node_add_from, int& node_add_to, int location_from, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals);
 	void update_a_b(const int& node_add_from,const int& node_add_to, bool& non_to, int& A, int& B);
 	void manage_rebuilt_case_1(int& node_add_from, int& node_add_to, Passenger& p, bool& non_to);

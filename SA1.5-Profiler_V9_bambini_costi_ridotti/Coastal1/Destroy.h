@@ -25,7 +25,7 @@ bool relateness_passenger2(int trheshold, double relateness, vector<Passenger>& 
 vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution) {
 
 	map<int, Airplane> map_airplane = input->get_map_airplane();
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
@@ -359,7 +359,7 @@ void do_work15(Route& r, int node_destroy, vector<int>& int_removed, int& Min_Fr
 vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, vector<Passenger>& passenger_removed, vector<Route>& solution) {
 
 	map<int, Airplane> map_airplane = input->get_map_airplane();
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 	
@@ -568,7 +568,7 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 	double peso_intermediate_stop = penalty_weights.intermediate_stop;
 	
 	map<int, Airplane> map_airplane = input->get_map_airplane();
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 	
@@ -879,7 +879,7 @@ void do_work9(int node_destroy, Route& r, vector<int>& int_removed, int& min_fro
 void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passenger>& passenger_removed, Route& r) {
 
 	map<int, Airplane> map_airplane = input->get_map_airplane();
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 	Airplane* airplane = &map_airplane[r.aircraft_code];

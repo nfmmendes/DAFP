@@ -21,7 +21,7 @@ double get_time_window_cost(Passenger p, Route* route, double time)
 }
 
 vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights penalty_weights, double end_day, vector<Route>& routes_destroyed, vector <Passenger>& passengers_removed) {
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();
@@ -235,7 +235,7 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 
 vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights &penalty_weights, double end_day, vector<Route> routes_destroyed, vector<Passenger> passengers_removed) {
 	
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();
@@ -421,7 +421,7 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights
 
 vector<Route> repairSP(ProcessedInput* input, const PenaltyWeights &penalty_weights, vector<Route>& route_destroy, vector<Passenger>& passenger_removed, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
 	
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();
@@ -550,7 +550,7 @@ double get_cost(ProcessedInput* input, const PenaltyWeights& penalty_weights, co
 vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_weights, double end_day, vector<Route>& routes_destroyed, vector <Passenger>& passengers_removed) {
 	double peso_TW = penalty_weights.time_window;
 
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();
@@ -735,7 +735,7 @@ vector<Route> two_regret_repair_agregate(ProcessedInput* input, const PenaltyWei
 	double peso_TW = penalty_weights.time_window;
 	double peso_intermediate_stop = penalty_weights.intermediate_stop;
 
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();
@@ -1025,7 +1025,7 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 	double peso_TW = penalty_weights.time_window;
 	double peso_intermediate_stop = penalty_weights.intermediate_stop;
 	
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();

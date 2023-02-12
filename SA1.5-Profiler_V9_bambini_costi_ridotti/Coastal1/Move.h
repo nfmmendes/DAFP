@@ -151,7 +151,7 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 
 Route update_route_after_move(ProcessedInput*input, int A, int B, Route& r) {
 	map<int, Airplane> map_airplane = input->get_map_airplane();
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
@@ -267,7 +267,7 @@ void modify_fuel_when_non_max(map<int, Airplane>& map_airplane, Route &r_support
 
 vector <Route> move(ProcessedInput* input, const PenaltyWeights& penalty_weights, vector<Route>& routes, double end_day){
 	
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();
@@ -370,7 +370,7 @@ void update_fuel_when_no_max_2(map<int, Airplane>& map_airplane, Route r_support
 }
 
 vector <Route> inter_move(ProcessedInput* input, const PenaltyWeights& penalty_weights, vector<Route> routes, double end_day) {
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();

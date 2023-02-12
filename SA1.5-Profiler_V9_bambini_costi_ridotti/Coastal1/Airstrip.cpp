@@ -15,7 +15,7 @@ Airstrip::Airstrip()
 	fuel_cost = 0.0;
 }
 
-Airstrip::Airstrip(int code, string name, string code_string, int ground_time, int leading_cost, double lat, double lng, bool fuel, double fuel_cost) {
+Airstrip::Airstrip(unsigned int code, string name, string code_string, int ground_time, int leading_cost, double lat, double lng, bool fuel, double fuel_cost) {
 	this->code = code;
 	this->name = name;
 	this->code_string = code_string;

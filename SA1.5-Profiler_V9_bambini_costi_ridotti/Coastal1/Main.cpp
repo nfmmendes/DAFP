@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
 	for (auto f : airplanes) 
 		map_airplane.insert(make_pair(f.code, f));
 
-	map<int, Airstrip> map_airstrip;
+	map<unsigned int, Airstrip> map_airstrip;
 	for (auto f : airstrips) 
 		map_airstrip.insert(make_pair(f.code, f));
 	//ora faccio la mappa che mi permette di avere come chiave ogni aereo/aeroporto, come valore il fuel necessario,

@@ -41,7 +41,7 @@ bool swap_is_allowed(int A, int B, const Route& r) {
 }
 
 //qua purtroppo non posso mettere usare i puntatori
-Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
+Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& map_airplane, map<unsigned int, Airstrip>& map_airstrip, vector<vector<double>>& from_to, vector<vector<vector<double>>>& from_to_FuelConsumed) {
 	Route r_new;
 	r_new.aircraft_code = r.aircraft_code;
 	r_new.primo_pass = r.primo_pass;
@@ -129,7 +129,7 @@ Route update_route_after_swap(int A, int B, const Route& r, map<int, Airplane>& 
 }
 
 vector <Route> swap(ProcessedInput* input, const PenaltyWeights& penalty_weights, vector<Route>& routes, double end_day) {
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector location_fuel = input->get_location_fuel();
 	double2DVector from_to = input->get_from_to();

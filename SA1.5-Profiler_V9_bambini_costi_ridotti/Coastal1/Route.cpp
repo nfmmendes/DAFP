@@ -198,7 +198,7 @@ void Route::update_solution_from_to(int& node_add_from)
 
 void Route::update_route_destroy(ProcessedInput* input, int node_destroy, int min_from_pass, int max_to_pass) {
 
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double2DVector from_to = input->get_from_to();
 	Airplane* airplane = & map<int, Airplane>(input->get_map_airplane())[aircraft_code];
 	
@@ -307,7 +307,7 @@ void Route::update_fuel_and_weight(const int& node_add_to, const bool& non_to, d
 
 void Route::update_route_rebuilt_one(ProcessedInput* input, int node_add_from, int node_add_to, int location_from, int location_to, Passenger& p) {
 	Airplane* airplane = & input->get_map_airplane()[aircraft_code];
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double3DVector from_to_fuelConsumed = input->get_from_to_fuel_consumed();
 	double2DVector from_to = input->get_from_to();
 
@@ -606,7 +606,7 @@ void Route::update_route_rebuilt_one(ProcessedInput* input, int node_add_from, i
 void Route::add_update_only_one_node_first_passanger(ProcessedInput* input, Passenger& p) {
 
 	map<int, Airplane> map_airplane = input->get_map_airplane();
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double3DVector from_to_fuelConsumed = input->get_from_to_fuel_consumed();
 	double2DVector from_to = input->get_from_to();
 
@@ -685,7 +685,7 @@ void Route::add_update_only_one_node_first_passanger(ProcessedInput* input, Pass
 void Route::move_c(ProcessedInput* input, Passenger& p, int location_from, int location_to) {
 
 	map<int, Airplane> map_airplane = input->get_map_airplane();
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double3DVector from_to_fuelConsumed = input->get_from_to_fuel_consumed();
 	double2DVector from_to = input->get_from_to();
 
@@ -758,7 +758,7 @@ void Route::move_c(ProcessedInput* input, Passenger& p, int location_from, int l
 void Route::update_time_for_check_repair(ProcessedInput* input, int node_add_from, int node_add_to, int location_from, int location_to) {
 
 	Airplane* airplane = &map<int, Airplane>(input->get_map_airplane())[aircraft_code];
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double3DVector from_to_fuelConsumed = input->get_from_to_fuel_consumed();
 	double2DVector from_to = input->get_from_to();
 	
@@ -986,7 +986,7 @@ void Route::do_work3(int& node_add_from, int& node_add_to, int location_from, in
 	}
 }
 
-void Route::do_work4(int& node_add_from, int location_from, map<int, Airstrip> map_airstrip, double2DVector from_to, Airplane* airplane)
+void Route::do_work4(int& node_add_from, int location_from, map<unsigned int, Airstrip> map_airstrip, double2DVector from_to, Airplane* airplane)
 {
 	double time_add = departure[node_add_from] + airplane->travelTime(from_to[airstrips[node_add_from]][location_from]);
 
@@ -1011,7 +1011,7 @@ void Route::do_work4(int& node_add_from, int location_from, map<int, Airstrip> m
 	capacities.insert(capacities.begin() + node_add_from + 1, 0);
 }
 
-void Route::do_work5(int& node_add_to, int location_to, bool& non_to_final, map<int, Airplane> map_airplane, map<int, Airstrip> map_airstrip, double2DVector from_to)
+void Route::do_work5(int& node_add_to, int location_to, bool& non_to_final, map<int, Airplane> map_airplane, map<unsigned int, Airstrip> map_airstrip, double2DVector from_to)
 {
 	airstrips.insert(airstrips.begin() + node_add_to, location_to);
 	double time_add1 = departure[node_add_to - 1] + map_airplane[aircraft_code].travelTime(from_to[airstrips[node_add_to - 1]][location_to]);
@@ -1042,7 +1042,7 @@ void Route::do_work5(int& node_add_to, int location_to, bool& non_to_final, map<
 void Route::update_rebuilt_one_first_fase(ProcessedInput * input, int& node_add_from, int& node_add_to, int location_from, int location_to, Passenger& p, bool& non_to, bool& non_to_final, bool& num_equals) {
 
 	map<int, Airplane> map_airplane = input->get_map_airplane();
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double3DVector from_to_fuelConsumed = input->get_from_to_fuel_consumed();
 	double2DVector from_to = input->get_from_to();
 	
@@ -1245,7 +1245,7 @@ void Route::update_rebuilt_one_second_fase(ProcessedInput* input, int& node_add_
 
 	Airplane* airplane = & map<int,Airplane>(input->get_map_airplane())[aircraft_code];
 	
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double3DVector from_to_fuelConsumed = input->get_from_to_fuel_consumed();
 	double2DVector from_to = input->get_from_to();
 	

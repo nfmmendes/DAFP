@@ -307,7 +307,7 @@ void calculate_ObjectiveFunction_final(ProcessedInput*input, double cost_company
 	double peso_TW = penalty_weights.time_window;
 	double peso_intermediate_stop = penalty_weights.intermediate_stop;
 	
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
@@ -392,7 +392,7 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 	double peso_TW = penalt_weights.time_window;
 	double peso_intermediate_stop = penalt_weights.intermediate_stop;
 	
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
@@ -467,7 +467,7 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 
 double cost_single_route(ProcessedInput* input, const PenaltyWeights& penalty_weights, const Route& r) {
 	
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
@@ -506,7 +506,7 @@ double calculate_objective_function(ProcessedInput* input, const  PenaltyWeights
 	double peso_TW = penalty_weights.time_window;
 	double peso_intermediate_stop = penalty_weights.intermediate_stop;
 
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
@@ -599,7 +599,7 @@ double cost_time_windows_for_node(Route& r, vector<Passenger>& pass, double peso
 }
 
 double costo_senza_time_windows(ProcessedInput* input, vector<Route>& solution) {
-	map<int, Airstrip> map_airstrip = input->get_map_airstrip();
+	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	map<int, Airplane> map_airplane = input->get_map_airplane();
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();

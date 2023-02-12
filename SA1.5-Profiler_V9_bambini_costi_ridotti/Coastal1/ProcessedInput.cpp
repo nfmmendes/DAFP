@@ -1,6 +1,6 @@
 ﻿#include "ProcessedInput.h"
 
-ProcessedInput::ProcessedInput(map<int, Airplane>& map_airplane, map<int, Airstrip>& map_airstrip,
+ProcessedInput::ProcessedInput(map<int, Airplane>& map_airplane, map<unsigned int, Airstrip>& map_airstrip,
 	double2DVector& from_to, double2DVector& location_fuel, double3DVector& from_to_fuel_consumed):map_airplane(map_airplane), map_airstrip(map_airstrip), from_to(from_to), location_fuel(location_fuel), from_to_fuel_consumed(from_to_fuel_consumed)
 {
 }
@@ -10,7 +10,7 @@ map<int, Airplane>& ProcessedInput::get_map_airplane()
 	return map_airplane;
 }
 
-const map<int, Airstrip>& ProcessedInput::get_map_airstrip() const
+const map<unsigned int, Airstrip>& ProcessedInput::get_map_airstrip() const
 {
 	return map_airstrip;
 }
@@ -35,7 +35,7 @@ void ProcessedInput::set_map_airplane(const map<int, Airplane>& p_map_airplane)
 	map_airplane = p_map_airplane;
 }
 
-void ProcessedInput::set_map_airstrip(const map<int, Airstrip>& p_map_airstrip)
+void ProcessedInput::set_map_airstrip(const map<unsigned int, Airstrip>& p_map_airstrip)
 {
 	map_airstrip = p_map_airstrip; 
 }

@@ -1,7 +1,7 @@
 ﻿#include "Route.h"
 #include "Util.h"
 
-int location_closest_with_fuel(int location, vector<vector<double>>& from_to, map<int, Airstrip>& map_airstrip) {
+int location_closest_with_fuel(int location, vector<vector<double>>& from_to, map<unsigned int, Airstrip>& map_airstrip) {
 	int result = -1;
 	double value = DBL_MAX;
 

@@ -18,7 +18,7 @@ using std::ifstream;
 using std::vector;
 
 //per il tratto finale
-void fillLocation_fuel(double2DVector& result, vector<Airstrip> airstrips, vector<Airplane> airplanes, double2DVector& from_to, map<int, Airstrip>& map_airstrip) {
+void fillLocation_fuel(double2DVector& result, vector<Airstrip> airstrips, vector<Airplane> airplanes, double2DVector& from_to, map<unsigned int, Airstrip>& map_airstrip) {
 
 	result.resize((size_t)numero_airplane_const);
 	for (unsigned int i = 0; i < numero_airplane_const; i++)
