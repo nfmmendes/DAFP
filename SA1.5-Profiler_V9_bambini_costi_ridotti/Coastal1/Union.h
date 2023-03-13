@@ -50,10 +50,10 @@ void unione_children_INTELLIGENTE(vector<Passenger>& passengers, vector<Passenge
 			int indice_parent = 0;
 			string precedente = "";
 			for (Passenger p : bambini) {
-				int loc_dep = p.origin;
-				int loc_arr = p.destination;
-				int time_dep = p.departure_time;
-				int time_arr = p.arrival_time;
+				auto loc_dep = p.origin;
+				auto loc_arr = p.destination;
+				auto time_dep = p.departure_time;
+				auto time_arr = p.arrival_time;
 				string attuale = to_string(p.origin) + to_string(p.destination) + to_string(p.departure_time) + to_string(p.arrival_time);
 				if (precedente != attuale) indice_parent = 0;
 				precedente = attuale;
