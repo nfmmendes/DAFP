@@ -6,13 +6,13 @@
 #include "Route.h"
 #include "Util.h"
 
-bool relateness_passenger2(int trheshold, double relateness, vector<Passenger>& passengers_removed, map<string, vector<int>>& agr_pass, vector<string>& sequence, int y, map<int, Passenger>& map_id_passenger) {
+bool relateness_passenger2(int threshold, double relateness, vector<Passenger>& removed, map<string, vector<int>>& agr_pass, vector<string>& sequence, int y, map<int, Passenger>& map_id_passenger) {
 	// Poi questo for si potra togliere
 	auto pointer = sequence[y];
 	
-	if (relateness <= trheshold) {
+	if (relateness <= threshold) {
 		for (int j : agr_pass[pointer]) 
-			passengers_removed.push_back(map_id_passenger[j]);
+			removed.push_back(map_id_passenger[j]);
 		sequence.erase(sequence.begin() + y);
 		agr_pass.erase(agr_pass.find(pointer));
 
