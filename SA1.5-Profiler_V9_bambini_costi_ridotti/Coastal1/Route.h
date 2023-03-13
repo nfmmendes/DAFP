@@ -41,10 +41,10 @@ public:
 	vector<Place> places; 
 	
 	double cost;
-	int aircraft_code;  //questo dovrebbe diventare un interoper un accesso più veloce 
+	unsigned int aircraft_code;  //questo dovrebbe diventare un interoper un accesso più veloce 
 	string aircraft_code_company_comparison;
 	vector<double> fuel;
-	int index;
+	unsigned int index;
 	
 	bool primo_pass;
 
@@ -66,7 +66,7 @@ public:
 	
 	const vector<bool> get_refueling() const { return refueling; }
 	
-	const vector<int> get_capacities();
+	const vector<unsigned int> get_capacities();
 	void set_capacity_at(int position, int value);
 	void add_capacity_at(int position, int value);
 
@@ -113,7 +113,7 @@ public:
 
 private:
 	vector<unsigned int> airstrips;
-	vector<int> capacities;
+	vector<unsigned int> capacities;
 	vector<string> places_company;
 	vector<Passenger> passengers_in_route;
 	vector<bool> refueling;

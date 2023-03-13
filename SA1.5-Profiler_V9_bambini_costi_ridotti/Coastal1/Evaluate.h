@@ -186,7 +186,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 		final_cost_fissi += airplane->fixed_cost;
 		string places = ";";
 		
-		for (unsigned int i = 0; i < (int)route->get_places_company().size(); i++) {
+		for (size_t i = 0; i < (int)route->get_places_company().size(); i++) {
 			places += route->get_places_company()[i] + ";";
 
 			if (i >= 1) {
@@ -227,7 +227,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 		transform(passengers[p].name.begin(), passengers[p].name.end(), passengers[p].name.begin(), ::tolower);
 		transform(passengers[p].surname.begin(), passengers[p].surname.end(), passengers[p].surname.begin(), ::tolower);
 
-		for (int j = 0; j < (int)passengers_solution.size(); j++) {
+		for (unsigned int j = 0; j < passengers_solution.size(); j++) {
 			trovato_pass_name = passengers_solution[j].name.find(passengers[p].name);
 			if (trovato_pass_name <= passengers_solution[j].name.size()) {
 				trovato_pass_cognome = passengers_solution[j].name.find(passengers[p].surname);
@@ -303,7 +303,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 	return costo_Soluzione;
 }
 
-void calculate_ObjectiveFunction_final(ProcessedInput*input, double cost_company, const PenaltyWeights& penalty_weights, vector<Route>& solution) {
+void calculate_ObjectiveFunction_final(ProcessedInput*input, const PenaltyWeights& penalty_weights, vector<Route>& solution) {
 	double peso_TW = penalty_weights.time_window;
 	double peso_intermediate_stop = penalty_weights.intermediate_stop;
 	
@@ -332,7 +332,7 @@ void calculate_ObjectiveFunction_final(ProcessedInput*input, double cost_company
 
 		double mileage = 0.0;
 		double fuel_consumed = 0.0;
-		for (int i = 0; i < r.index; i++) {
+		for (unsigned int i = 0; i < r.index; i++) {
 			const auto curr_airstrip = r.get_airstrips()[i];
 			const auto next_airstrip = r.get_airstrips()[i + 1];
 			Airstrip* airstrip = &map_airstrip[curr_airstrip];
@@ -387,7 +387,7 @@ double calculate_deviations_cost(double peso_TW, vector<Route>::value_type& r, c
 	return (TW_arrival + TW_departure) * peso_TW * p.capacity;
 }
 
-void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double costo_company, 
+void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input,
 												const PenaltyWeights& penalt_weights, vector<Route>& solution) {
 	double peso_TW = penalt_weights.time_window;
 	double peso_intermediate_stop = penalt_weights.intermediate_stop;
@@ -433,7 +433,7 @@ void calculate_ObjectiveFunction_final_arc_iori(ProcessedInput* input, double co
 		double mileage = 0.0;
 		double fuel_consumed = 0.0;
 
-		for (int i = 0; i < r.index; i++) {
+		for (unsigned int i = 0; i < r.index; i++) {
 			const auto curr_airstrip = r.get_airstrips()[i];
 			const auto next_airstrip = r.get_airstrips()[i + 1];
 			
@@ -522,12 +522,12 @@ double calculate_objective_function(ProcessedInput* input, const  PenaltyWeights
 		double mileage = 0.0;
 		double fuel_consumed = 0.0;
 
-		for (int i = 0; i < r.index; i++) {
+		for (unsigned int i = 0; i < r.index; i++) {
 
 			if (i >= 1)
 				cost_route += map_airstrip[r.get_airstrips()[i]].landing_cost;
 			
-			if (i < r.index - 1) {
+			if (r.index > 0 && i < r.index - 1) {
 				mileage += from_to[r.get_airstrips()[i]][r.get_airstrips()[i + 1]];
 				fuel_consumed += from_to_FuelConsumed[r.aircraft_code][r.get_airstrips()[i]][r.get_airstrips()[i + 1]];
 			}
@@ -614,7 +614,7 @@ double costo_senza_time_windows(ProcessedInput* input, vector<Route>& solution) 
 		cost += airplane->fixed_cost;
 		cost_route += airplane->fixed_cost;
 		
-		for (int i = 1; i < r.index; i++) {
+		for (unsigned int i = 1; i < r.index; i++) {
 			cost += map_airstrip[airstrips[i]].landing_cost;
 			cost_route += map_airstrip[airstrips[i]].landing_cost;
 		}

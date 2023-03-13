@@ -565,7 +565,7 @@ int main(int argc, char* argv[]) {
 	cout << basic_columns<<" Total; Numero Aerei; Fuel; KM; IS; min TW;";
 	cout << basic_columns<<" minuti TW; N_intermediate; gap_perc; time_ALNS; time_model; time_incumbent; numeroSA" << endl;
 	company_solution = calculationCostCompany( penalty_weights, argv[2], argv[3], airstrips, airplanes, passengers_for_company_solution, from_to_company);
-	calculate_ObjectiveFunction_final(&input, company_solution, penalty_weights, start_solution_route);
+	calculate_ObjectiveFunction_final(&input, penalty_weights, start_solution_route);
 	
 	final_time = difftime(time(NULL), time_now);
 	int tempo_Alns = 0, s;
@@ -596,7 +596,7 @@ int main(int argc, char* argv[]) {
 
 	//SCOMMENTARE QUESTE PER AVERE IL COSTO CON L'ULTIMO ARCO
 	cout << "///////////// ora vengono stampate le route con l'aggiunta dell'ultimo arco, e il relativo costo////////////////////////" << endl;
-	calculate_ObjectiveFunction_final_arc_iori(&input, company_solution, penalty_weights, start_solution_route);
+	calculate_ObjectiveFunction_final_arc_iori(&input, penalty_weights, start_solution_route);
 	
 	outfile.close(); // per il grafico+++++++++
 	return 0;

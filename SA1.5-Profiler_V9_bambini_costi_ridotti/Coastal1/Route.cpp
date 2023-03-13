@@ -1364,7 +1364,7 @@ Route::~Route()
 {
 }
 
-const vector<int> Route::get_capacities()
+const vector<unsigned int> Route::get_capacities()
 {
 	return capacities;
 }
