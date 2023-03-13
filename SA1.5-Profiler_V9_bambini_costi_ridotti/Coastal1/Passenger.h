@@ -13,9 +13,9 @@ public:
 	Passenger(int, int, int, string, string, string, string, string, string, string, int, int);
 	~Passenger();
 
-	int origin;
-	int destination;
-	int pnr;
+	unsigned int origin;
+	unsigned int destination;
+	unsigned int pnr;
 	string code_flight;
 	string departure_location_company;
 	string arrival_location_company;
@@ -23,12 +23,12 @@ public:
 	string name;
 	string surname;
 	string gender;
-	int departure_time;
-	int arrival_time;
+	unsigned int departure_time;
+	unsigned int arrival_time;
 	double weight;
-	int stop;
-	int chiave_regret;
-	int capacity;
+	unsigned int stop;
+	unsigned int chiave_regret;
+	unsigned int capacity;
 	string pnr_group;
 
 	//for the passenger in the solution route to calculate the objective function

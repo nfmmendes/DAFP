@@ -860,7 +860,7 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 		if (r.get_weight_at(j) < 0) {
 			add_fuel = r.get_weights()[j];
 			index_weight_neg = j;
-			int index_refueling = index_weight_neg;
+			unsigned int index_refueling = index_weight_neg;
 			for (int i = index_weight_neg; i >= 0; i--) {
 				if (r.get_refueling()[i]) {
 					index_refueling = i;

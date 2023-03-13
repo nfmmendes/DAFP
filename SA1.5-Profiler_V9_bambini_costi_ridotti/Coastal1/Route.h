@@ -18,7 +18,7 @@ struct AirplaneStatus
 {
 	double fuel;
 	double weight;
-	int capacity;
+	unsigned int capacity;
 };
 
 struct Place

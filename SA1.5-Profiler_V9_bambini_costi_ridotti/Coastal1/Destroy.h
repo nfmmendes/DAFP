@@ -731,7 +731,9 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 			Passenger pass = map_id_passenger[Codpass];
 			auto p_r = map_id_passenger[agr_pass[sequence[y]][0]];
 			double distances = from_to[p_r.destination][pass.destination] + from_to[p_r.origin][pass.origin];
-			double relateness = distances + abs(p_r.arrival_time - pass.arrival_time) + abs(p_r.departure_time - pass.departure_time);
+			int diff_arrivals = p_r.arrival_time - pass.arrival_time;
+			int diff_departures = p_r.departure_time - pass.departure_time;
+			double relateness = distances + abs(diff_arrivals) + abs(diff_departures);
 
 			if (relateness_passenger2(soglia_relateness, relateness, passenger_removed, agr_pass, sequence, y, map_id_passenger))
 				y--;
