@@ -223,7 +223,6 @@ int main(int argc, char* argv[]) {
 	
 	do {
 		cout << " ******************************* Inizio un altro giro nel ciclo grande ********************************* " << endl;
-		double r;
 		double best_solution = DBL_MAX;
 		int iteration = 0;
 		int iteration_max = 30; //35 se vuopi fare un solo giro 
@@ -385,10 +384,10 @@ int main(int argc, char* argv[]) {
 					}
 				}
 				else {
-					r = double(rand()) / (double(RAND_MAX) + 1.0);
+					double random_value = double(rand()) / (double(RAND_MAX) + 1.0);
 					double espo = -(cost_objectiveFunction_second_fase_after_rebuilt - start_solution) / T;
 
-					if (r <= exp(espo) && exp(espo) != 1) {
+					if (random_value <= exp(espo) && exp(espo) != 1) {
 						start_solution_route.clear();
 						
 						for (Route& s : solution_rebuilt) 
