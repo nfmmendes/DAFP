@@ -579,7 +579,7 @@ inline double cost_time_windows_for_route(const Route& r, double peso_TW) {
 	return cost;
 }
 
-double cost_for_route_passenger_destroyCluster(Route& r, const Passenger& p, int inter_stop_factor, double peso_TW) {
+double cost_for_route_passenger_destroyCluster(Route& r, const Passenger& p, double inter_stop_factor, double peso_TW) {
 
 	double departure = r.get_departures()[p.solution_from];
 	double arrival = r.get_arrivals()[p.solution_to];

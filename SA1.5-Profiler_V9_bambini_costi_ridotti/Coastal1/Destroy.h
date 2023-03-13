@@ -35,14 +35,14 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 		f = f * (10);
 		if (f <= destroy_coef_route && r.index > 1) {
 			//genero il numero random di nodi da distruggere da 2 a place.size()-1;
-			double numero_random = (double)rand() / RAND_MAX;
+			double random_number = (double)rand() / RAND_MAX;
 
 			if (r.get_airstrips().size() == 2) 
-				numero_random = round(1 + (numero_random * (r.get_airstrips().size() - 2)));
+				random_number = round(1 + (random_number * (r.get_airstrips().size() - 2)));
 			else
-				numero_random = round(2 + (numero_random * (r.get_airstrips().size() - 3)));
+				random_number = round(2 + (random_number * (r.get_airstrips().size() - 3)));
 
-			if (numero_random == r.get_airstrips().size() - 1) {
+			if (random_number == r.get_airstrips().size() - 1) {
 				// qua devo distruggere tutta la route e lasciare solo il depot
 				for (int i = (int)(r.get_airstrips().size()) - 1; i >= 1; i--)
 					r.remove_at(i);
@@ -160,7 +160,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 										
 										int_removed.push_back(p);
 										for (int t = r.get_passengers()[p].solution_from; t < r.get_passengers()[p].solution_to; t++) {
-											r.add_capacity_at(t, -1.0*r.get_passengers()[p].capacity);
+											r.add_capacity_at(t, r.get_passengers()[p].capacity);
 											r.get_weight_at(t) += r.get_passengers()[p].weight;
 										}
 									}
@@ -190,6 +190,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 										r.fuel[i] = r.fuel[i] - diff;
 									}
 
+									// TODO: Understand this. This is wrong.
 									if (r.get_refueling()[node_destroy])
 										r.get_weight_at(i) = r.get_weights()[i] + diff;
 									else
@@ -226,7 +227,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 							}
 						}
 					} while (check);
-				} while (nodi_rimossi < numero_random);
+				} while (nodi_rimossi < random_number);
 			}
 		}
 		index++;
@@ -511,7 +512,7 @@ void do_work7(Route& r, int node_destroy, double fuel_consumed, int index_before
 		else {
 			r.fuel[i] = r.fuel[i] - diff;
 		}
-
+		// TODO: Understand this. This is wrong
 		if (r.get_refueling()[node_destroy]) 
 			r.get_weight_at(i) = r.get_weights()[i] + diff;
 		else
@@ -726,7 +727,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 		agr_pass.erase(agr_pass.find(sequence[x]));
 		sequence.erase(sequence.begin() + x);
 
-		for (int y = 0; y < (int)sequence.size(); y++) {
+		for (size_t y = 0; y < sequence.size(); y++) {
 			// Qui adesso chimao la funzione Relateness !!
 			Passenger pass = map_id_passenger[Codpass];
 			auto p_r = map_id_passenger[agr_pass[sequence[y]][0]];
@@ -755,7 +756,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 		int max_to_pass = -1;
 		Airplane *airplane = &map_airplane[s.aircraft_code];
 		
-		for (int p = 0; p < (int)s.get_passengers().size(); p++) {
+		for (size_t p = 0; p < s.get_passengers().size(); p++) {
 			Passenger passenger = s.get_passengers()[p];
 			for (Passenger& pass : passenger_removed) {
 				if (s.get_passengers()[p].pnr == pass.pnr) {
@@ -940,19 +941,19 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 
 				r.removePlace(node_destroy, map_airplane);
 				double add_fuel = 0;
-				int index_weight_neg = -1;
-				for (int j = 0; j < r.index; j++) {
+				unsigned int index_weight_neg;
+				for (unsigned int j = 0; j < r.index; j++) {
 					if (r.get_weights()[j] < 0) {
 						add_fuel = r.get_weights()[j];
 						index_weight_neg = j;
 						int index_refueling = index_weight_neg;
-						for (int i = index_weight_neg; i >= 0; i--) {
+						for (unsigned int i = index_weight_neg; i >= 0; i--) {
 							if (r.get_refueling()[i]) { //&& i != node_destroy
 								index_refueling = i;
 								break;
 							}
 						}
-						for (int t = index_refueling; t < r.index; t++) {
+						for (unsigned int t = index_refueling; t < r.index; t++) {
 
 							if (r.get_refueling()[t] && t != index_refueling) break;
 							r.fuel[t] += add_fuel;
