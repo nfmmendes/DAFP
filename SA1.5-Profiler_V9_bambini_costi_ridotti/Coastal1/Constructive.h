@@ -1493,12 +1493,12 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 
 		//******************************************************************************
 		double add_fuel = 0;
-		int index_weight_neg = -1;
+		unsigned int index_weight_neg;
 		for (int j = best_from; j < route->index; j++) {
 			if (route->get_weights()[j] < 0) {
 				add_fuel = route->get_weights()[j];
 				index_weight_neg = j;
-				int index_refueling = index_weight_neg;
+				unsigned int index_refueling = index_weight_neg;
 				for (int i = index_weight_neg; i >= 0; i--) {
 					if (route->get_refueling()[i]) {
 						index_refueling = i;
