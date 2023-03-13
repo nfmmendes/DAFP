@@ -394,7 +394,6 @@ vector <Route> inter_move(ProcessedInput* input, const PenaltyWeights& penalty_w
 			// Ora devo eliminare i nodi solo se sono allowed
 			if (move_flightleg_is_allowed(A, r_support)) {
 				Route r_new = r_support;
-				int NomeA1 = r_new.get_airstrips()[A + 1];
 
 				destroy_ls(input, n_route, A, passenger_removed, r_new);
 				if (r_new.index != -1) {
