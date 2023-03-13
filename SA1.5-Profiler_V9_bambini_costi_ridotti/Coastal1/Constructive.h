@@ -30,14 +30,14 @@ vector<Route> heuristic_costructive_second_fase(vector<Route>& solution, double 
 		double best_cost = cost_time_windows_for_route(best_route, peso_TW);
 		
 		if (cost_time_windows_for_route(r, peso_TW) != 0 && r.index > 0) { //chiaramente cerco di migliorare la dove le timewindows non sono zero
-			for (auto i = 0; i < r.index - 1; i++) { 
+			for (unsigned int i = 0; i < r.index - 1; i++) { 
 				double wait_time = 0;
 				auto start_index = (i == 0 ? 0 : i + 1);
 				
 				while (wait_time <= maximum_wait) {
 					if(i != start_index)
 						r_support.get_departure_at(i) += 2;
-					for (int j = start_index; j < r.index; j++) {
+					for (unsigned int j = start_index; j < r.index; j++) {
 						r_support.get_arrival_at(j) += 2;
 						r_support.get_departure_at(j) += 2;
 					}
@@ -227,12 +227,12 @@ namespace heuristic_costructive_first_fase_namespace {
 		//**************************************************************************
 		double add_fuel = 0;
 		int index_weight_neg = -1;
-		for (auto j = best_from; j < route->index; j++) {
+		for (unsigned int j = best_from; j < route->index; j++) {
 			if (route->get_weights()[j] < 0) {
 
 				add_fuel = route->get_weights()[j];
 				index_weight_neg = j;
-				int index_refueling = index_weight_neg;
+				unsigned int index_refueling = index_weight_neg;
 				for (auto i = index_weight_neg; i >= 0; i--) {
 					if (route->get_refueling()[i]) {
 						index_refueling = i;
@@ -240,7 +240,7 @@ namespace heuristic_costructive_first_fase_namespace {
 					}
 				}
 
-				for (auto t = index_refueling; t < route->index; t++) {
+				for (unsigned int t = index_refueling; t < route->index; t++) {
 					if (route->get_refueling()[t] && t != index_refueling) 
 						break;
 					route->fuel[t] += add_fuel;
@@ -264,7 +264,7 @@ namespace heuristic_costructive_first_fase_namespace {
 
 		Airplane* airplane = &map_airplane[route->aircraft_code];
 		
-		for (int h = best_from; h < route->index; h++) {
+		for (unsigned int h = best_from; h < route->index; h++) {
 			route->add_capacity_at(h, p.capacity);
 			route->get_weights()[h] -= p.weight;
 		}
@@ -284,7 +284,7 @@ namespace heuristic_costructive_first_fase_namespace {
 					}
 				}
 
-				for (int t = index_refueling; t < route->index; t++) {
+				for (unsigned int t = index_refueling; t < route->index; t++) {
 					if (route->get_refueling()[t] && t != index_refueling) 
 						break;
 					route->fuel[t] += add_fuel;
@@ -352,7 +352,7 @@ vector<Route> costructive_first_fase(ProcessedInput* input, const PenaltyWeights
 			Airplane *airplane= &map_airplane[r.aircraft_code];
 			
 			if (r.primo_pass == false) {
-				if (r.get_airstrips()[r.index - 1] == p.origin) {
+				if (r.index > 0 && r.get_airstrips()[r.index - 1] == p.origin) {
 					//in questo caso c'? solo lui nella route, il costo ? dato dalla sua
 					//inserzione, quindi, chilometri, costo fisso per uso aereo e fuel
 					double cost = airplane->fixed_cost + from_to[p.origin][p.destination];
@@ -413,14 +413,14 @@ vector<Route> costructive_first_fase(ProcessedInput* input, const PenaltyWeights
 				//prendo tutte le coppie FROM-TO che ci sono nella route, se non c'? il FROM, non cerco il TO
 				vector<int> FROM;
 				vector<int> TO;
-				for (int t = 0; t < r.index; t++) {
+				for (unsigned int t = 0; t < r.index; t++) {
 					if (r.get_airstrips()[t] == p.origin) 
 						FROM.push_back(t);
 				}
 
 				if (!FROM.empty()) {
 					//dentro questo abbiamo trovato dei FROM 
-					for (int t = FROM[0]; t < r.index; t++) {
+					for (unsigned int t = FROM[0]; t < r.index; t++) {
 						if (r.get_airstrips()[t] == p.destination) 
 							TO.push_back(t);
 					}
@@ -482,7 +482,7 @@ vector<Route> costructive_first_fase(ProcessedInput* input, const PenaltyWeights
 					if (r.get_airstrips()[r.index - 1] != p.destination) {
 						for (auto from : FROM) {
 							bool capacity_satisfy = true;
-							for (int c = from; c < r.index; c++) {
+							for (unsigned int c = from; c < r.index; c++) {
 								if ((r.get_capacities()[c] + p.capacity) > map_airplane[r.aircraft_code].capacity) 
 									capacity_satisfy = false;
 
@@ -812,7 +812,7 @@ void run_situation_4(ProcessedInput* input, vector<Passenger> &passengers, Route
 
 	double add_fuel = 0;
 	int index_weight_neg = -1;
-	for (int j = best_from; j < r.index; j++) {
+	for (unsigned int j = best_from; j < r.index; j++) {
 
 		if (r.get_weights()[j] < 0) {
 			add_fuel = r.get_weights()[j];
@@ -825,7 +825,7 @@ void run_situation_4(ProcessedInput* input, vector<Passenger> &passengers, Route
 				}
 			}
 
-			for (int t = index_refueling; t < r.index; t++) {
+			for (unsigned int t = index_refueling; t < r.index; t++) {
 				if (r.get_refueling()[t] && t != index_refueling)
 					break;
 				r.fuel[t] += add_fuel;
@@ -848,7 +848,7 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 	auto destination = passengers[best_passenger].destination; 
 	
-	for (int h = best_from; h < r.index; h++) {
+	for (unsigned int h = best_from; h < r.index; h++) {
 		r.add_capacity_at(h, passengers[best_passenger].capacity);
 		r.get_weight_at(h) -= passengers[best_passenger].weight;
 	}
@@ -856,7 +856,7 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 	//******************************************************************************
 	double add_fuel = 0;
 	int index_weight_neg = -1;
-	for (int j = best_from; j < r.index; j++) {
+	for (unsigned int j = best_from; j < r.index; j++) {
 		if (r.get_weight_at(j) < 0) {
 			add_fuel = r.get_weights()[j];
 			index_weight_neg = j;
@@ -868,7 +868,7 @@ void run_situation_5(ProcessedInput* input, vector<Passenger>& passengers, Route
 				}
 			}
 
-			for (int t = index_refueling; t < r.index; t++) {
+			for (unsigned int t = index_refueling; t < r.index; t++) {
 				if (r.get_refueling()[t] && t != index_refueling)
 					break;
 				r.fuel[t] += add_fuel;
@@ -1001,14 +1001,14 @@ vector<Route> sequential_costructive_first_fase(ProcessedInput* input, const Pen
 					//prendo tutte le coppie FROM-TO che ci sono nella route, se non c'? il FROM, non cerco il TO
 					std::vector<int> FROM;
 					std::vector<int> TO;
-					for (int t = 0; t < r.index; t++) {
+					for (unsigned int t = 0; t < r.index; t++) {
 						if (r.get_airstrips()[t] == passengers[p].origin) 
 							FROM.push_back(t);
 					}
 
 					if (FROM.size() != 0) {
 						//dentro questo abbiamo trovato dei FROM 
-						for (int t = FROM[0]; t < r.index; t++) {
+						for (unsigned int t = FROM[0]; t < r.index; t++) {
 							if (r.get_airstrips()[t] == passengers[p].destination) 
 								TO.push_back(t);
 						}
@@ -1073,16 +1073,16 @@ vector<Route> sequential_costructive_first_fase(ProcessedInput* input, const Pen
 						//da qui in giu considero il caso in cui non ci sono TO ma anche se ci sono ma non mi
 						// conviene farlo fermare li quindi il for per tutti i from ma al di fuori della
 						// route e poi considero anche il costo di aggiungerlo a parte il pezzetto che manca
-						if (r.get_airstrips()[r.index - 1] != passengers[p].destination) {
+						if (r.index > 0 && r.get_airstrips()[r.index - 1] != passengers[p].destination) {
 							for (auto from : FROM) {
 								bool capacity_satisfy = true;
-								for (int c = from; c < r.index; c++) {
+								for (unsigned int c = from; c < r.index; c++) {
 									if ((r.get_capacities()[c] + passengers[p].capacity) > airplane->capacity) {
 										capacity_satisfy = false;
 										break;
 									}
 										
-									if (c < r.index - 1) {
+									if (r.index > 0 && c < r.index - 1) {
 										double fuel_consumed = airplane_consumption[r.get_airstrips()[c]][r.get_airstrips()[c + 1]];
 
 										double fuel_i_j = fuel_consumed + airplane->min_fuel;
@@ -1506,7 +1506,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 					}
 				}
 
-				for (int t = index_refueling; t < route->index; t++) {
+				for (unsigned int t = index_refueling; t < route->index; t++) {
 					if (route->get_refueling()[t] && t != index_refueling) break;
 					route->fuel[t] += add_fuel;
 					route->get_weight_at(t) -= add_fuel;
@@ -1583,7 +1583,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 			Airplane* airplane = &map_airplane[r.aircraft_code];
 			
 			if (r.primo_pass == false) {
-				if (r.get_airstrips()[r.index - 1] == p.origin) {
+				if (r.index > 0 && r.get_airstrips()[r.index - 1] == p.origin) {
 					//in questo caso c'? solo lui nella route, il costo ? dato dalla sua inserzione, quindi, chilometri, costo fisso per uso aereo e fuel
 					double cost = airplane->fixed_cost + from_to[p.origin][p.destination];
 					double fuel_consumed = fuel_consumption[r.aircraft_code][p.origin][p.destination];
@@ -1644,14 +1644,14 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 				//prendo tutte le coppie FROM-TO che ci sono nella route, se non c'? il FROM, non cerco il TO
 				vector<int> FROM;
 				vector<int> TO;
-				for (int t = 0; t < r.index; t++) {
+				for (unsigned int t = 0; t < r.index; t++) {
 					if (r.get_airstrips()[t] == p.origin) 
 						FROM.push_back(t);
 				}
 
 				if (FROM.size() != 0) {
 					//dentro questo abbiamo trovato dei FROM 
-					for (int t = FROM[0]; t < r.index; t++) {
+					for (unsigned int t = FROM[0]; t < r.index; t++) {
 						if (r.get_airstrips()[t] == p.destination) 
 							TO.push_back(t);
 					}
@@ -1705,7 +1705,7 @@ void heuristic_costructive_first_fase_secIter(ProcessedInput* input, const Penal
 					if (r.get_airstrips()[r.index - 1] != p.destination) {
 						for (auto from : FROM) {
 							bool capacity_satisfy = true;
-							for (int c = from; c < r.index; c++) {
+							for (unsigned int c = from; c < r.index; c++) {
 								if ((r.get_capacities()[c] + p.capacity) > airplane->capacity) 
 									capacity_satisfy = false;
 
