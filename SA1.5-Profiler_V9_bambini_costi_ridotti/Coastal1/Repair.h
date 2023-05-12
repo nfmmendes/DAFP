@@ -27,8 +27,8 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 	double2DVector from_to = input->get_from_to();
 	double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 
-	
-	bool case_first_passenger = false; //if false there are no passengers and only one node in the rotue, otherwise more nodes and no passengers
+	//if false there are no passengers and only one node in the rotue, otherwise more nodes and no passengers
+	bool case_first_passenger = false; 
 	bool move_c = false;
 	bool routes_infeasible = false;
 
@@ -43,67 +43,75 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 		
 		for (int r = 0; r < (int)routes_destroyed.size(); r++) {
 			if (routes_destroyed[r].primo_pass == false) {
-				if (routes_destroyed[r].index == 1) {
-					//c'? solo il deposito in questo rebuilt_case
-					double cost = from_to[routes_destroyed[r].get_airstrips()[0]][p.origin] + from_to[p.origin][p.destination] + map_airplane[routes_destroyed[r].aircraft_code].fixed_cost;
-					cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][routes_destroyed[r].get_airstrips()[0]][p.origin];
-					cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.origin][p.destination];
+				if (routes_destroyed[r].index != 1)
+					continue; 
 
-					//code for casual number [0.8;1.2]*****************************************************
-					double f = (double)rand() / RAND_MAX;
-					f = 0.8 + (f * 0.4);
-					cost = cost * f;
+				//c'? solo il deposito in questo rebuilt_case
+				double cost = from_to[routes_destroyed[r].get_airstrips()[0]][p.origin] + from_to[p.origin][p.destination] + map_airplane[routes_destroyed[r].aircraft_code].fixed_cost;
+				cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][routes_destroyed[r].get_airstrips()[0]][p.origin];
+				cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.origin][p.destination];
+
+				//code for casual number [0.8;1.2]*****************************************************
+				double f = (double)rand() / RAND_MAX;
+				f = 0.8 + (f * 0.4);
+				cost = cost * f;
 					
-					if (cost < best_cost) {
-						best_cost = cost;
-						best_route = r;
-						case_first_passenger = false;
-					}
-				}
+				if (cost >= best_cost)
+					continue; 
+
+				best_cost = cost;
+				best_route = r;
+				case_first_passenger = false;
 			}
 			else {
 
 				double cost_route_before = cost_single_route(input, penalty_weights, routes_destroyed[r]);
 				for (int n = 0; n < routes_destroyed[r].index - 1; n++) {
-					if (p.origin != routes_destroyed[r].get_airstrips()[n] || n == 0) {
-						for (int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
-							if (p.destination != routes_destroyed[r].get_airstrips()[n1]) {
-								Route r_support = routes_destroyed[r];
+					if (p.origin == routes_destroyed[r].get_airstrips()[n] && n != 0)
+						continue;
+					
+					for (int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
+						if (p.destination == routes_destroyed[r].get_airstrips()[n1])
+							continue; 
 
-								bool non_to = false;
-								bool non_to_final = false;
-								bool num_equals = false;
-								int node_add_from = n;
-								int node_add_to = n1;
+						Route r_support = routes_destroyed[r];
 
-								r_support.update_rebuilt_one_first_fase(input, node_add_from, node_add_to, p.origin, p.destination, p, non_to, non_to_final, num_equals);
+						bool non_to = false;
+						bool non_to_final = false;
+						bool num_equals = false;
+						int node_add_from = n;
+						int node_add_to = n1;
 
-								if (r_support.get_arrivals()[r_support.index - 1] <= end_day) {
-									r_support.update_rebuilt_one_second_fase(input, node_add_from, node_add_to, p.destination, p, non_to, non_to_final, num_equals);
+						r_support.update_rebuilt_one_first_fase(input, node_add_from, node_add_to, p.origin, p.destination, p, non_to, non_to_final, num_equals);
 
-									if ((p.solution_to - p.solution_from <= p.stop)) {
-										if (route_feasible(input, r_support, end_day)) {
-											double cost = (cost_single_route(input, penalty_weights, r_support) + cost_time_windows_for_route_passenger(r_support, p, penalty_weights.time_window)) + (penalty_weights.intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
+						if (r_support.get_arrivals()[r_support.index - 1] > end_day)
+							continue;
 
-											//code for casual number [0.8;1.2]*****************************************************
-											double f = (double)rand() / RAND_MAX;
-											f = 0.8 + (f * 0.4);
-											cost = cost * f;
-											//*************************************************************************************
+						r_support.update_rebuilt_one_second_fase(input, node_add_from, node_add_to, p.destination, p, non_to, non_to_final, num_equals);
 
-											if (best_cost > cost) {
-												best_route = r;
-												best_cost = cost;
-												move_c = false;
-												route_best = r_support;
-												from_per_route = p.solution_from;
-												to_per_route = p.solution_to;
-											}
-										}
-									}
-								}
-							}
-						}
+						if ((p.solution_to - p.solution_from > p.stop))
+							continue; 
+								
+						if (!route_feasible(input, r_support, end_day))
+							continue;
+								
+						double cost = (cost_single_route(input, penalty_weights, r_support) + cost_time_windows_for_route_passenger(r_support, p, penalty_weights.time_window)) + (penalty_weights.intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
+
+						//code for casual number [0.8;1.2]*****************************************************
+						double f = (double)rand() / RAND_MAX;
+						f = 0.8 + (f * 0.4);
+						cost = cost * f;
+						//*************************************************************************************
+
+						if (best_cost <= cost)
+							continue;
+
+						best_route = r;
+						best_cost = cost;
+						move_c = false;
+						route_best = r_support;
+						from_per_route = p.solution_from;
+						to_per_route = p.solution_to;
 					}
 				}
 			}
