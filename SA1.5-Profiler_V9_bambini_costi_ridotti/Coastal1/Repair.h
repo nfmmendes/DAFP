@@ -722,14 +722,7 @@ vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_w
 		routes_destroyed[best_route].add_passenger(p);
 	}
 
-
-	if (routes_infeasible) {
-		vector<Route> route_vuote;
-		return route_vuote;
-	}
-	else {
-		return routes_destroyed;
-	}
+	return routes_infeasible ? vector<Route>() : routes_destroyed;
 }
 
 vector<Route> two_regret_repair_agregate(ProcessedInput* input, const PenaltyWeights& penalty_weights, double end_day, vector<Route>& routes_destroyed, vector <Passenger>& passengers_removed) {
@@ -1048,62 +1041,65 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 		for (int r = 0; r < (int)routes_destroyed.size(); r++) {
 			if (r != p.route_before) {
 				if (routes_destroyed[r].primo_pass == false) {
-					if (routes_destroyed[r].index == 1) {
-						//c'? solo il deposito in questo rebuilt_case
-						double cost = from_to[routes_destroyed[r].get_airstrips()[0]][p.origin] + from_to[p.origin][p.destination] + map_airplane[routes_destroyed[r].aircraft_code].fixed_cost;
-						cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][routes_destroyed[r].get_airstrips()[0]][p.origin];
-						cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.origin][p.destination];
+					if (routes_destroyed[r].index != 1)
+						continue;
+					//c'? solo il deposito in questo rebuilt_case
+					double cost = from_to[routes_destroyed[r].get_airstrips()[0]][p.origin] + from_to[p.origin][p.destination] + map_airplane[routes_destroyed[r].aircraft_code].fixed_cost;
+					cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][routes_destroyed[r].get_airstrips()[0]][p.origin];
+					cost += from_to_FuelConsumed[routes_destroyed[r].aircraft_code][p.origin][p.destination];
 
-						if (cost < best_cost) {
-							best_cost = cost;
-							best_route = r;
-							case_first_passenger = false;
-						}
-					}
+					if (cost >= best_cost)
+						continue; 
+					
+					best_cost = cost;
+					best_route = r;
+					case_first_passenger = false;
 				}
 				else {
-					//int arc_from = -1;
-					//int arc_to = -1;
 					double cost_route_before = cost_single_route(input, penalty_weights, routes_destroyed[r]);
 					for (int n = 0; n < routes_destroyed[r].index - 1; n++) {
 						if (p.origin != routes_destroyed[r].get_airstrips()[n] || n == 0) {
 							for (int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
-								if (p.destination != routes_destroyed[r].get_airstrips()[n1]) {
-									Route r_support = routes_destroyed[r];
-									bool non_to = false;
-									bool non_to_final = false;
-									bool num_equals = false;
-									int node_add_from = n;
-									int node_add_to = n1;
+								if (p.destination == routes_destroyed[r].get_airstrips()[n1])
+									continue; 
+								
+								Route r_support = routes_destroyed[r];
+								bool non_to = false;
+								bool non_to_final = false;
+								bool num_equals = false;
+								int node_add_from = n;
+								int node_add_to = n1;
 
-									r_support.update_rebuilt_one_first_fase(input, node_add_from, node_add_to, p.origin, p.destination, p, non_to, non_to_final, num_equals);
+								r_support.update_rebuilt_one_first_fase(input, node_add_from, node_add_to, p.origin, p.destination, p, non_to, non_to_final, num_equals);
 
-									if (r_support.get_arrivals()[r_support.index - 1] <= end_day) {
+								if (r_support.get_arrivals()[r_support.index - 1] > end_day)
+									continue; 
+								   
+								r_support.update_rebuilt_one_second_fase(input, node_add_from, node_add_to, p.destination, p, non_to, non_to_final, num_equals);
 
-										r_support.update_rebuilt_one_second_fase(input, node_add_from, node_add_to, p.destination, p, non_to, non_to_final, num_equals);
+								if ((p.solution_to - p.solution_from > p.stop))
+									continue; 
+										
+								if (!route_feasible(input, r_support, end_day))
+									continue; 
+										
+								double cost = (cost_single_route(input, penalty_weights, r_support) + 
+												cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + 
+												(peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
+												
+								if (best_cost <= cost)
+									continue;
 
-										if ((p.solution_to - p.solution_from <= p.stop)) {
-											if (route_feasible(input, r_support, end_day)) {
-												double cost = (cost_single_route(input, penalty_weights, r_support) + 
-															   cost_time_windows_for_route_passenger(r_support, p, peso_TW)) + 
-													           (peso_intermediate_stop * (p.solution_to - p.solution_from - 1)) - cost_route_before;
-												if (best_cost > cost) {
-													best_route = r;
-													best_cost = cost;
-													move_c = false;
+								best_route = r;
+								best_cost = cost;
+								move_c = false;
 
-													route_best = r_support;
-													from_per_route = p.solution_from;
-													to_per_route = p.solution_to;
-												}
-											}
-										}
-									}
-								}
+								route_best = r_support;
+								from_per_route = p.solution_from;
+								to_per_route = p.solution_to;
 							}
 						}
 					}
-
 				}
 
 				//for move C
@@ -1117,11 +1113,15 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 						double time_window_cost = 0.0;
 						double t_arr_departure = routes_destroyed[r].get_arrivals()[routes_destroyed[r].index - 1];
 						double t_arr_arrival = routes_destroyed[r].get_departures()[routes_destroyed[r].index - 1] + time;
-						if (t_arr_departure < p.early_departure) time_window_cost += p.early_departure - t_arr_departure;
-						else if (t_arr_departure > p.late_departure) time_window_cost += t_arr_departure - p.late_departure;
+						if (t_arr_departure < p.early_departure) 
+							time_window_cost += p.early_departure - t_arr_departure;
+						else if (t_arr_departure > p.late_departure) 
+							time_window_cost += t_arr_departure - p.late_departure;
 
-						if (t_arr_arrival < p.early_arrival) time_window_cost += p.early_arrival - t_arr_arrival;
-						else if (t_arr_arrival > p.late_arrival) time_window_cost += t_arr_arrival - p.late_arrival;
+						if (t_arr_arrival < p.early_arrival) 
+							time_window_cost += p.early_arrival - t_arr_arrival;
+						else if (t_arr_arrival > p.late_arrival) 
+							time_window_cost += t_arr_arrival - p.late_arrival;
 
 						double cost = dist + ((time_window_cost * peso_TW) * p.capacity) + fuel_consumed;
 						if (best_cost > cost) {
@@ -1182,8 +1182,6 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 		}
 
 		if (best_route == -1) {
-			//cout << "********************** ha queste possibilit?******************************************" << endl;
-			//for (Route c : routes_destroyed) c.print();
 			routes_infeasible = true;
 			break;
 		}
@@ -1210,19 +1208,11 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 				}
 			}
 
-
 			routes_destroyed[best_route].add_passenger(p);
 		}
 	}
 
-
-	if (routes_infeasible) {
-		vector<Route> route_vuote;
-		return route_vuote;
-	}
-	else {
-		return routes_destroyed;
-	}
+	return routes_infeasible ? vector<Route>() : routes_destroyed;
 }
 
 #endif
