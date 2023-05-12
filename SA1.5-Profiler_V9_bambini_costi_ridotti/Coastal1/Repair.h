@@ -70,7 +70,7 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 					if (p.origin == routes_destroyed[r].get_airstrips()[n] && n != 0)
 						continue;
 					
-					for (int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
+					for (unsigned int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
 						if (p.destination == routes_destroyed[r].get_airstrips()[n1])
 							continue; 
 
@@ -277,9 +277,9 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights
 			}
 			else {
 				double cost_route_before = cost_single_route(input, penalty_weights, routes_destroyed[r]);
-				for (int n = 0; n < route->index - 1; n++) {
+				for (unsigned int n = 0; n < route->index - 1; n++) {
 					if (p.origin != route->get_airstrips()[n] || n == 0) {
-						for (int n1 = n; (n1 < route->index) && (n1 - n <= p.stop + 1); n1++) {
+						for (unsigned int n1 = n; (n1 < route->index) && (n1 - n <= p.stop + 1); n1++) {
 							if (p.destination != route->get_airstrips()[n1]) {
 								Route r_support = routes_destroyed[r];
 
@@ -584,11 +584,11 @@ vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_w
 			else {
 
 				double cost_route_before = cost_single_route(input, penalty_weights, routes_destroyed[r]);
-				for (int n = 0; n < route->index - 1; n++) {
+				for (unsigned int n = 0; n < route->index - 1; n++) {
 					if (p.origin == route->get_airstrips()[n] && n != 0)
 						continue;
 					
-					for (int n1 = n; (n1 < route->index) && (n1 - n <= p.stop + 1); n1++) {
+					for (unsigned int n1 = n; (n1 < route->index) && (n1 - n <= p.stop + 1); n1++) {
 						if (p.destination == route->get_airstrips()[n1])
 							continue; 
 							
@@ -789,9 +789,9 @@ vector<Route> two_regret_repair_agregate(ProcessedInput* input, const PenaltyWei
 					else {
 						
 						double cost_route_before = cost_single_route(input, penalty_weights, routes_destroyed[r]);
-						for (int n = 0; n < d_route->index - 1; n++) {
+						for (unsigned int n = 0; n < d_route->index - 1; n++) {
 							if (p.origin != d_route->get_airstrips()[n] || n == 0) {
-								for (int n1 = n; (n1 < d_route->index) && (n1 - n <= p.stop + 1); n1++) {
+								for (unsigned int n1 = n; (n1 < d_route->index) && (n1 - n <= p.stop + 1); n1++) {
 									if (p.destination != d_route->get_airstrips()[n1]) {
 										Route r_support = routes_destroyed[r];
 
@@ -1057,9 +1057,9 @@ vector <Route> repair_forbidden(ProcessedInput* input, const PenaltyWeights& pen
 				}
 				else {
 					double cost_route_before = cost_single_route(input, penalty_weights, routes_destroyed[r]);
-					for (int n = 0; n < routes_destroyed[r].index - 1; n++) {
+					for (unsigned int n = 0; n < routes_destroyed[r].index - 1; n++) {
 						if (p.origin != routes_destroyed[r].get_airstrips()[n] || n == 0) {
-							for (int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
+							for (unsigned int n1 = n; (n1 < routes_destroyed[r].index) && (n1 - n <= p.stop + 1); n1++) {
 								if (p.destination == routes_destroyed[r].get_airstrips()[n1])
 									continue; 
 								
