@@ -117,7 +117,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		Airplane* airplane = &map_airplane[route->aircraft_code];
 		Airstrip* origin = &map_airstrip[p.origin];
 		Airstrip* destination = &map_airstrip[p.destination];
-		auto airplane_consumption = from_to_FuelConsumed[route->aircraft_code];
+		auto & airplane_consumption = from_to_FuelConsumed[route->aircraft_code];
 		
 		route->primo_pass = true;
 		auto previous_airstrip = route->get_airstrips()[route->index - 1];
@@ -174,7 +174,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		Airstrip* origin = &map_airstrip[p.origin];
 		Airstrip* destination = &map_airstrip[p.destination];
 		
-		auto airplane_consumption = from_to_FuelConsumed[route->aircraft_code];
+		auto & airplane_consumption = from_to_FuelConsumed[route->aircraft_code];
 		auto previous_airstrip = route->get_airstrips()[route->index - 1];
 
 		const double travel_time = airplane->travelTime((from_to[previous_airstrip][p.origin]));
@@ -338,7 +338,7 @@ vector<Route> costructive_first_fase(ProcessedInput* input, const PenaltyWeights
 		cont++;
 	} while (cont < number_of_aircraft);
 
-	for (auto p : passengers) {
+	for (auto &p : passengers) {
 
 		int situation = -1;
 		int best_route = -1; //index of the best route where can i put my passenger
@@ -348,7 +348,7 @@ vector<Route> costructive_first_fase(ProcessedInput* input, const PenaltyWeights
 		int i = 0;
 
 		//qui calcolo solo dove mettere il passeggero
-		for (auto r : solution) {
+		for (auto &r : solution) {
 			Airplane *airplane= &map_airplane[r.aircraft_code];
 			
 			if (r.primo_pass == false) {
@@ -377,7 +377,7 @@ vector<Route> costructive_first_fase(ProcessedInput* input, const PenaltyWeights
 					// partenza per il cliente, devo aggiungere pi? kilometri e un landing stop
 					//non considero le time windows, faccio una partenza mirata per loro visto che sono i primi
 					double cost = airplane->fixed_cost + from_to[previous_airstrip][p.origin] + from_to[p.origin][p.destination];
-					auto airplane_consumption = fuel_consumption[r.aircraft_code];
+					auto &airplane_consumption = fuel_consumption[r.aircraft_code];
 					double fuel_consumed = airplane_consumption[p.origin][p.destination] + airplane_consumption[previous_airstrip][p.origin];
 
 					cost += fuel_consumed;
@@ -542,7 +542,7 @@ vector<Route> costructive_first_fase(ProcessedInput* input, const PenaltyWeights
 
 				auto previous_airstrip = r.get_airstrips()[r.index - 1];
 				//guardo il costo di aggiungere un pezzo alla fine
-				auto airplane_consumption = fuel_consumption[r.aircraft_code];
+				auto &airplane_consumption = fuel_consumption[r.aircraft_code];
 				double fuel_consumed = airplane_consumption[previous_airstrip][p.origin] + 
 										airplane_consumption[p.origin][p.destination];
 
@@ -607,7 +607,7 @@ vector<Route> costructive_first_fase(ProcessedInput* input, const PenaltyWeights
 	}
 
 	vector<Route> solution_clean;
-	for (auto s : solution) {
+	for (auto &s : solution) {
 		if (s.index != 1)
 			solution_clean.push_back(s);
 	}
@@ -1208,7 +1208,7 @@ vector<Route> sequential_costructive_first_fase(ProcessedInput* input, const Pen
 	}
 
 	std::vector<Route> solution_clean;
-	for (auto s : solution) {
+	for (auto &s : solution) {
 		if (s.index != 1) 
 			solution_clean.push_back(s);
 	}
