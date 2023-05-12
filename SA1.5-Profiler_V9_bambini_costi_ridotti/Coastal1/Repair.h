@@ -136,9 +136,9 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 					cost = cost * f;
 					//**************************************************************************************
 
-					if (best_cost > cost) {
-						if (route->get_departures()[route->index - 1] + time <= end_day) {
-							if (route->fuel[route->index - 1] - fuel_consumed >= (airplane->min_fuel + location_fuel[route->aircraft_code][p.destination])) {
+					if (best_cost <= cost) {
+						if (route->get_departures()[route->index - 1] + time > end_day) {
+							if (route->fuel[route->index - 1] - fuel_consumed < (airplane->min_fuel + location_fuel[route->aircraft_code][p.destination])) {
 								best_cost = cost;
 								best_route = r;
 								move_c = true;
@@ -231,14 +231,7 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 		}
 	}
 
-
-	if (routes_infeasible) {
-		vector<Route> route_vuote;
-		return route_vuote;
-	}
-	else {
-		return routes_destroyed;
-	}
+		return routes_infeasible ? std::vector<Route>() : routes_destroyed;
 }
 
 vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights &penalty_weights, double end_day, vector<Route> routes_destroyed, vector<Passenger> passengers_removed) {
@@ -418,13 +411,8 @@ vector <Route> repair_one_inter_move(ProcessedInput* input, const PenaltyWeights
 		}
 	}
 
-	if (routes_infeasible) {
-		vector<Route> route_vuote;
-		return route_vuote;
-	}
-	else {
-		return routes_destroyed;
-	}
+	return routes_infeasible? vector<Route>() : routes_destroyed;
+
 }
 
 vector<Route> repairSP(ProcessedInput* input, const PenaltyWeights &penalty_weights, vector<Route>& route_destroy, vector<Passenger>& passenger_removed, double end_day, vector<Passenger>& passengers, int number_of_aircraft) {
@@ -612,27 +600,32 @@ vector <Route> repair_one(ProcessedInput* input, const PenaltyWeights& penalty_w
 						int node_add_from = n;
 						int node_add_to = n1;
 
-						support.update_rebuilt_one_first_fase(input, node_add_from, node_add_to, p.origin, p.destination, p, non_to, non_to_final, num_equals);
+						support.update_rebuilt_one_first_fase(input, node_add_from, node_add_to, p.origin, 
+															  p.destination, p, non_to, non_to_final, num_equals);
 
-						if (support.get_arrivals()[support.index - 1] <= end_day) {
+						if (support.get_arrivals()[support.index - 1] > end_day)
+							continue;
+						
+						support.update_rebuilt_one_second_fase(input, node_add_from, node_add_to, p.destination, 
+																p, non_to, non_to_final, num_equals);
 
-							support.update_rebuilt_one_second_fase(input, node_add_from, node_add_to, p.destination, p, non_to, non_to_final, num_equals);
+						if ((p.solution_to - p.solution_from > p.stop))
+							continue;
 
-							if ((p.solution_to - p.solution_from <= p.stop)) {
-								if (route_feasible(input, support, end_day)) {
-									double cost = get_cost(input, penalty_weights, p, cost_route_before, support);
-									if (best_cost > cost) {
-										best_route = r;
-										best_cost = cost;
-										move_c = false;
+						if (!route_feasible(input, support, end_day))
+							continue; 
+								
+						double cost = get_cost(input, penalty_weights, p, cost_route_before, support);
+						if (best_cost <= cost)
+							continue;
+									
+						best_route = r;
+						best_cost = cost;
+						move_c = false;
 
-										route_best = support;
-										from_per_route = p.solution_from;
-										to_per_route = p.solution_to;
-									}
-								}
-							}
-						}
+						route_best = support;
+						from_per_route = p.solution_from;
+						to_per_route = p.solution_to;
 					}
 				}
 			}
