@@ -153,7 +153,7 @@ namespace heuristic_costructive_first_fase_namespace {
 		}
 		else {
 			double fuel_before = route->fuel[route->index - 1];
-			double fuel_consumed = airplane_consumption[route->get_airstrips()[route->index - 1]][p.destination];
+			fuel_consumed = airplane_consumption[route->get_airstrips()[route->index - 1]][p.destination];
 
 			route->addPlace(p.destination, destination->fuel, { fuel_before - fuel_consumed, 0.0, 0 } , time, time + destination->ground_time);
 			route->get_weight_at(route->index - 1) = route->get_weights()[route->index - 2] + p.weight + fuel_consumed;
@@ -272,11 +272,11 @@ namespace heuristic_costructive_first_fase_namespace {
 		//******************************************************************************
 		double add_fuel = 0;
 		int index_weight_neg = -1;
-		for (int j = best_from; j < route->index; j++) {
+		for (unsigned int j = best_from; j < route->index; j++) {
 			if (route->get_weights()[j] < 0) {
 				add_fuel = route->get_weights()[j];
 				index_weight_neg = j;
-				int index_refueling = index_weight_neg;
+				unsigned int index_refueling = index_weight_neg;
 				for (int i = index_weight_neg; i >= 0; i--) {
 					if (route->get_refueling()[i]) {
 						index_refueling = i;
@@ -411,8 +411,8 @@ vector<Route> costructive_first_fase(ProcessedInput* input, const PenaltyWeights
 			else {
 				//nella route c'? almeno un altro passeggero, devo fare le considerazioni riguardo alla fisibilit? della route
 				//prendo tutte le coppie FROM-TO che ci sono nella route, se non c'? il FROM, non cerco il TO
-				vector<int> FROM;
-				vector<int> TO;
+				vector<unsigned int> FROM;
+				vector<unsigned int> TO;
 				for (unsigned int t = 0; t < r.index; t++) {
 					if (r.get_airstrips()[t] == p.origin) 
 						FROM.push_back(t);
@@ -435,7 +435,7 @@ vector<Route> costructive_first_fase(ProcessedInput* input, const PenaltyWeights
 								//se sono qua dentro il to ? maggiore del from e gli stop intermedi sono minori di tre
 								//per prima cosa guardo se ci sto con la capacit?, altrimenti break sul primo for
 								bool capacity_satisfy = true;
-								for (int c = from; c < to; c++) {
+								for (unsigned int c = from; c < to; c++) {
 									if ((r.get_capacities()[c] + p.capacity) > airplane->capacity) 
 										capacity_satisfy = false;
 										
@@ -723,7 +723,7 @@ void run_situation_2(ProcessedInput* input, vector<Passenger>& passengers, Route
 	else {
 		
 		double fuel_before = r.fuel[r.index - 1];
-		double fuel_consumed = fuel_consumption[r.aircraft_code][r.get_airstrips()[r.index - 1]][destination];
+		fuel_consumed = fuel_consumption[r.aircraft_code][r.get_airstrips()[r.index - 1]][destination];
 
 		AirplaneStatus airplane_status{fuel_before - fuel_consumed, 0.0, 0 }; 
 		r.addPlace(destination, false, airplane_status, time, time + map_airstrip[destination].ground_time);
@@ -817,7 +817,7 @@ void run_situation_4(ProcessedInput* input, vector<Passenger> &passengers, Route
 		if (r.get_weights()[j] < 0) {
 			add_fuel = r.get_weights()[j];
 			index_weight_neg = j;
-			int index_refueling = index_weight_neg;
+			unsigned int index_refueling = index_weight_neg;
 			for (int i = index_weight_neg; i >= 0; i--) {
 				if (r.get_refueling()[i]) {
 					index_refueling = i;
@@ -964,7 +964,6 @@ vector<Route> sequential_costructive_first_fase(ProcessedInput* input, const Pen
 						}
 					}
 					else {
-						auto previous_airstrip = r.get_airstrips()[r.index - 1];
 						//qui c'? solo lui nell'aereo ma deve fare un pezzo vuoto all'inizio dal deposito alla partenza per
 						// il cliente, devo aggiungere pi? kilometri e un landing stop
 						//non considero le time windows, faccio una partenza mirata per loro visto che sono i primi
@@ -999,8 +998,8 @@ vector<Route> sequential_costructive_first_fase(ProcessedInput* input, const Pen
 				else {
 					//nella route c'? almeno un altro passeggero, devo fare le considerazioni riguardo alla fisibilit? della route
 					//prendo tutte le coppie FROM-TO che ci sono nella route, se non c'? il FROM, non cerco il TO
-					std::vector<int> FROM;
-					std::vector<int> TO;
+					std::vector<unsigned int> FROM;
+					std::vector<unsigned int> TO;
 					for (unsigned int t = 0; t < r.index; t++) {
 						if (r.get_airstrips()[t] == passengers[p].origin) 
 							FROM.push_back(t);
@@ -1020,7 +1019,7 @@ vector<Route> sequential_costructive_first_fase(ProcessedInput* input, const Pen
 										//se sono qua dentro il to ? maggiore del from e gli stop intermedi sono minori di tre
 										//per prima cosa guardo se ci sto con la capacit?, altrimenti break sul primo for
 										bool capacity_satisfy = true;
-										for (int c = from; c < to; c++) {
+										for (unsigned int c = from; c < to; c++) {
 											if ((r.get_capacities()[c] + passengers[p].capacity) > airplane->capacity) 
 												capacity_satisfy = false;
 
@@ -1230,7 +1229,7 @@ map<int, int> Compute_WorstNode(double peso_TW, double stop_weight, Route& route
 		Myset.insert(100000);
 	}
 	else {
-		for (int n = 1; n < route.index; n++) {
+		for (unsigned int n = 1; n < route.index; n++) {
 			double dist = 0.0;
 			double cost_IS = 0.0;
 			vector<Passenger> PassengerNodo;
@@ -1377,7 +1376,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		}
 		else {
 			double fuel_before = route->fuel[route->index - 1];
-			double fuel_consumed = from_to_FuelConsumed[route->aircraft_code][previous_airstrip][p.destination];
+		    fuel_consumed = from_to_FuelConsumed[route->aircraft_code][previous_airstrip][p.destination];
 			route->addPlace(p.destination, false, { fuel_before - fuel_consumed, 0.0, 0 }, time, time + destination->ground_time);
 			route->get_weight_at(route->index - 1) = route->get_weights()[route->index - 2] + p.weight + fuel_consumed;
 
@@ -1452,11 +1451,11 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		//**************************************************************************
 		double add_fuel = 0;
 		int index_weight_neg = -1;
-		for (int j = best_from; j < route->index; j++) {
+		for (unsigned int j = best_from; j < route->index; j++) {
 			if (route->get_weights()[j] < 0) {
 				add_fuel = route->get_weights()[j];
 				index_weight_neg = j;
-				int index_refueling = index_weight_neg;
+				unsigned int index_refueling = index_weight_neg;
 				for (int i = index_weight_neg; i >= 0; i--) {
 					if (route->get_refueling()[i]) {
 						index_refueling = i;
@@ -1464,8 +1463,9 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 					}
 				}
 
-				for (int t = index_refueling; t < route->index; t++) {
-					if (route->get_refueling()[t] && t != index_refueling) break;
+				for (unsigned int t = index_refueling; t < route->index; t++) {
+					if (route->get_refueling()[t] && t != index_refueling)
+						break;
 					route->fuel[t] += add_fuel;
 					route->get_weight_at(t) -= add_fuel;
 				}
@@ -1486,7 +1486,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		double3DVector from_to_FuelConsumed = input->get_from_to_fuel_consumed();
 		
 		Route* route = &solution[best_route];
-		for (int h = best_from; h < route->index; h++) {
+		for (unsigned int h = best_from; h < route->index; h++) {
 			route->add_capacity_at(h, p.capacity);
 			route->get_weight_at(h) -= p.weight;
 		}
@@ -1494,7 +1494,7 @@ namespace heuristic_costructive_first_fase_secIter_namespace
 		//******************************************************************************
 		double add_fuel = 0;
 		unsigned int index_weight_neg;
-		for (int j = best_from; j < route->index; j++) {
+		for (unsigned int j = best_from; j < route->index; j++) {
 			if (route->get_weights()[j] < 0) {
 				add_fuel = route->get_weights()[j];
 				index_weight_neg = j;
