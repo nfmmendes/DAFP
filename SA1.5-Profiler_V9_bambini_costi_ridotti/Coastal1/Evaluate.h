@@ -166,7 +166,7 @@ double calculationCostCompany(PenaltyWeights penalty_weights, string route_azien
 	double final_cost_km = 0.0;
 	double final_cost_fuel = 0.0;
 
-	int costi_time_windows = 0;
+	double costi_time_windows = 0.0;
 	double costi_intermediate_stop = 0.0;
 
 	vector<double> cost_route;

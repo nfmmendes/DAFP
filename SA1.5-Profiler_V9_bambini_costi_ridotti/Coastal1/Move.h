@@ -34,7 +34,7 @@ int move_from(int node, const Route& r) {
 }
 
 int move_to(int node, const Route& r) {
-	int swap_to = 1000;
+	unsigned int swap_to = 1000;
 
 	for ( auto & p : r.get_passengers()) {
 		if (p.solution_from == node) {
@@ -53,7 +53,7 @@ bool move_is_allowed(int A, int B, Route& r) {
 	return move;
 }
 
-bool move_flightleg_is_allowed(int A, Route& r) {
+bool move_flightleg_is_allowed(unsigned int A, Route& r) {
 	bool move = true;
 	
 	for (auto& p : r.get_passengers()) {
@@ -74,7 +74,7 @@ bool move_flightleg_is_allowed(int A, Route& r) {
 	return move;
 }
 
-void update_passenger_solution_to_from(const int &A, const int &B, Passenger& p)
+void update_passenger_solution_to_from(const unsigned int &A, const unsigned int &B, Passenger& p)
 {
 	if (p.solution_from == A && A > B) {
 		p.solution_from = B + 1;
@@ -128,7 +128,7 @@ void add_new_place(int A, int B, const Route& r, Route &r_new)
 		}
 	}
 	else {
-		for (int i = 1; i < r.index; i++) {
+		for (auto i = 1; i < r.index; i++) {
 			if (i < (B + 1)) {
 
 				//in questo posto ci devo mettere normalmente i
@@ -164,7 +164,7 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, Route& r) {
 	add_new_place(A, B, r, r_new);
 
 	//aggiorno i tempi e fuel senza aver considerato il probabile peso negativo, il paso qua ? come se lo inizializzassi
-	for (int i = 0; i < r_new.index; i++) {
+	for (auto i = 0; i < r_new.index; i++) {
 		if (i > 0) {
 
 			double travel_time = map_airplane[r_new.aircraft_code].travelTime(from_to[r_new.get_airstrips()[i - 1]][r_new.get_airstrips()[i]]);
@@ -187,19 +187,19 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, Route& r) {
 		}
 	}
 
-	for(int i=0; i < r.get_passengers().size(); i++){
+	for(auto i=0; i < r.get_passengers().size(); i++){
 		Passenger& p = r.get_passenger(i);
 		update_passenger_solution_to_from(A, B, p);
 		r_new.add_passenger(p);
 
-		for (int t = p.solution_from; t < p.solution_to; t++) {
+		for (auto t = p.solution_from; t < p.solution_to; t++) {
 			r_new.add_capacity_at(t, p.capacity);
 			r_new.get_weight_at(t) -= p.weight;
 		}
 	}
 
 	//aggiorno fuel se il peso ? negatico */
-	for (int i = 0; i < r_new.index; i++) {
+	for (unsigned int i = 0; i < r_new.index; i++) {
 		if (r_new.get_weights()[i] < 0) {
 			int index_refueling = i;
 			for (int t = i; t >= 0; t--) {
@@ -211,7 +211,7 @@ Route update_route_after_move(ProcessedInput*input, int A, int B, Route& r) {
 			double Update_value = r_new.get_weights()[i];
 			r_new.fuel[index_refueling] += r_new.get_weights()[i];
 			r_new.get_weight_at(index_refueling) -= r_new.get_weights()[i];
-			for (int j = index_refueling + 1; j < r_new.index; j++) {
+			for (unsigned int j = index_refueling + 1; j < r_new.index; j++) {
 				if (r_new.get_refueling()[j]) break;
 				else {
 					r_new.fuel[j] += Update_value;
@@ -233,7 +233,7 @@ void modify_fuel_when_non_max(map<int, Airplane>& map_airplane, Route &r_support
 			double min_weight = r_support.get_weights()[k];
 			int index_updating_from = k;
 			int index_updating_to = r_support.index;  //qua prima c'era -1
-			for (int i = k + 1; i < r_support.index; i++) {  // SECONDO ME QUA NON CI VA <=
+			for (unsigned i = k + 1; i < r_support.index; i++) {  // SECONDO ME QUA NON CI VA <=
 				if (r_support.get_refueling()[i]) break;
 				if (r_support.get_weights()[i] < min_weight) {
 					min_weight = r_support.get_weights()[i];
@@ -243,7 +243,7 @@ void modify_fuel_when_non_max(map<int, Airplane>& map_airplane, Route &r_support
 
 			if (Node_min >= 0) {
 
-				for (int i = k + 1; i < r_support.index; i++) {
+				for (unsigned int i = k + 1; i < r_support.index; i++) {
 					if (r_support.get_refueling()[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'?
 															// ne erano altri di fuell non trovavo un to
 						index_updating_to = i;
@@ -329,7 +329,7 @@ vector <Route> move(ProcessedInput* input, const PenaltyWeights& penalty_weights
 
 void update_fuel_when_no_max_2(map<int, Airplane>& map_airplane, Route r_support)
 {
-	for (int k = 0; k < r_support.index; k++) {
+	for (unsigned int k = 0; k < r_support.index; k++) {
 		if (r_support.get_refueling()[k] && r_support.fuel[k] < map_airplane[r_support.aircraft_code].max_fuel) { //&& k!= node_destroy
 			int Node_min = k;
 			double min_weight = r_support.get_weights()[k];
@@ -346,7 +346,7 @@ void update_fuel_when_no_max_2(map<int, Airplane>& map_airplane, Route r_support
 			}
 				
 			if (Node_min >= 0) {
-				for (int i = k + 1; i < r_support.index; i++) {
+				for (unsigned int i = k + 1; i < r_support.index; i++) {
 					if (r_support.get_refueling()[i]) {   // && i != node_destroy ho tolto questo perch? se no se oltre quel nodo non c'?
 														  // ne erano altri di fuell non trovavo un to
 						index_updating_to = i;

@@ -431,7 +431,6 @@ vector<Route> costructive_first_fase(ProcessedInput* input, const PenaltyWeights
 								if (from >= to || to - from > p.stop)
 									continue;
 
-								Airplane* airplane = &map_airplane[r.aircraft_code];
 								//se sono qua dentro il to ? maggiore del from e gli stop intermedi sono minori di tre
 								//per prima cosa guardo se ci sto con la capacit?, altrimenti break sul primo for
 								bool capacity_satisfy = true;

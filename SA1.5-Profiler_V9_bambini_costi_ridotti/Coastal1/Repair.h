@@ -148,7 +148,7 @@ vector <Route> repair_perturbation(ProcessedInput* input, const PenaltyWeights p
 				}
 				else {
 					Route* route = &routes_destroyed[r];
-					Airplane* airplane = &map_airplane[routes_destroyed[r].aircraft_code];
+					airplane = &map_airplane[routes_destroyed[r].aircraft_code];
 					
 					// the departure is not equals to the last place of the route
 					double cost = from_to[route->get_airstrips()[route->index - 1]][p.origin] + from_to[p.origin][p.destination];
@@ -932,7 +932,7 @@ vector<Route> two_regret_repair_agregate(ProcessedInput* input, const PenaltyWei
 					//con il codice di TED per ordinare, guarda bene come salvare l'indice********************************************************************************************
 
 					vector<double>::iterator index_iterator = min_element(costs.begin(), costs.end());
-					int index_mosse = distance(costs.begin(), index_iterator);
+					auto index_mosse = distance(costs.begin(), index_iterator);
 					double best_cost = costs[index_mosse];
 					costs.erase(costs.begin() + index_mosse);
 					vector<double>::iterator index_iterator2 = min_element(costs.begin(), costs.end());

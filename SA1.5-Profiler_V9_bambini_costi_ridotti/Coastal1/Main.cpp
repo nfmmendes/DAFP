@@ -216,10 +216,6 @@ int main(int argc, char* argv[]) {
 	int size_route_bs = 0;  //se ci sono dei problemi rimettilo
 	int best_iteration = 0;
 	double time_incumbent = 0.0;
-
-	const int INITIAL_TEMPERATURE = 25000;
-	const int MINIMAL_TEMPERATURE = 150;
-	const int MAX_ITERATION = 30;
 	
 	do {
 		cout << " ******************************* Inizio un altro giro nel ciclo grande ********************************* " << endl;
@@ -567,7 +563,7 @@ int main(int argc, char* argv[]) {
 	calculate_ObjectiveFunction_final(&input, penalty_weights, start_solution_route);
 	
 	final_time = difftime(time(NULL), time_now);
-	int tempo_Alns = 0, s;
+	int tempo_Alns = 0;
 	tempo_Alns = (int)(final_time - time_spent_model);
 	print_time(tempo_Alns);
 	tempo_Alns = (int)(time_spent_model);

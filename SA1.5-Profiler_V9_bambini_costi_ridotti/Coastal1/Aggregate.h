@@ -67,7 +67,7 @@ void aggregate_same_nodes_inter_ls(Route& r, int node) {
 	else {
 		// I remove the extra time that was considered
 		double time_to_remove = r.get_departure_at(node + 1) - r.get_departure_at(node);
-		for (int i = node + 1; i < r.index; i++) {
+		for (unsigned int i = node + 1; i < r.index; i++) {
 			if (i == node + 1) {
 				r.get_departure_at(i) = r.get_departure_at(node);
 				r.get_arrival_at(i) = r.get_arrival_at(node);

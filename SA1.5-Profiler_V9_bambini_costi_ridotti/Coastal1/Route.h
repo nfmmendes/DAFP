@@ -89,11 +89,11 @@ public:
 	void update_from_to(int node_destroy, int sense = 1);
 	void update_route_destroy(ProcessedInput*, int, int, int);
 	void do_work_3(int node_add_to);
-	void update_route_rebuilt_one(ProcessedInput*, int, int, int, int, Passenger&);
+	void update_route_rebuilt_one(ProcessedInput*, unsigned int, unsigned int, unsigned int, unsigned int, Passenger&);
 	void add_update_only_one_node_first_passanger(ProcessedInput* , Passenger&);
 	void move_c(ProcessedInput*, Passenger& p, int location_from, int location_to);
-	void update_time_for_check_repair(ProcessedInput* ,int node_add_from, int node_add_to, int location_from, int location_to);
-	void do_work(int& node_add_to, int location_to, bool& non_to, bool& non_to_final, bool& num_equals);
+	void update_time_for_check_repair(ProcessedInput* ,int node_add_from, int node_add_to, unsigned int location_from, int location_to);
+	void do_work(int& node_add_to, unsigned int location_to, bool& non_to, bool& non_to_final, bool& num_equals);
 	void do_work2(int& node_add_to, int location_to, bool& non_to, bool& non_to_final, bool& num_equals);
 	void do_work3(int& node_add_from, int& node_add_to, int location_from, int location_to, bool& non_to,
 				  bool& non_to_final, bool& num_equals);

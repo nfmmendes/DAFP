@@ -32,8 +32,8 @@ public:
 	string pnr_group;
 
 	//for the passenger in the solution route to calculate the objective function
-	int solution_from;
-	int solution_to;
+	unsigned int solution_from;
+	unsigned int solution_to;
 
 	//for repair forbidden
 	int route_before;

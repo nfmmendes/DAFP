@@ -305,7 +305,7 @@ void Route::update_fuel_and_weight(const int& node_add_to, const bool& non_to, d
 	}
 }
 
-void Route::update_route_rebuilt_one(ProcessedInput* input, int node_add_from, int node_add_to, int location_from, int location_to, Passenger& p) {
+void Route::update_route_rebuilt_one(ProcessedInput* input, unsigned int node_add_from, unsigned int node_add_to, unsigned int location_from, unsigned int location_to, Passenger& p) {
 	Airplane* airplane = & input->get_map_airplane()[aircraft_code];
 	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
 	double3DVector from_to_fuelConsumed = input->get_from_to_fuel_consumed();
@@ -755,7 +755,7 @@ void Route::move_c(ProcessedInput* input, Passenger& p, int location_from, int l
 	}
 }
 
-void Route::update_time_for_check_repair(ProcessedInput* input, int node_add_from, int node_add_to, int location_from, int location_to) {
+void Route::update_time_for_check_repair(ProcessedInput* input, int node_add_from, int node_add_to, unsigned int location_from, int location_to) {
 
 	Airplane* airplane = &map<int, Airplane>(input->get_map_airplane())[aircraft_code];
 	map<unsigned int, Airstrip> map_airstrip = input->get_map_airstrip();
@@ -892,7 +892,7 @@ void Route::update_time_for_check_repair(ProcessedInput* input, int node_add_fro
 	}
 }
 
-void Route::do_work(int& node_add_to, int location_to, bool& non_to, bool& non_to_final, bool& num_equals)
+void Route::do_work(int& node_add_to, unsigned int location_to, bool& non_to, bool& non_to_final, bool& num_equals)
 {
 	rebuilt_case = 1; //impongo che questo � il rebuilt_case 1
 	//il nodo prima al from � uguale devo quindi aggiornare le capacit� e basta, non i tempi

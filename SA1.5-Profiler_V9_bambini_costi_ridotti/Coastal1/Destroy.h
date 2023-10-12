@@ -209,7 +209,7 @@ vector<Route> destroy_thanos(ProcessedInput* input, double destroy_coef_route, v
 									if (r.get_weights()[j] < 0) {
 										add_fuel = r.get_weights()[j];
 										index_weight_neg = j;
-										int index_refueling = index_weight_neg;
+										unsigned index_refueling = index_weight_neg;
 										for (int i = index_weight_neg; i >= 0; i--) {
 											if (r.get_refueling()[i]) { //&& i != node_destroy
 												index_refueling = i;
@@ -272,16 +272,16 @@ void do_work11(Route& r, Airplane* airplane, const int node_destroy, const int M
 }
 
 
-void do_work13(Route& r, const int node_destroy, vector<int>& int_removed, int& Min_From_Pass, int& Max_To_Pass)
+void do_work13(Route& r, const int node_destroy, vector<int>& int_removed, unsigned int& Min_From_Pass, unsigned int& Max_To_Pass)
 {
-	for (int p = 0; p < (int)r.get_passengers().size(); p++) {
+	for (unsigned int p = 0; p < (int)r.get_passengers().size(); p++) {
 		const Passenger passenger = r.get_passengers()[p];
 		if (passenger.solution_to == node_destroy || passenger.solution_from == node_destroy) {								if (r.get_passengers()[p].solution_from < Min_From_Pass) 
 			Min_From_Pass = passenger.solution_from;
 			Max_To_Pass = max(Max_To_Pass, passenger.solution_to);
 								
 			int_removed.push_back(p);
-			for (int t = passenger.solution_from; t < passenger.solution_to; t++) {
+			for (unsigned int t = passenger.solution_from; t < passenger.solution_to; t++) {
 				r.add_capacity_at(t, -1*passenger.capacity);
 				r.get_weight_at(t) += passenger.weight;
 			}
@@ -314,7 +314,7 @@ void do_work14(Route& r, int node_destroy, double fuel_consumed)
 void do_work12(Route& r)
 {
 	double add_fuel = 0;
-	unsigned int index_weight_neg = -1;
+	unsigned int index_weight_neg = 0;
 	for (unsigned int j = 0; j < r.index; j++) {
 		if (r.get_weights()[j] < 0) {
 
@@ -338,18 +338,18 @@ void do_work12(Route& r)
 	}
 }
 
-void do_work15(Route& r, int node_destroy, vector<int>& int_removed, int& Min_From_Pass, int& Max_To_Pass)
+void do_work15(Route& r, int node_destroy, vector<int>& int_removed, unsigned int& Min_From_Pass, unsigned int& Max_To_Pass)
 {
 	Min_From_Pass = node_destroy;
 	Max_To_Pass = node_destroy;
-	for (int p = 0; p < (int)r.get_passengers().size(); p++) {
+	for (unsigned int p = 0; p < (int)r.get_passengers().size(); p++) {
 		Passenger passenger = r.get_passengers()[p];
 						
 		if (passenger.solution_to == node_destroy) {  // ho cambiato questa condizione
 			Min_From_Pass = min(Min_From_Pass, passenger.solution_from);
 			int_removed.push_back(p);
 
-			for (int t = passenger.solution_from; t < passenger.solution_to; t++) {
+			for (unsigned int t = passenger.solution_from; t < passenger.solution_to; t++) {
 				r.add_capacity_at(t, -1*passenger.capacity);
 				r.get_weight_at(t) += passenger.weight;
 			}
@@ -383,8 +383,8 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 					check = false;
 					vector<int> int_removed;
 
-					int Min_From_Pass;
-					int Max_To_Pass;
+					unsigned int Min_From_Pass;
+					unsigned int Max_To_Pass;
 					do_work15(r, node_destroy, int_removed, Min_From_Pass, Max_To_Pass);
 					for (size_t i = int_removed.size() - 1; i >= 0; i--) {
 						r.get_passenger(int_removed[i]).route_before = index;
@@ -418,8 +418,8 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 					if ((fuel_consumed + airplane->min_fuel) <= r.fuel[node_destroy - 1] && r.get_airstrips()[node_destroy - 1] != r.get_airstrips()[node_destroy + 1]) {
 						check = false;
 						vector<int> int_removed;
-						int Min_From_Pass = node_destroy;
-						int Max_To_Pass = node_destroy;
+						unsigned int Min_From_Pass = node_destroy;
+						unsigned int Max_To_Pass = node_destroy;
 						do_work13(r, node_destroy, int_removed, Min_From_Pass, Max_To_Pass);
 
 						for (size_t i = int_removed.size() - 1; i >= 0; i--) {
@@ -446,7 +446,7 @@ vector<Route> destroy_casual(ProcessedInput* input, double destroy_coef_route, v
 
 void do_work1(Route& r, const int node_destroy, vector<int>& int_removed, int& min_from_pass)
 {
-	for (int p = 0; p < (int)r.get_passengers().size(); p++) {
+	for (unsigned int p = 0; p < (int)r.get_passengers().size(); p++) {
 		const Passenger passenger = r.get_passengers()[p];
 						
 		if (passenger.solution_to == node_destroy) {  // ho cambiato questa condizione
@@ -454,7 +454,7 @@ void do_work1(Route& r, const int node_destroy, vector<int>& int_removed, int& m
 				min_from_pass = passenger.solution_from;
 			int_removed.push_back(p);
 
-			for (int t = passenger.solution_from; t < passenger.solution_to; t++) {
+			for (unsigned int t = passenger.solution_from; t < passenger.solution_to; t++) {
 				r.add_capacity_at(t, -1*passenger.capacity);
 				r.get_weight_at(t) += passenger.weight;
 			}
@@ -528,7 +528,7 @@ void do_work8(Route& r, double& add_fuel, int& index_weight_neg)
 		if (r.get_weights()[j] < 0) {
 			add_fuel = r.get_weights()[j];
 			index_weight_neg = j;
-			int index_refueling = index_weight_neg;
+			unsigned index_refueling = index_weight_neg;
 			for (int i = index_weight_neg; i >= 0; i--) {
 				if (r.get_refueling()[i]) { //&& i != node_destroy
 					index_refueling = i;
@@ -547,16 +547,16 @@ void do_work8(Route& r, double& add_fuel, int& index_weight_neg)
 	}
 }
 
-void do_work10(Route& r, int node_destroy, vector<int> int_removed, int& min_from_pass, int& max_to_pass)
+void do_work10(Route& r, int node_destroy, vector<int> int_removed, unsigned int& min_from_pass, unsigned int& max_to_pass)
 {
-	for (int p = 0; p < (int)r.get_passengers().size(); p++) {
+	for (unsigned int p = 0; p < (int)r.get_passengers().size(); p++) {
 		const Passenger passenger = r.get_passengers()[p];
 		if (passenger.solution_to == node_destroy || passenger.solution_from == node_destroy) { 
 			min_from_pass = min(min_from_pass, passenger.solution_from);
 			max_to_pass = max(max_to_pass, passenger.solution_to);
 
 			int_removed.push_back(p);
-			for (int t = r.get_passengers()[p].solution_from; t < passenger.solution_to; t++) {
+			for (unsigned int t = r.get_passengers()[p].solution_from; t < passenger.solution_to; t++) {
 				r.add_capacity_at(t, -1*passenger.capacity);
 				r.get_weight_at(t) += passenger.weight;
 			}
@@ -629,8 +629,8 @@ vector<Route> destroy_worst(ProcessedInput* input, const PenaltyWeights& penalty
 						check = false;
 						vector<int> int_removed;
 						
-						int min_from_pass = node_destroy;
-						int max_to_pass = node_destroy;
+						unsigned int min_from_pass = node_destroy;
+						unsigned int max_to_pass = node_destroy;
 						do_work10(r, node_destroy, int_removed, min_from_pass, max_to_pass);
 
 						for (size_t i = int_removed.size() - 1; i >= 0; i--) {
@@ -752,8 +752,8 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 		Nroute++;
 		vector<int> int_removed;
 		bool update = false;
-		int min_from_pass = s.index;
-		int max_to_pass = -1;
+		unsigned int min_from_pass = s.index;
+		unsigned int max_to_pass = 0;
 		Airplane *airplane = &map_airplane[s.aircraft_code];
 		
 		for (size_t p = 0; p < s.get_passengers().size(); p++) {
@@ -766,7 +766,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 					max_to_pass = max(max_to_pass, passenger.solution_to);
 
 					int_removed.push_back(p);
-					for (int t = s.get_passengers()[p].solution_from; t < passenger.solution_to; t++) {
+					for (unsigned int t = s.get_passengers()[p].solution_from; t < passenger.solution_to; t++) {
 						s.add_capacity_at(t, -1*passenger.capacity);
 						s.get_weight_at(t) += passenger.weight;
 					}
@@ -785,7 +785,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 					break;
 				}
 			}
-			for (int k = index_min_from; k < max_to_pass; k++) {
+			for (unsigned int k = index_min_from; k < max_to_pass; k++) {
 				if (s.get_refueling()[k] && s.fuel[k] < airplane->max_fuel) { //&& k!= node_destroy
 					int index_updating_from = k;
 					int index_updating_to = s.index;
@@ -809,7 +809,7 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 					}
 					
 					if (node_min >= 0) {
-						for (int i = k + 1; i < s.index; i++) {
+						for (unsigned int i = k + 1; i < s.index; i++) {
 							if (s.get_refueling()[i]) {
 								index_updating_to = i;
 								break;
@@ -860,18 +860,18 @@ vector<Route> destroy_cluster_aggr2(ProcessedInput* input, const PenaltyWeights&
 	return route_destroyed;
 }
 
-void do_work9(int node_destroy, Route& r, vector<int>& int_removed, int& min_from_pass, int& max_to_pass)
+void do_work9(int node_destroy, Route& r, vector<int>& int_removed, unsigned int& min_from_pass, unsigned int& max_to_pass)
 {
 	min_from_pass = node_destroy;
 	max_to_pass = node_destroy;
-	for (int p = 0; p < r.get_passengers().size(); p++) {
+	for (unsigned int p = 0; p < r.get_passengers().size(); p++) {
 		const Passenger& passenger = r.get_passengers()[p];
 		if (r.get_passengers()[p].solution_to == node_destroy || passenger. solution_from == node_destroy) { // ho cambiato questa condizione
 			min_from_pass = min(min_from_pass, passenger.solution_from);
 			max_to_pass = max(max_to_pass, passenger.solution_to);
 
 			int_removed.push_back(p);
-			for (int t = r.get_passengers()[p].solution_from; t < passenger.solution_to; t++) {
+			for (unsigned int t = r.get_passengers()[p].solution_from; t < passenger.solution_to; t++) {
 				r.add_capacity_at(t, -1*r.get_passengers()[p].capacity);
 				r.get_weight_at(t) += r.get_passengers()[p].weight;
 			}
@@ -907,8 +907,8 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 				fuel_consumed = airplane->fuel_burn_first * min(1.0, time_travel/60) + max(0.0, time_travel/60 - 1)* airplane->fuel_burn_second;
 
 				vector<int> int_removed;
-				int min_from_pass;
-				int max_to_pass;
+				unsigned min_from_pass{ 0 };
+				unsigned max_to_pass{ 0 };
 				do_work9(node_destroy, r, int_removed, min_from_pass, max_to_pass);
 
 				for (size_t k = int_removed.size() - 1; k >= 0; k--) {
@@ -921,7 +921,7 @@ void destroy_ls(ProcessedInput* input, int index, int node_destroy, vector<Passe
 				int index_before = node_destroy - 1;
 				double diff = 0;
 
-				for (int i = node_destroy + 1; i < r.index; i++) {
+				for (unsigned int i = node_destroy + 1; i < r.index; i++) {
 
 					if (r.get_refueling()[i]) 
 						break;
